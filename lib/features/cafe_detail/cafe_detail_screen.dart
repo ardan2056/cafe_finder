@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -169,15 +171,17 @@ class _CafeDetailScreenState extends State<CafeDetailScreen> {
                                   onTap: () async {
                                     final confirm = await showDialog<bool>(
                                       context: context,
-                                      builder: (_) => AlertDialog(
+                                      builder: (dialogCtx) => AlertDialog(
                                         title: const Text('Hapus gambar?'),
                                         content: const Text('Gambar akan dihapus permanen.'),
                                         actions: [
-                                          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Batal')),
-                                          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Hapus')),
+                                          TextButton(onPressed: () => Navigator.pop(dialogCtx, false), child: const Text('Batal')),
+                                          TextButton(onPressed: () => Navigator.pop(dialogCtx, true), child: const Text('Hapus')),
                                         ],
                                       ),
                                     );
+
+                                    if (!mounted) return;
 
                                     if (confirm == true) {
                                       showDialog(context: context, barrierDismissible: false, builder: (_) => const Center(child: CircularProgressIndicator()));
@@ -185,15 +189,11 @@ class _CafeDetailScreenState extends State<CafeDetailScreen> {
                                         await CafeImageService().deleteImage(cafe.id, url);
                                         if (!mounted) return;
                                         Navigator.pop(context);
-                                        if (mounted) {
-                                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Gambar dihapus')));
-                                        }
+                                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Gambar dihapus')));
                                       } catch (e) {
                                         if (!mounted) return;
                                         Navigator.pop(context);
-                                        if (mounted) {
-                                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Gagal menghapus gambar')));
-                                        }
+                                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Gagal menghapus gambar')));
                                       }
                                     }
                                   },
@@ -223,34 +223,35 @@ class _CafeDetailScreenState extends State<CafeDetailScreen> {
                         showDialog(context: context, barrierDismissible: false, builder: (_) => const Center(child: CircularProgressIndicator()));
                         try {
                           final uploaded = await CafeImageService().pickAndUploadImages(cafe.id);
+                          if (!mounted) return;
+
                           if (uploaded.isEmpty) {
-                            if (!mounted) return;
                             Navigator.pop(context);
-                            if (mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Tidak ada gambar yang diupload')));
-                            }
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Tidak ada gambar yang diupload')),
+                            );
                             return;
                           }
-                          if (!mounted) return;
+
                           Navigator.pop(context);
-                          if (mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Berhasil mengupload ${uploaded.length} gambar')));
-                          }
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Berhasil mengupload ${uploaded.length} gambar')),
+                          );
                         } catch (e) {
                           if (!mounted) return;
                           Navigator.pop(context);
                           if (e.toString().contains('NOT_ADMIN')) {
-                            if (mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Hanya admin yang bisa mengupload gambar')));
-                            }
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Hanya admin yang bisa mengupload gambar')),
+                            );
                           } else if (e.toString().contains('AUTH_REQUIRED')) {
-                            if (mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Silakan login terlebih dahulu')));
-                            }
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Silakan login terlebih dahulu')),
+                            );
                           } else {
-                            if (mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Gagal mengupload gambar')));
-                            }
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Gagal mengupload gambar')),
+                            );
                           }
                         }
                       },

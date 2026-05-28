@@ -288,7 +288,7 @@ class _AddCafeScreenState extends State<AddCafeScreen> {
       setState(() {});
     } catch (e) {
       if (mounted) {
-        if (mounted) ScaffoldMessenger.of(context).showSnackBar(
+        ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Gagal upload gambar: $e')),
         );
       }
