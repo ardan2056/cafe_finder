@@ -40,6 +40,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool isUploadingAvatar = false;
   String? webName;
   String? webPhoto;
+  String? webEmail;
 
   @override
   void initState() {
@@ -56,6 +57,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (!mounted) return;
     webName = name;
     webPhoto = photo;
+    webEmail = demoEmail;
     setState(() {});
   }
 
@@ -90,7 +92,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
 
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
+    if (mounted) ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Preferensi berhasil disimpan')),
     );
   }
@@ -102,15 +104,45 @@ class _ProfileScreenState extends State<ProfileScreen> {
         webRole = 'admin';
       }
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Akun dipromosikan menjadi admin (dev)')),
       );
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Gagal mempromosikan: $e')),
       );
     }
+  }
+
+  String _displayRole(String? role) {
+    switch (role) {
+      case 'admin':
+        return 'Admin';
+      case 'moderator':
+        return 'Moderator';
+      default:
+        return 'Pengguna';
+    }
+  }
+
+  Widget _roleBadge(String role) {
+    final isAdmin = role == 'admin';
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: isAdmin ? AppTheme.gold : Colors.white.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Text(
+        _displayRole(role),
+        style: TextStyle(
+          color: isAdmin ? Colors.black : Colors.white,
+          fontWeight: FontWeight.bold,
+          fontSize: 12,
+        ),
+      ),
+    );
   }
 
   Future<void> _onPickAvatar() async {
@@ -118,23 +150,116 @@ class _ProfileScreenState extends State<ProfileScreen> {
     try {
       final picked = await pickImages();
       if (picked.isEmpty) return;
-      final id = userService.uid.isEmpty ? DateTime.now().millisecondsSinceEpoch.toString() : userService.uid;
+      final id = userService.uid.isEmpty
+          ? DateTime.now().millisecondsSinceEpoch.toString()
+          : userService.uid;
       final uploaded = await uploadImagesIfNeeded(picked, cafeId: id);
       if (uploaded.isEmpty) return;
       final url = uploaded.first;
+      // Update backend/storage and local UI state
+      await userService.updatePhoto(url);
       if (kIsWeb) {
-        await userService.updatePhoto(url);
-      } else {
-        await userService.updatePhoto(url);
+        webPhoto = url;
       }
       if (!mounted) return;
-      setState(() {});
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Foto profil diperbarui')));
+        setState(() {});
+        if (mounted) ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Foto profil diperbarui')));
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Gagal upload avatar: $e')));
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Gagal upload avatar: $e')));
+      }
     } finally {
       if (mounted) setState(() => isUploadingAvatar = false);
     }
+  }
+
+  Widget _avatar({
+    required String? imageUrl,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 72,
+        height: 72,
+        decoration: const BoxDecoration(
+          shape: BoxShape.circle,
+          color: AppTheme.gold,
+        ),
+        child: ClipOval(
+          child: (imageUrl == null || imageUrl.isEmpty)
+              ? const Icon(
+                  Icons.person_rounded,
+                  color: Colors.black,
+                  size: 38,
+                )
+              : Image.network(
+                  imageUrl,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => const Icon(
+                    Icons.person_rounded,
+                    color: Colors.black,
+                  ),
+                ),
+        ),
+      ),
+    );
+  }
+
+  Widget _profileCard({
+    required String name,
+    required String email,
+    required String role,
+    required String? photoUrl,
+    required VoidCallback onAvatarTap,
+    VoidCallback? onEditNameTap,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(28),
+      ),
+      child: Row(
+        children: [
+          _avatar(imageUrl: photoUrl, onTap: onAvatarTap),
+          const SizedBox(width: 18),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        name,
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    _roleBadge(role),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  email,
+                  style: const TextStyle(color: AppTheme.lightGray),
+                ),
+              ],
+            ),
+          ),
+          if (onEditNameTap != null)
+            IconButton(
+              onPressed: onEditNameTap,
+              icon: const Icon(Icons.edit_rounded),
+            ),
+        ],
+      ),
+    );
   }
 
   Widget buildWebProfile() {
@@ -151,66 +276,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ),
           const SizedBox(height: 24),
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(28),
-            ),
-            child: Row(
-              children: [
-                GestureDetector(
-                  onTap: _onPickAvatar,
-                  child: Container(
-                    width: 72,
-                    height: 72,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: AppTheme.gold,
-                    ),
-                    child: ClipOval(
-                      child: (webPhoto == null || webPhoto!.isEmpty)
-                          ? const Icon(
-                              Icons.person_rounded,
-                              color: Colors.black,
-                              size: 38,
-                            )
-                          : Image.network(
-                              webPhoto!,
-                              fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) => const Icon(
-                                Icons.person_rounded,
-                                color: Colors.black,
-                              ),
-                            ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 18),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        webName ?? demoName,
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        demoEmail,
-                        style: const TextStyle(
-                          color: AppTheme.lightGray,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 16),
-              ],
-            ),
+          _profileCard(
+            name: webName ?? demoName,
+            email: webEmail ?? demoEmail,
+            role: webRole,
+            photoUrl: webPhoto,
+            onAvatarTap: _onPickAvatar,
           ),
           if (kIsWeb)
             SizedBox(
@@ -254,7 +325,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   decoration: BoxDecoration(
                     color: selected
                         ? AppTheme.gold
-                            : Colors.white.withValues(alpha: 0.08),
+                        : Colors.white.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(18),
                   ),
                   child: Text(
@@ -268,7 +339,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               );
             }).toList(),
           ),
-                const SizedBox(height: 24),
+          const SizedBox(height: 24),
           SizedBox(
             width: double.infinity,
             height: 52,
@@ -287,45 +358,45 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
           ),
-                const SizedBox(height: 20),
-                if (webRole == 'admin')
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(24),
-                    ),
-                    child: ListTile(
-                      leading: const Icon(
-                        Icons.admin_panel_settings_rounded,
-                        color: AppTheme.gold,
-                      ),
-                      title: const Text('Admin Panel'),
-                      trailing: const Icon(Icons.chevron_right_rounded),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const AdminDashboardScreen(),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                SizedBox(
-                  width: double.infinity,
-                  height: 52,
-                  child: OutlinedButton(
-                    onPressed: logout,
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      side: const BorderSide(color: AppTheme.gold),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                    ),
-                    child: const Text('Logout'),
-                  ),
+          const SizedBox(height: 20),
+          if (webRole == 'admin')
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(24),
+              ),
+              child: ListTile(
+                leading: const Icon(
+                  Icons.admin_panel_settings_rounded,
+                  color: AppTheme.gold,
                 ),
+                title: const Text('Admin Panel'),
+                trailing: const Icon(Icons.chevron_right_rounded),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const AdminDashboardScreen(),
+                    ),
+                  );
+                },
+              ),
+            ),
+          SizedBox(
+            width: double.infinity,
+            height: 52,
+            child: OutlinedButton(
+              onPressed: logout,
+              style: OutlinedButton.styleFrom(
+                foregroundColor: Colors.white,
+                side: const BorderSide(color: AppTheme.gold),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+              ),
+              child: const Text('Logout'),
+            ),
+          ),
         ],
       ),
     );
@@ -403,6 +474,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
             final data = snapshot.data!.data() as Map<String, dynamic>? ?? {};
             final name = data['name'] ?? 'Pengguna';
             final email = data['email'] ?? '';
+            final photoUrl = data['photoUrl'] ?? '';
+            final role = data['role'] ?? 'user';
             final preferences = List<String>.from(data['preferences'] ?? []);
 
             if (selectedPreferences.isEmpty && preferences.isNotEmpty) {
@@ -422,55 +495,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
                   const SizedBox(height: 24),
-                  Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(28),
-                    ),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 72,
-                          height: 72,
-                          decoration: const BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: AppTheme.gold,
-                          ),
-                          child: const Icon(
-                            Icons.person_rounded,
-                            color: Colors.black,
-                            size: 38,
-                          ),
-                        ),
-                        const SizedBox(width: 18),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                name,
-                                style: const TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(height: 6),
-                              Text(
-                                email,
-                                style: const TextStyle(
-                                  color: AppTheme.lightGray,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        IconButton(
-                          onPressed: () => showEditNameDialog(name),
-                          icon: const Icon(Icons.edit_rounded),
-                        ),
-                      ],
-                    ),
+                  _profileCard(
+                    name: name,
+                    email: email,
+                    role: role,
+                    photoUrl: photoUrl,
+                    onAvatarTap: _onPickAvatar,
+                    onEditNameTap: () => showEditNameDialog(name),
                   ),
                   const SizedBox(height: 30),
                   const Text(

@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_theme.dart';
 import 'add_cafe_screen.dart';
-import '../../services/admin_cafe_service.dart';
+import '../../services/cafe_service_web.dart';
 
 class AdminDashboardScreen extends StatelessWidget {
   const AdminDashboardScreen({super.key});
-
-  AdminCafeService get _adminService => AdminCafeService();
 
   @override
   Widget build(BuildContext context) {
@@ -49,8 +47,9 @@ class AdminDashboardScreen extends StatelessWidget {
               title: 'Seed Sample Cafes',
               subtitle: 'Reset dan isi data demo default',
               onTap: () async {
-                try {
-                  await _adminService.seedDefaults();
+                // call DemoCafeStore.seedDefaults via service import
+                  try {
+                  await DemoCafeStore.instance.seedDefaults();
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Sample cafes seeded')),

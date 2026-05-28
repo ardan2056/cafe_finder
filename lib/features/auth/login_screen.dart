@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../core/routes/app_routes.dart';
 import '../../core/theme/app_theme.dart';
 import '../../services/auth_service.dart';
+import '../../services/user_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -14,8 +15,10 @@ class _LoginScreenState extends State<LoginScreen> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final authService = AuthService();
+  final userService = UserService();
 
   bool isLoading = false;
+  bool isGoogleLoading = false;
   bool hidePassword = true;
 
   Future<void> loginUser() async {
@@ -30,13 +33,40 @@ class _LoginScreenState extends State<LoginScreen> {
       if (!mounted) return;
       Navigator.pushReplacementNamed(context, AppRoutes.home);
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Login gagal: $e')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Login gagal: $e')),
+        );
+      }
     }
 
     if (mounted) {
       setState(() => isLoading = false);
+    }
+  }
+
+  Future<void> loginWithGoogle() async {
+    setState(() => isGoogleLoading = true);
+
+    try {
+      final identity = await authService.loginWithGoogle();
+       await userService.createUserData(
+         name: identity.name,
+         email: identity.email,
+       );
+
+      if (!mounted) return;
+      Navigator.pushReplacementNamed(context, AppRoutes.home);
+    } catch (e) {
+      if (mounted) {
+        if (mounted) ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Login Google gagal: $e')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => isGoogleLoading = false);
+      }
     }
   }
 
@@ -122,6 +152,33 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                 ),
               ),
+              const SizedBox(height: 14),
+              SizedBox(
+                width: double.infinity,
+                height: 56,
+                child: OutlinedButton.icon(
+                  onPressed: isGoogleLoading ? null : loginWithGoogle,
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    side: const BorderSide(color: AppTheme.gold),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(22),
+                    ),
+                  ),
+                  icon: isGoogleLoading
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(
+                              strokeWidth: 2, color: AppTheme.gold),
+                        )
+                      : const Icon(Icons.g_mobiledata_rounded, size: 28),
+                  label: const Text(
+                    'Masuk dengan Google',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                ),
+              ),
               const SizedBox(height: 18),
               TextButton(
                 onPressed: () {
@@ -130,6 +187,15 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: const Text(
                   'Belum punya akun? Daftar',
                   style: TextStyle(color: AppTheme.gold),
+                ),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, AppRoutes.adminLogin);
+                },
+                child: const Text(
+                  'Login sebagai Admin',
+                  style: TextStyle(color: AppTheme.lightGray),
                 ),
               ),
             ],

@@ -54,9 +54,11 @@ class _ReviewScreenState extends State<ReviewScreen> {
       if (!mounted) return;
       Navigator.pop(context);
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Gagal mengirim review: $e')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Gagal mengirim review: $e')),
+        );
+      }
     }
 
     if (mounted) {

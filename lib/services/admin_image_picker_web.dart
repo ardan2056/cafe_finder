@@ -6,7 +6,9 @@ import 'dart:html' as html;
 /// read selected files as data URLs.
 Future<List<String>> pickImagesImpl() async {
   final completer = Completer<List<String>>();
-  final input = html.FileUploadInputElement()..accept = 'image/*'..multiple = true;
+  final input = html.FileUploadInputElement()
+    ..accept = 'image/*'
+    ..multiple = true;
   input.click();
   // Listen for selection
   input.onChange.listen((_) async {

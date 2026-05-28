@@ -6,7 +6,6 @@ import 'package:geolocator/geolocator.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/routes/app_routes.dart';
-import '../../core/config.dart';
 import '../../core/theme/app_theme.dart';
 import '../../models/cafe_model.dart';
 import '../../services/cafe_service.dart';
@@ -27,9 +26,8 @@ class _MapsScreenState extends State<MapsScreen> {
   Position? _currentPosition;
 
   String get _resolvedTileUrl {
-    final primary = Config.mapTileUrlTemplate.trim();
-    if (primary.isNotEmpty) return primary;
-    return Config.mapTileFallbackUrlTemplate;
+    // Use a standard OpenStreetMap tile template as a safe default.
+    return 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
   }
 
   @override
@@ -106,10 +104,7 @@ class _MapsScreenState extends State<MapsScreen> {
                   children: [
                     TileLayer(
                       urlTemplate: _resolvedTileUrl,
-                      userAgentPackageName: Config.mapTileUserAgentPackage,
-                      additionalOptions: Config.mapTileApiKey.isEmpty
-                          ? const <String, String>{}
-                          : <String, String>{'key': Config.mapTileApiKey},
+                      additionalOptions: const <String, String>{},
                     ),
                     MarkerClusterLayerWidget(
                       options: MarkerClusterLayerOptions(

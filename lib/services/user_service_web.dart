@@ -13,6 +13,27 @@ class UserService {
     required String email,
   }) async {}
 
+  Future<void> createOrUpdateUserData({
+    required String name,
+    required String email,
+    String? photoUrl,
+  }) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('demo_name', name);
+      await prefs.setString('demo_email', email);
+      if (photoUrl != null) {
+        await prefs.setString('demo_photo', photoUrl);
+      }
+    } catch (e) {
+      html.window.localStorage['demo_name'] = name;
+      html.window.localStorage['demo_email'] = email;
+      if (photoUrl != null) {
+        html.window.localStorage['demo_photo'] = photoUrl;
+      }
+    }
+  }
+
   /// Web: store role locally in SharedPreferences
   Future<void> setRole(String role) async {
     try {
@@ -39,7 +60,7 @@ class UserService {
   }
 
   Future<void> updateName(String name) async {}
-  
+
   Future<String?> getName() async {
     try {
       final prefs = await SharedPreferences.getInstance();

@@ -63,7 +63,7 @@ class _AddCafeScreenState extends State<AddCafeScreen> {
         addressController.text.isEmpty ||
         latitudeController.text.isEmpty ||
         longitudeController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Data utama wajib diisi')),
       );
       return;
@@ -84,9 +84,9 @@ class _AddCafeScreenState extends State<AddCafeScreen> {
       if (invalid.isNotEmpty) {
         imagesController.text = images.join(', ');
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('${invalid.length} invalid image URL(s) removed')),
-          );
+            if (mounted) ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('${invalid.length} invalid image URL(s) removed')),
+            );
         }
       }
 
@@ -105,14 +105,15 @@ class _AddCafeScreenState extends State<AddCafeScreen> {
 
       if (!mounted) return;
       Navigator.pop(context);
-
-      ScaffoldMessenger.of(context).showSnackBar(
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Kafe berhasil ditambahkan')),
       );
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Gagal menambahkan kafe: $e')),
-      );
+      if (mounted) {
+        if (mounted) ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Gagal menambahkan kafe: $e')),
+        );
+      }
     }
 
     if (mounted) {
@@ -284,7 +285,7 @@ class _AddCafeScreenState extends State<AddCafeScreen> {
       setState(() {});
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
+        if (mounted) ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Gagal upload gambar: $e')),
         );
       }

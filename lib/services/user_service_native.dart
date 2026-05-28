@@ -14,6 +14,18 @@ class UserService {
     required String name,
     required String email,
   }) async {
+    await createOrUpdateUserData(
+      name: name,
+      email: email,
+      photoUrl: '',
+    );
+  }
+
+  Future<void> createOrUpdateUserData({
+    required String name,
+    required String email,
+    String? photoUrl,
+  }) async {
     if (uid.isEmpty) {
       return;
     }
@@ -22,12 +34,12 @@ class UserService {
       'uid': uid,
       'name': name,
       'email': email,
-      'photoUrl': '',
+      'photoUrl': photoUrl ?? '',
       'preferences': [],
       'role': 'user',
       'createdAt': FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),
-    });
+    }, SetOptions(merge: true));
   }
 
   Stream<DocumentSnapshot> getUserData() {

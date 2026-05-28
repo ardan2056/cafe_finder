@@ -25,7 +25,8 @@ class AdminCafeService {
     final imgs = images ?? <String>[];
     List<String> finalImages = imgs;
     try {
-      finalImages = await uploadImagesIfNeeded(imgs, cafeId: DateTime.now().millisecondsSinceEpoch.toString());
+      finalImages = await uploadImagesIfNeeded(imgs,
+          cafeId: DateTime.now().millisecondsSinceEpoch.toString());
     } catch (_) {
       // ignore and fall back to provided list
       finalImages = imgs;

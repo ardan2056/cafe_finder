@@ -35,7 +35,8 @@ class DemoCafeStore {
     } catch (e) {
       // fallback to localStorage
       if (html.window.localStorage[_prefsKey] == null) {
-        html.window.localStorage[_prefsKey] = jsonEncode(_defaultCafes.map((c) => c.toMap()).toList());
+        html.window.localStorage[_prefsKey] =
+            jsonEncode(_defaultCafes.map((c) => c.toMap()).toList());
       }
     }
   }
@@ -72,13 +73,15 @@ class DemoCafeStore {
       final prefs = await SharedPreferences.getInstance();
       final current = await _readAll();
       final newList = [...current, cafe];
-      await prefs.setString(_prefsKey, jsonEncode(newList.map((c) => c.toMap()).toList()));
+      await prefs.setString(
+          _prefsKey, jsonEncode(newList.map((c) => c.toMap()).toList()));
       _cache = newList;
       _broadcast.add(_cache);
     } catch (e) {
       final current = await _readAll();
       final newList = [...current, cafe];
-      html.window.localStorage[_prefsKey] = jsonEncode(newList.map((c) => c.toMap()).toList());
+      html.window.localStorage[_prefsKey] =
+          jsonEncode(newList.map((c) => c.toMap()).toList());
       _cache = newList;
       _broadcast.add(_cache);
     }
@@ -87,11 +90,13 @@ class DemoCafeStore {
   Future<void> replaceAll(List<CafeModel> cafes) async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(_prefsKey, jsonEncode(cafes.map((c) => c.toMap()).toList()));
+      await prefs.setString(
+          _prefsKey, jsonEncode(cafes.map((c) => c.toMap()).toList()));
       _cache = cafes;
       _broadcast.add(_cache);
     } catch (e) {
-      html.window.localStorage[_prefsKey] = jsonEncode(cafes.map((c) => c.toMap()).toList());
+      html.window.localStorage[_prefsKey] =
+          jsonEncode(cafes.map((c) => c.toMap()).toList());
       _cache = cafes;
       _broadcast.add(_cache);
     }

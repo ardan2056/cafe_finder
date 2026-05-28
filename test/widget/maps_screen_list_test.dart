@@ -15,7 +15,8 @@ class FakeCafeService extends CafeService {
 }
 
 void main() {
-  testWidgets('MapsScreen renders cafe list when service provides data', (tester) async {
+  testWidgets('MapsScreen renders cafe list when service provides data',
+      (tester) async {
     final fake = FakeCafeService();
 
     await tester.pumpWidget(MaterialApp(home: MapsScreen(cafeService: fake)));
