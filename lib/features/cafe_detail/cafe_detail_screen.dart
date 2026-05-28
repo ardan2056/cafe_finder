@@ -185,11 +185,15 @@ class _CafeDetailScreenState extends State<CafeDetailScreen> {
                                         await CafeImageService().deleteImage(cafe.id, url);
                                         if (!mounted) return;
                                         Navigator.pop(context);
-                                        if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Gambar dihapus')));
+                                        if (mounted) {
+                                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Gambar dihapus')));
+                                        }
                                       } catch (e) {
                                         if (!mounted) return;
                                         Navigator.pop(context);
-                                        if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Gagal menghapus gambar')));
+                                        if (mounted) {
+                                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Gagal menghapus gambar')));
+                                        }
                                       }
                                     }
                                   },
@@ -222,21 +226,31 @@ class _CafeDetailScreenState extends State<CafeDetailScreen> {
                           if (uploaded.isEmpty) {
                             if (!mounted) return;
                             Navigator.pop(context);
-                            if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Tidak ada gambar yang diupload')));
+                            if (mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Tidak ada gambar yang diupload')));
+                            }
                             return;
                           }
                           if (!mounted) return;
                           Navigator.pop(context);
-                          if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Berhasil mengupload ${uploaded.length} gambar')));
+                          if (mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Berhasil mengupload ${uploaded.length} gambar')));
+                          }
                         } catch (e) {
                           if (!mounted) return;
                           Navigator.pop(context);
                           if (e.toString().contains('NOT_ADMIN')) {
-                            if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Hanya admin yang bisa mengupload gambar')));
+                            if (mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Hanya admin yang bisa mengupload gambar')));
+                            }
                           } else if (e.toString().contains('AUTH_REQUIRED')) {
-                            if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Silakan login terlebih dahulu')));
+                            if (mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Silakan login terlebih dahulu')));
+                            }
                           } else {
-                            if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Gagal mengupload gambar')));
+                            if (mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Gagal mengupload gambar')));
+                            }
                           }
                         }
                       },

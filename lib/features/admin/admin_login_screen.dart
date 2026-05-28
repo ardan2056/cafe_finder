@@ -51,7 +51,9 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
         );
       }
     } finally {
-      if (mounted) setState(() => isLoading = false);
+      if (mounted) {
+        setState(() => isLoading = false);
+      }
     }
   }
 
@@ -79,7 +81,9 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
         );
       }
     } finally {
-      if (mounted) setState(() => isLoading = false);
+      if (mounted) {
+        setState(() => isLoading = false);
+      }
     }
   }
 

@@ -59,7 +59,7 @@ class _LoginScreenState extends State<LoginScreen> {
       Navigator.pushReplacementNamed(context, AppRoutes.home);
     } catch (e) {
       if (mounted) {
-        if (mounted) ScaffoldMessenger.of(context).showSnackBar(
+        ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Login Google gagal: $e')),
         );
       }

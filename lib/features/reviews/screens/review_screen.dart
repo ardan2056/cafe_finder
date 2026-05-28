@@ -50,9 +50,11 @@ class _ReviewScreenState extends State<ReviewScreen> {
           const SizedBox(height: 16),
           FilledButton(
             onPressed: () {
-              if (mounted) ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Review placeholder saved locally')),
-              );
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Review placeholder saved locally')),
+                );
+              }
             },
             child: const Text('Submit review'),
           ),

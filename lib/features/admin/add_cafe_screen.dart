@@ -57,15 +57,16 @@ class _AddCafeScreenState extends State<AddCafeScreen> {
     'Kreatif',
     'Healing',
   ];
-
   Future<void> saveCafe() async {
     if (nameController.text.isEmpty ||
         addressController.text.isEmpty ||
         latitudeController.text.isEmpty ||
         longitudeController.text.isEmpty) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Data utama wajib diisi')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Data utama wajib diisi')),
+        );
+      }
       return;
     }
 
@@ -84,9 +85,9 @@ class _AddCafeScreenState extends State<AddCafeScreen> {
       if (invalid.isNotEmpty) {
         imagesController.text = images.join(', ');
         if (mounted) {
-            if (mounted) ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('${invalid.length} invalid image URL(s) removed')),
-            );
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('${invalid.length} invalid image URL(s) removed')),
+          );
         }
       }
 
@@ -105,19 +106,21 @@ class _AddCafeScreenState extends State<AddCafeScreen> {
 
       if (!mounted) return;
       Navigator.pop(context);
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Kafe berhasil ditambahkan')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Kafe berhasil ditambahkan')),
+        );
+      }
     } catch (e) {
       if (mounted) {
-        if (mounted) ScaffoldMessenger.of(context).showSnackBar(
+        ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Gagal menambahkan kafe: $e')),
         );
       }
-    }
-
-    if (mounted) {
-      setState(() => isLoading = false);
+    } finally {
+      if (mounted) {
+        setState(() => isLoading = false);
+      }
     }
   }
 

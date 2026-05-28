@@ -92,9 +92,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
 
     if (!mounted) return;
-    if (mounted) ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Preferensi berhasil disimpan')),
-    );
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Preferensi berhasil disimpan')),
+      );
+    }
   }
 
   Future<void> _promoteToAdmin() async {
@@ -104,14 +106,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
         webRole = 'admin';
       }
       if (!mounted) return;
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Akun dipromosikan menjadi admin (dev)')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Akun dipromosikan menjadi admin (dev)')),
+        );
+      }
     } catch (e) {
       if (!mounted) return;
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Gagal mempromosikan: $e')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Gagal mempromosikan: $e')),
+        );
+      }
     }
   }
 
@@ -163,15 +169,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
       }
       if (!mounted) return;
         setState(() {});
-        if (mounted) ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Foto profil diperbarui')));
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Foto profil diperbarui')),
+          );
+        }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text('Gagal upload avatar: $e')));
       }
     } finally {
-      if (mounted) setState(() => isUploadingAvatar = false);
+      if (mounted) {
+        setState(() => isUploadingAvatar = false);
+      }
     }
   }
 
