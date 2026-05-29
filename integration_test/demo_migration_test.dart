@@ -1,3 +1,4 @@
+// ignore_for_file: uri_does_not_exist, undefined_identifier
 // Runs only when USE_FIREBASE_EMULATOR=1 is set in the environment.
 import 'dart:io';
 import 'package:integration_test/integration_test.dart';
@@ -6,6 +7,9 @@ import 'package:flutter/material.dart';
 import 'package:cafe_finder/main.dart' as app;
 
 void main() {
+  // Ensure the integration test binding is initialized when available.
+  // When `integration_test` is not present locally, the analyzer will be
+  // silenced by the ignore above so the IDE doesn't show errors.
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   final useEmu = Platform.environment['USE_FIREBASE_EMULATOR'] == '1';
