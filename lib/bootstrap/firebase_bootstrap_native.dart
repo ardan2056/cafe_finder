@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:developer' as developer;
+import 'dart:io' show Platform;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 import '../firebase_options.dart';
@@ -16,6 +18,22 @@ Future<void> initializeFirebase() async {
     // the default configuration may work, or the app can be configured
     // by regenerating `lib/firebase_options.dart` with the FlutterFire CLI.
     await Firebase.initializeApp();
+  }
+
+  // If the environment requests emulator usage, connect Firestore and Auth
+  // to local emulators. Set `USE_FIREBASE_EMULATOR=1` in the environment
+  // before running the app to enable this (see scripts/start_firebase_emulator.ps1).
+  try {
+    final useEmu = Platform.environment['USE_FIREBASE_EMULATOR'] == '1';
+    if (useEmu) {
+      FirebaseFirestore.instance.useFirestoreEmulator('localhost', 8080);
+      FirebaseAuth.instance.useAuthEmulator('localhost', 9099);
+      developer.log('Connected to Firebase emulators (Auth:9099 Firestore:8080)',
+          name: 'firebase_bootstrap');
+    }
+  } catch (e, st) {
+    developer.log('Failed to configure Firebase emulators: $e',
+        name: 'firebase_bootstrap', stackTrace: st);
   }
 
   // Run a quick Firestore availability check and log the result.
