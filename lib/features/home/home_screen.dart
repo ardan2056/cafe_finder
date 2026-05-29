@@ -18,6 +18,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int currentIndex = 0;
+  final mapsKey = GlobalKey<MapsScreenState>();
 
   // Pages are built inside build() so we can pass callbacks that call setState.
 
@@ -31,9 +32,14 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           HomeContent(onOpenMap: () {
             setState(() => currentIndex = 2);
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              try {
+                mapsKey.currentState?.centerOnUser();
+              } catch (_) {}
+            });
           }),
           const SearchScreen(),
-          const MapsScreen(),
+          MapsScreen(key: mapsKey),
           FavoriteScreen(),
           const ProfileScreen(),
         ],

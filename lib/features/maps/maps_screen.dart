@@ -20,10 +20,10 @@ class MapsScreen extends StatefulWidget {
   const MapsScreen({super.key, this.cafeService});
 
   @override
-  State<MapsScreen> createState() => _MapsScreenState();
+  State<MapsScreen> createState() => MapsScreenState();
 }
 
-class _MapsScreenState extends State<MapsScreen> {
+class MapsScreenState extends State<MapsScreen> {
   late final CafeService cafeService;
   final MapController _mapController = MapController();
 
@@ -39,6 +39,14 @@ class _MapsScreenState extends State<MapsScreen> {
     super.initState();
     cafeService = widget.cafeService ?? CafeService();
     _requestPermissionAndLocate();
+  }
+
+  /// Public API: center the map on the current position if available.
+  void centerOnUser() {
+    if (_currentPosition != null) {
+      _mapController.move(
+          LatLng(_currentPosition!.latitude, _currentPosition!.longitude), 15);
+    }
   }
 
   Future<void> _requestPermissionAndLocate() async {
