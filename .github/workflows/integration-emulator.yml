@@ -1,0 +1,41 @@
+name: Integration tests (Firebase Emulator)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  emulator-integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17 (required by Firestore emulator)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install Firebase CLI
+        run: npm install -g firebase-tools
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 'stable'
+
+      - name: Flutter pub get
+        run: flutter pub get
+
+      - name: Run emulator + integration test
+        # Use firebase emulators:exec to set emulator env vars for child process
+        run: |
+          firebase emulators:exec --only auth,firestore --project auto "bash -lc 'export USE_FIREBASE_EMULATOR=1; flutter test integration_test/demo_migration_test.dart'"
