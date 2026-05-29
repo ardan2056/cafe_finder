@@ -45,7 +45,8 @@ class _LoginScreenState extends State<LoginScreen> {
       if (!mounted) return;
       Navigator.pushReplacementNamed(context, AppRoutes.home);
     } on FirebaseAuthException catch (e, st) {
-      developer.log('FirebaseAuthException during login', error: e, stackTrace: st);
+      developer.log('FirebaseAuthException during login',
+          error: e, stackTrace: st);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Login gagal: [${e.code}] ${e.message}')),
@@ -115,7 +116,9 @@ class _LoginScreenState extends State<LoginScreen> {
       // If anonymous sign-in is restricted on the project, fall back to a
       // local demo guest mode so the app remains usable for testing.
       final msg = e.toString();
-      if (msg.contains('restricted to administrators') || msg.contains('operation-not-allowed') || msg.contains('anonymous')) {
+      if (msg.contains('restricted to administrators') ||
+          msg.contains('operation-not-allowed') ||
+          msg.contains('anonymous')) {
         await _enterDemoGuest();
         if (!mounted) return;
         Navigator.pushReplacementNamed(context, AppRoutes.home);
@@ -156,9 +159,11 @@ class _LoginScreenState extends State<LoginScreen> {
       await prefs.setBool('demo_mode', !cur);
       if (mounted) setState(() {});
       messenger.showSnackBar(SnackBar(
-          content: Text(!cur ? 'Demo mode diaktifkan' : 'Demo mode dinonaktifkan')));
+          content:
+              Text(!cur ? 'Demo mode diaktifkan' : 'Demo mode dinonaktifkan')));
     } catch (e) {
-      messenger.showSnackBar(SnackBar(content: Text('Gagal toggle demo mode: $e')));
+      messenger
+          .showSnackBar(SnackBar(content: Text('Gagal toggle demo mode: $e')));
     }
   }
 

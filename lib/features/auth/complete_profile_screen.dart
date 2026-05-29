@@ -68,7 +68,9 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
 
       // If we have an uploaded photoUrl, persist it (also guarded by timeout)
       if (photoUrl != null) {
-        await userService.updatePhoto(photoUrl!).timeout(const Duration(seconds: 15));
+        await userService
+            .updatePhoto(photoUrl!)
+            .timeout(const Duration(seconds: 15));
       }
 
       if (!mounted) {
@@ -79,7 +81,9 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
       // Network or firestore hung — show friendly message
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Waktu tunggu habis saat menyimpan profil. Coba lagi.')),
+          const SnackBar(
+              content:
+                  Text('Waktu tunggu habis saat menyimpan profil. Coba lagi.')),
         );
       }
     } catch (e, st) {

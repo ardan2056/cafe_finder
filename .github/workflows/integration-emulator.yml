@@ -13,10 +13,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Java 17 (required by Firestore emulator)
+      - name: Cache Pub packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.pub-cache
+            ~/.flutter
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pub-
+
+      - name: Set up Java 17
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
+          distribution: temurin
           java-version: '17'
 
       - name: Install Node.js
@@ -36,6 +46,7 @@ jobs:
         run: flutter pub get
 
       - name: Run emulator + integration test
-        # Use firebase emulators:exec to set emulator env vars for child process
+        env:
+          USE_FIREBASE_EMULATOR: '1'
         run: |
           firebase emulators:exec --only auth,firestore --project auto "bash -lc 'export USE_FIREBASE_EMULATOR=1; flutter test integration_test/demo_migration_test.dart'"

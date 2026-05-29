@@ -2,77 +2,155 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:image/image.dart' as imgpkg;
+import 'package:pool/pool.dart';
 
 /// Native implementation: upload `data:` URIs to Firebase Storage and return download URLs.
 Future<List<String>> uploadImagesImpl(List<String> images,
-    {required String cafeId, String pathPrefix = 'cafes'}) async {
+    {required String cafeId,
+    String pathPrefix = 'cafes',
+    void Function(int index, double progress)? onProgress,
+    Map<int, dynamic>? outUploadTasks}) async {
   final storage = FirebaseStorage.instance;
-  final results = <String>[];
+  // Upload in parallel with a small concurrency limit
+  final pool = Pool(4);
+  final futures = <Future<String>>[];
 
-  for (final img in images) {
-    try {
-      if (img.startsWith('data:')) {
-        // data:[<mediatype>][;base64],<data>
-        final comma = img.indexOf(',');
-        if (comma == -1) {
-          continue;
-        }
-        final meta = img.substring(5, comma); // skip 'data:'
-        final isBase64 = meta.contains('base64');
-        final payload = img.substring(comma + 1);
-        Uint8List bytes;
-        if (isBase64) {
-          bytes = base64Decode(payload);
-        } else {
-          bytes = Uint8List.fromList(utf8.encode(Uri.decodeComponent(payload)));
-        }
+  for (var i = 0; i < images.length; i++) {
+    final img = images[i];
+    final f = pool.withResource(() async {
+      try {
+        if (img.startsWith('data:')) {
+          final comma = img.indexOf(',');
+          if (comma == -1) return '';
+          final meta = img.substring(5, comma);
+          final isBase64 = meta.contains('base64');
+          final payload = img.substring(comma + 1);
+          Uint8List bytes = isBase64
+              ? base64Decode(payload)
+              : Uint8List.fromList(utf8.encode(Uri.decodeComponent(payload)));
 
-        final ext = meta.contains('image/png') ? 'png' : 'jpg';
-        final ref = storage
-            .ref()
-            .child(pathPrefix)
-            .child(cafeId)
-            .child('${DateTime.now().millisecondsSinceEpoch}.$ext');
-        final uploadTask = ref.putData(bytes);
-        final snapshot = await uploadTask.whenComplete(() {});
-        final url = await snapshot.ref.getDownloadURL();
-        results.add(url);
-      } else {
-        // maybe a local file path
-        try {
-          final file = File(img);
-          if (file.existsSync()) {
-            final bytes = await file.readAsBytes();
-            final ext = img.toLowerCase().endsWith('.png') ? 'png' : 'jpg';
-            final ref = storage
-                .ref()
-                .child(pathPrefix)
-                .child(cafeId)
-                .child('${DateTime.now().millisecondsSinceEpoch}.$ext');
-            final snapshot = await ref.putData(bytes).whenComplete(() {});
-            final url = await snapshot.ref.getDownloadURL();
-            results.add(url);
-            // If this was a temporary file created by our picker, attempt to delete it
-            try {
-              if (img.startsWith(Directory.systemTemp.path)) {
-                await file.delete();
+          // try to decode and resize if large
+          try {
+            final decoded = imgpkg.decodeImage(bytes);
+            if (decoded != null) {
+              final maxDim = 1600;
+              imgpkg.Image processed = decoded;
+              if (processed.width > maxDim || processed.height > maxDim) {
+                processed =
+                    imgpkg.copyResize(processed, width: maxDim, height: maxDim);
               }
-            } catch (_) {}
-          } else {
-            // assume already a usable URL
-            results.add(img);
-          }
-        } catch (_) {
-          results.add(img);
+              final isPng = meta.contains('image/png');
+              bytes = isPng
+                  ? Uint8List.fromList(imgpkg.encodePng(processed))
+                  : Uint8List.fromList(
+                      imgpkg.encodeJpg(processed, quality: 85));
+            }
+          } catch (_) {}
+
+          final ext = meta.contains('image/png') ? 'png' : 'jpg';
+          final ref = storage
+              .ref()
+              .child(pathPrefix)
+              .child(cafeId)
+              .child('${DateTime.now().millisecondsSinceEpoch}.$ext');
+          final uploadTask = ref.putData(bytes);
+          outUploadTasks?.putIfAbsent(i, () => uploadTask);
+
+          // report progress
+          final sub = uploadTask.snapshotEvents.listen((snap) {
+            final total = snap.totalBytes;
+            final sent = snap.bytesTransferred;
+            if (total > 0) {
+              onProgress?.call(i, sent / total);
+            }
+          });
+
+          final snapshot = await uploadTask.whenComplete(() {});
+          await sub.cancel();
+          outUploadTasks?.remove(i);
+          final url = await snapshot.ref.getDownloadURL();
+          onProgress?.call(i, 1.0);
+          return url;
+        } else {
+          try {
+            final file = File(img);
+            if (file.existsSync()) {
+              Uint8List bytes = await file.readAsBytes();
+              // attempt to decode & resize like picker
+              try {
+                final decoded = imgpkg.decodeImage(bytes);
+                if (decoded != null) {
+                  final maxDim = 1600;
+                  imgpkg.Image processed = decoded;
+                  if (processed.width > maxDim || processed.height > maxDim) {
+                    processed = imgpkg.copyResize(processed,
+                        width: maxDim, height: maxDim);
+                  }
+                  final isPng = img.toLowerCase().endsWith('.png');
+                  bytes = isPng
+                      ? Uint8List.fromList(imgpkg.encodePng(processed))
+                      : Uint8List.fromList(
+                          imgpkg.encodeJpg(processed, quality: 85));
+                }
+              } catch (_) {}
+
+              final ext = img.toLowerCase().endsWith('.png') ? 'png' : 'jpg';
+              final ref = storage
+                  .ref()
+                  .child(pathPrefix)
+                  .child(cafeId)
+                  .child('${DateTime.now().millisecondsSinceEpoch}.$ext');
+              final uploadTask = ref.putData(bytes);
+              outUploadTasks?.putIfAbsent(i, () => uploadTask);
+
+              final sub = uploadTask.snapshotEvents.listen((snap) {
+                final total = snap.totalBytes;
+                final sent = snap.bytesTransferred;
+                if (total > 0) {
+                  onProgress?.call(i, sent / total);
+                }
+              });
+
+              final snapshot = await uploadTask.whenComplete(() {});
+              await sub.cancel();
+              outUploadTasks?.remove(i);
+              final url = await snapshot.ref.getDownloadURL();
+              try {
+                if (img.startsWith(Directory.systemTemp.path)) {
+                  await file.delete();
+                }
+              } catch (_) {}
+              onProgress?.call(i, 1.0);
+              return url;
+            } else if (img.startsWith('http')) {
+              onProgress?.call(i, 1.0);
+              return img;
+            }
+          } catch (_) {}
         }
-      }
-    } catch (e) {
-      // On failure, fallback to original string if it looks like a URL
-      if (img.startsWith('http')) {
-        results.add(img);
-      }
+      } catch (_) {}
+      return '';
+    });
+
+    futures.add(f);
+  }
+
+  final results = await Future.wait(futures);
+  await pool.close();
+
+  // Replace empty results with original input when possible
+  final out = <String>[];
+  for (var i = 0; i < images.length; i++) {
+    final r = results[i];
+    if (r.isEmpty) {
+      final img = images[i];
+      if (img.startsWith('http')) out.add(img);
+      // otherwise skip
+    } else {
+      out.add(r);
     }
   }
 
-  return results;
+  return out;
 }

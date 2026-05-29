@@ -31,6 +31,8 @@ dependencies:
   firebase_data_connect: any
   google_sign_in: any
   image: any
+  firebase_crashlytics: ^4.3.10
+  pool: ^1.5.1
   # image_cropper removed to avoid dependency upgrades that break other packages
 
 dev_dependencies:

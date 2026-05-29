@@ -21,7 +21,8 @@ class AdminCafeService {
     final imgs = images ?? <String>[];
     List<String> finalImages = imgs;
     try {
-      finalImages = await uploadImagesIfNeeded(imgs, cafeId: DateTime.now().millisecondsSinceEpoch.toString());
+      finalImages = await uploadImagesIfNeeded(imgs,
+          cafeId: DateTime.now().millisecondsSinceEpoch.toString());
     } catch (_) {
       // ignore and fall back to provided list
       finalImages = imgs;
@@ -61,6 +62,40 @@ class AdminCafeService {
   }) async {
     await _instance.collection('cafes').doc(cafeId).update({
       'isActive': isActive,
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+  }
+
+  Future<void> deleteCafe({required String cafeId}) async {
+    await _instance.collection('cafes').doc(cafeId).delete();
+  }
+
+  Future<void> duplicateCafe({
+    required String name,
+    required String description,
+    required String address,
+    required double latitude,
+    required double longitude,
+    required List<String> facilities,
+    required List<String> atmosphere,
+    required List<String> categories,
+    required String priceRange,
+    required List<String> images,
+  }) async {
+    await _instance.collection('cafes').add({
+      'name': name,
+      'description': description,
+      'address': address,
+      'latitude': latitude,
+      'longitude': longitude,
+      'facilities': facilities,
+      'atmosphere': atmosphere,
+      'categories': categories,
+      'rating': 0.0,
+      'priceRange': priceRange,
+      'images': images,
+      'isActive': false,
+      'createdAt': FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),
     });
   }

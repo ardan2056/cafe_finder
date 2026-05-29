@@ -4,7 +4,10 @@ import 'package:firebase_storage/firebase_storage.dart';
 
 /// Web implementation: upload `data:` URIs to Firebase Storage and return https URLs.
 Future<List<String>> uploadImagesImpl(List<String> images,
-    {required String cafeId, String pathPrefix = 'cafes'}) async {
+    {required String cafeId,
+    String pathPrefix = 'cafes',
+    void Function(int index, double progress)? onProgress,
+    Map<int, dynamic>? outUploadTasks}) async {
   final storage = FirebaseStorage.instance;
   final results = <String>[];
 
@@ -29,8 +32,11 @@ Future<List<String>> uploadImagesImpl(List<String> images,
             .child(pathPrefix)
             .child(cafeId)
             .child('${DateTime.now().millisecondsSinceEpoch}.$ext');
-        final snapshot = await ref.putData(bytes).whenComplete(() {});
+        final uploadTask = ref.putData(bytes);
+        outUploadTasks?.putIfAbsent(results.length, () => uploadTask);
+        final snapshot = await uploadTask.whenComplete(() {});
         final url = await snapshot.ref.getDownloadURL();
+        onProgress?.call(results.length, 1.0);
         results.add(url);
       } else {
         // keep existing http(s) URLs

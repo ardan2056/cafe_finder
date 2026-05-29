@@ -8,11 +8,13 @@ import '../../services/admin_image_picker.dart';
 // image_uploader not used here anymore (we use user_image_uploader)
 // import '../../services/image_uploader.dart';
 import '../../services/user_image_uploader.dart';
+import '../../services/diagnostic_report_service.dart';
 import '../../core/firebase_status.dart' as fb_status;
 import '../../core/config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../services/gleap_service.dart';
 import '../admin/admin_dashboard_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -49,6 +51,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String? webEmail;
   bool? _simpleProfileOverride;
 
+  void _showSnack(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+  }
+
   @override
   void initState() {
     super.initState();
@@ -57,10 +64,78 @@ class _ProfileScreenState extends State<ProfileScreen> {
       _loadWebPreferences();
       _loadWebProfile();
     }
+    _loadFeaturePrefs();
     _loadDemoMode();
   }
 
+  Future<void> _loadFeaturePrefs() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      _gleapEnabled = prefs.getBool('gleap_enabled') ?? false;
+      _crashlyticsEnabled = prefs.getBool('crashlytics_enabled') ?? false;
+      if (mounted) setState(() {});
+      // Initialize Gleap wrapper (no-op if SDK not available)
+      await GleapService.instance.initialize();
+    } catch (_) {}
+  }
+
+  Future<void> _setGleapEnabled(bool v) async {
+    try {
+      await GleapService.instance.setEnabled(v);
+      _gleapEnabled = v;
+      if (mounted) setState(() {});
+      _showSnack(v ? 'Feedback diaktifkan' : 'Feedback dinonaktifkan');
+    } catch (e) {
+      _showSnack('Gagal menyimpan: $e');
+    }
+  }
+
+  Future<void> _setCrashlyticsEnabled(bool v) async {
+    try {
+      await DiagnosticReportService.instance.setEnabled(v);
+      _crashlyticsEnabled = v;
+      if (mounted) setState(() {});
+      _showSnack(v ? 'Crashlytics diaktifkan' : 'Crashlytics dinonaktifkan');
+    } catch (e) {
+      _showSnack('Gagal menyimpan: $e');
+    }
+  }
+
+  Future<void> _showFeedbackDialog() async {
+    // Delegate to GleapService which will either open Gleap or fallback
+    await GleapService.instance.showFeedback(context);
+  }
+
+  Future<void> _showDiagnosticsDialog() async {
+    final prefs = await SharedPreferences.getInstance();
+    final queued = prefs.getStringList('queued_feedback') ?? [];
+    final queuedCrash = prefs.getStringList('queued_crash_reports') ?? [];
+    final buffer = StringBuffer();
+    buffer.writeln('Firebase ready: ${fb_status.isFirebaseReady}');
+    buffer.writeln('Demo mode: ${prefs.getBool('demo_mode') ?? false}');
+    buffer.writeln('Gleap enabled: ${prefs.getBool('gleap_enabled') ?? false}');
+    buffer.writeln('Crashlytics enabled: ${prefs.getBool('crashlytics_enabled') ?? false}');
+    buffer.writeln('Queued feedback: ${queued.length}');
+    buffer.writeln('Queued crash reports: ${queuedCrash.length}');
+
+    if (!mounted) return;
+    _showDiagnosticsDialogBody(buffer.toString());
+  }
+
+  void _showDiagnosticsDialogBody(String details) {
+    showDialog<void>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Diagnostics'),
+        content: SingleChildScrollView(child: Text(details)),
+        actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('Tutup'))],
+      ),
+    );
+  }
+
   bool _demoMode = false;
+  bool _gleapEnabled = false;
+  bool _crashlyticsEnabled = false;
 
   Future<void> _loadDemoMode() async {
     try {
@@ -417,20 +492,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
           color: AppTheme.gold,
         ),
         child: ClipOval(
-          child: (imageUrl == null || imageUrl.isEmpty)
-              ? const Icon(
-                  Icons.person_rounded,
-                  color: Colors.black,
-                  size: 38,
-                )
-              : Image.network(
-                  imageUrl,
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => const Icon(
+          child: Semantics(
+            label: 'Foto profil',
+            button: true,
+            child: (imageUrl == null || imageUrl.isEmpty)
+                ? const Icon(
                     Icons.person_rounded,
                     color: Colors.black,
+                    size: 38,
+                  )
+                : Image.network(
+                    imageUrl,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => const Icon(
+                      Icons.person_rounded,
+                      color: Colors.black,
+                    ),
                   ),
-                ),
+          ),
         ),
       ),
     );
@@ -469,7 +548,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                       ),
                     ),
-                    _roleBadge(role),
+                    GestureDetector(
+                      onTap: role == 'admin'
+                          ? () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const AdminDashboardScreen(),
+                                ),
+                              );
+                            }
+                          : null,
+                      child: _roleBadge(role),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 6),
@@ -616,6 +707,41 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 'Simpan Preferensi',
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.04),
+              borderRadius: BorderRadius.circular(18),
+            ),
+            child: Column(
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.feedback_rounded, color: AppTheme.gold),
+                  title: const Text('Kirim Feedback'),
+                  subtitle: const Text('Laporkan bug atau kirim masukan'),
+                  onTap: _showFeedbackDialog,
+                ),
+                SwitchListTile.adaptive(
+                  title: const Text('Aktifkan Feedback (Gleap)'),
+                  value: _gleapEnabled,
+                  onChanged: (v) => _setGleapEnabled(v),
+                  secondary: const Icon(Icons.bug_report_rounded, color: AppTheme.gold),
+                ),
+                SwitchListTile.adaptive(
+                  title: const Text('Aktifkan Crashlytics'),
+                  value: _crashlyticsEnabled,
+                  onChanged: (v) => _setCrashlyticsEnabled(v),
+                  secondary: const Icon(Icons.warning_rounded, color: AppTheme.gold),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.build_rounded, color: AppTheme.gold),
+                  title: const Text('Diagnostics'),
+                  subtitle: const Text('Tampilkan status aplikasi & antrian feedback'),
+                  onTap: _showDiagnosticsDialog,
+                ),
+              ],
             ),
           ),
           const SizedBox(height: 20),
@@ -1024,6 +1150,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               trailing: const Icon(Icons.chevron_right_rounded),
                               onTap: _showUpgradeDialogNative,
                             ),
+                          ListTile(
+                            leading: const Icon(Icons.feedback_rounded, color: AppTheme.gold),
+                            title: const Text('Kirim Feedback'),
+                            subtitle: const Text('Laporkan bug atau kirim masukan'),
+                            onTap: _showFeedbackDialog,
+                          ),
+                          SwitchListTile.adaptive(
+                            title: const Text('Aktifkan Feedback (Gleap)'),
+                            value: _gleapEnabled,
+                            onChanged: (v) => _setGleapEnabled(v),
+                            secondary: const Icon(Icons.bug_report_rounded, color: AppTheme.gold),
+                          ),
+                          SwitchListTile.adaptive(
+                            title: const Text('Aktifkan Crashlytics'),
+                            value: _crashlyticsEnabled,
+                            onChanged: (v) => _setCrashlyticsEnabled(v),
+                            secondary: const Icon(Icons.warning_rounded, color: AppTheme.gold),
+                          ),
+                          ListTile(
+                            leading: const Icon(Icons.build_rounded, color: AppTheme.gold),
+                            title: const Text('Diagnostics'),
+                            subtitle: const Text('Tampilkan status aplikasi & antrian feedback'),
+                            onTap: _showDiagnosticsDialog,
+                          ),
                           menuItem(Icons.notifications_rounded, 'Notifikasi'),
                           menuItem(Icons.dark_mode_rounded, 'Dark Mode'),
                           menuItem(

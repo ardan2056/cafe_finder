@@ -29,6 +29,20 @@ jobs:
       - name: Build release APK
         run: flutter build apk --release
 
+      - name: Upload Proguard mapping to Crashlytics (optional)
+        if: always()
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+          ANDROID_APP_ID: ${{ secrets.ANDROID_APP_ID }}
+        run: |
+          if [ -n "$FIREBASE_TOKEN" ] && [ -f "android/app/build/outputs/mapping/release/mapping.txt" ]; then
+            echo "Uploading mapping file to Crashlytics..."
+            npm install -g firebase-tools || true
+            firebase crashlytics:upload-mappings --app "$ANDROID_APP_ID" android/app/build/outputs/mapping/release/mapping.txt || true
+          else
+            echo "Skipping mapping upload (no FIREBASE_TOKEN or mapping file)."
+          fi
+
       - name: Create GitHub Release
         id: create_release
         uses: softprops/action-gh-release@v1

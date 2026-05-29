@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-// Cluster markers removed for compatibility with current flutter_map version
-// import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
+import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'dart:math' as math;
+import 'dart:ui' show lerpDouble;
+import '../../services/places_service.dart';
+import 'dart:async';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/routes/app_routes.dart';
 import '../../core/theme/app_theme.dart';
@@ -26,8 +29,13 @@ class MapsScreen extends StatefulWidget {
 class MapsScreenState extends State<MapsScreen> {
   late final CafeService cafeService;
   final MapController _mapController = MapController();
+  final _places = PlacesService();
+  final TextEditingController _searchController = TextEditingController();
+  List<PlaceSuggestion> _searchSuggestions = [];
+  Timer? _searchDebounce;
 
   Position? _currentPosition;
+  // (removed mapEvent tracking) — animation uses currentPosition instead
 
   String get _resolvedTileUrl {
     // Use CartoDB's Voyager tiles which are permissively available for modest use.
@@ -39,13 +47,81 @@ class MapsScreenState extends State<MapsScreen> {
     super.initState();
     cafeService = widget.cafeService ?? CafeService();
     _requestPermissionAndLocate();
+    _loadPreferences();
+  }
+
+  Future<void> _loadPreferences() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final r = prefs.getInt('map_radius') ?? 0;
+      final v = prefs.getBool('map_show_circle') ?? true;
+      setState(() {
+        _selectedRadiusMeters = r;
+        _showCircle = v;
+      });
+    } catch (_) {}
+  }
+
+  Future<void> _savePreferences() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt('map_radius', _selectedRadiusMeters);
+      await prefs.setBool('map_show_circle', _showCircle);
+    } catch (_) {}
+  }
+
+  // Radius filter (meters). 0 means no filter (all).
+  int _selectedRadiusMeters = 0;
+  final Map<int, String> _radiusOptions = {
+    0: 'Semua',
+    500: '500 m',
+    1000: '1 km',
+    3000: '3 km',
+    5000: '5 km',
+    10000: '10 km',
+  };
+
+  // Sort options: 'distance' or 'name'
+  String _sortBy = 'distance';
+  bool _showCircle = true;
+  bool _useClustering = true;
+
+  @override
+  void dispose() {
+    _searchDebounce?.cancel();
+    _searchController.dispose();
+    super.dispose();
   }
 
   /// Public API: center the map on the current position if available.
   void centerOnUser() {
     if (_currentPosition != null) {
-      _mapController.move(
+      animateTo(
           LatLng(_currentPosition!.latitude, _currentPosition!.longitude), 15);
+    }
+  }
+
+  /// Animate map center and zoom smoothly to [target] with [targetZoom].
+  Future<void> animateTo(LatLng target, double targetZoom,
+      {int steps = 15,
+      Duration duration = const Duration(milliseconds: 600)}) async {
+    // Use current position as animation start if available, otherwise jump.
+    final startCenter = _currentPosition != null
+        ? LatLng(_currentPosition!.latitude, _currentPosition!.longitude)
+        : null;
+    final startZoom = _currentPosition != null ? 14.0 : targetZoom;
+    if (startCenter == null) {
+      _mapController.move(target, targetZoom);
+      return;
+    }
+
+    for (var i = 1; i <= steps; i++) {
+      final t = i / steps;
+      final lat = lerpDouble(startCenter.latitude, target.latitude, t)!;
+      final lon = lerpDouble(startCenter.longitude, target.longitude, t)!;
+      final z = startZoom + (targetZoom - startZoom) * t;
+      _mapController.move(LatLng(lat, lon), z);
+      await Future.delayed(duration ~/ steps);
     }
   }
 
@@ -103,8 +179,22 @@ class MapsScreenState extends State<MapsScreen> {
             return {'cafe': c, 'dist': distMeters};
           }).toList();
 
-          cafesWithDistance.sort(
-              (a, b) => (a['dist'] as double).compareTo(b['dist'] as double));
+          // Apply radius filter if selected
+          final filtered = _selectedRadiusMeters > 0
+              ? cafesWithDistance
+                  .where((r) => (r['dist'] as double) <= _selectedRadiusMeters)
+                  .toList()
+              : cafesWithDistance;
+
+          // Sorting
+          if (_sortBy == 'distance') {
+            filtered.sort(
+                (a, b) => (a['dist'] as double).compareTo(b['dist'] as double));
+          } else if (_sortBy == 'name') {
+            filtered.sort((a, b) => (a['cafe'] as CafeModel)
+                .name
+                .compareTo((b['cafe'] as CafeModel).name));
+          }
 
           return Column(
             children: [
@@ -112,31 +202,171 @@ class MapsScreenState extends State<MapsScreen> {
               Padding(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                child: Row(
+                child: Column(
                   children: [
-                    Expanded(
-                      child: TextField(
-                        decoration: InputDecoration(
-                          hintText:
-                              'Cari tempat atau alamat (contoh: "cafe near me")',
-                          filled: true,
-                          fillColor: Colors.white.withValues(alpha: 0.04),
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide.none),
-                          prefixIcon: const Icon(Icons.search),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: _searchController,
+                            decoration: InputDecoration(
+                              hintText:
+                                  'Cari tempat atau alamat (contoh: "cafe near me")',
+                              filled: true,
+                              fillColor: Colors.white.withValues(alpha: 0.04),
+                              border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide.none),
+                              prefixIcon: const Icon(Icons.search),
+                            ),
+                            onChanged: (q) {
+                              _searchDebounce?.cancel();
+                              _searchDebounce = Timer(
+                                  const Duration(milliseconds: 350), () async {
+                                if (q.trim().isEmpty) {
+                                  if (!mounted) return;
+                                  setState(() => _searchSuggestions = []);
+                                  return;
+                                }
+                                try {
+                                  final res = await _places.search(q, limit: 6);
+                                  if (!mounted) return;
+                                  setState(() => _searchSuggestions = res);
+                                } catch (_) {
+                                  if (!mounted) return;
+                                  setState(() => _searchSuggestions = []);
+                                }
+                              });
+                            },
+                            onSubmitted: (q) => _searchPlace(q),
+                          ),
                         ),
-                        onSubmitted: (q) => _searchPlace(q),
+                        const SizedBox(width: 8),
+                        ElevatedButton(
+                          onPressed: _testTileFetch,
+                          style: ElevatedButton.styleFrom(
+                              backgroundColor: AppTheme.gold,
+                              foregroundColor: Colors.black),
+                          child: const Text('Test Tile'),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        DropdownButton<int>(
+                          value: _selectedRadiusMeters,
+                          dropdownColor: AppTheme.navy,
+                          items: _radiusOptions.entries
+                              .map((e) => DropdownMenuItem<int>(
+                                    value: e.key,
+                                    child: Text(e.value,
+                                        style: const TextStyle(
+                                            color: Colors.white)),
+                                  ))
+                              .toList(),
+                          onChanged: (v) {
+                            if (v == null) return;
+                            setState(() => _selectedRadiusMeters = v);
+                            _savePreferences();
+                          },
+                        ),
+                        const SizedBox(width: 12),
+                        const Text('Urutkan:',
+                            style: TextStyle(color: AppTheme.lightGray)),
+                        const SizedBox(width: 8),
+                        DropdownButton<String>(
+                          value: _sortBy,
+                          dropdownColor: AppTheme.navy,
+                          items: const [
+                            DropdownMenuItem(
+                                value: 'distance', child: Text('Jarak')),
+                            DropdownMenuItem(
+                                value: 'name', child: Text('Nama')),
+                          ],
+                          onChanged: (v) {
+                            if (v == null) return;
+                            setState(() => _sortBy = v);
+                          },
+                        ),
+                        const Spacer(),
+                        Row(children: [
+                          IconButton(
+                            onPressed: () {
+                              setState(() => _useClustering = !_useClustering);
+                            },
+                            icon: Icon(
+                                _useClustering
+                                    ? Icons.scatter_plot
+                                    : Icons.location_on_outlined,
+                                color: Colors.white),
+                          ),
+                          const SizedBox(width: 6),
+                          IconButton(
+                            onPressed: () {
+                              setState(() => _showCircle = !_showCircle);
+                              _savePreferences();
+                            },
+                            icon: Icon(
+                                _showCircle
+                                    ? Icons.visibility
+                                    : Icons.visibility_off,
+                                color: Colors.white),
+                          ),
+                          const SizedBox(width: 6),
+                          ElevatedButton(
+                            onPressed: (_selectedRadiusMeters > 0 &&
+                                    _currentPosition != null)
+                                ? () {
+                                    final zoom =
+                                        _zoomForRadius(_selectedRadiusMeters);
+                                    _mapController.move(
+                                        LatLng(_currentPosition!.latitude,
+                                            _currentPosition!.longitude),
+                                        zoom);
+                                  }
+                                : null,
+                            style: ElevatedButton.styleFrom(
+                                backgroundColor: AppTheme.gold,
+                                foregroundColor: Colors.black),
+                            child: const Text('Fit'),
+                          ),
+                        ]),
+                        if (_selectedRadiusMeters > 0 &&
+                            _currentPosition != null)
+                          Text(
+                              'Filter ${_radiusOptions[_selectedRadiusMeters]} dari posisi',
+                              style:
+                                  const TextStyle(color: AppTheme.lightGray)),
+                      ],
+                    ),
+                    if (_searchSuggestions.isNotEmpty)
+                      Container(
+                        margin: const EdgeInsets.only(top: 8),
+                        constraints: const BoxConstraints(maxHeight: 220),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.04),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: ListView.separated(
+                          shrinkWrap: true,
+                          itemBuilder: (context, index) {
+                            final s = _searchSuggestions[index];
+                            return ListTile(
+                              title: Text(s.displayName,
+                                  maxLines: 2, overflow: TextOverflow.ellipsis),
+                              onTap: () {
+                                _searchController.text = s.displayName;
+                                _searchSuggestions = [];
+                                _mapController.move(LatLng(s.lat, s.lon), 15);
+                                setState(() {});
+                              },
+                            );
+                          },
+                          separatorBuilder: (_, __) => const Divider(height: 1),
+                          itemCount: _searchSuggestions.length,
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 8),
-                    ElevatedButton(
-                      onPressed: _testTileFetch,
-                      style: ElevatedButton.styleFrom(
-                          backgroundColor: AppTheme.gold,
-                          foregroundColor: Colors.black),
-                      child: const Text('Test Tile'),
-                    ),
                   ],
                 ),
               ),
@@ -159,21 +389,88 @@ class MapsScreenState extends State<MapsScreen> {
                             },
                           ),
                         ),
-                        MarkerLayer(
-                          markers: [
-                            if (_currentPosition != null)
-                              Marker(
+                        if (_selectedRadiusMeters > 0 &&
+                            _currentPosition != null &&
+                            _showCircle)
+                          CircleLayer(
+                            circles: [
+                              CircleMarker(
                                 point: LatLng(_currentPosition!.latitude,
                                     _currentPosition!.longitude),
-                                width: 40,
-                                height: 40,
-                                child: Semantics(
-                                  label: 'Your location',
-                                  child: const Icon(Icons.my_location_rounded,
-                                      color: AppTheme.gold),
-                                ),
+                                color: AppTheme.gold.withValues(alpha: 0.16),
+                                borderStrokeWidth: 1,
+                                borderColor: AppTheme.gold,
+                                useRadiusInMeter: true,
+                                radius: _selectedRadiusMeters.toDouble(),
                               ),
-                            ...cafes.map((c) => Marker(
+                            ],
+                          ),
+                        if (_useClustering)
+                          MarkerClusterLayerWidget(
+                            options: MarkerClusterLayerOptions(
+                              maxClusterRadius: 120,
+                              size: const Size(40, 40),
+                              markers: [
+                                if (_currentPosition != null)
+                                  Marker(
+                                    point: LatLng(_currentPosition!.latitude,
+                                        _currentPosition!.longitude),
+                                    width: 40,
+                                    height: 40,
+                                    child: const Icon(Icons.my_location_rounded,
+                                        color: AppTheme.gold),
+                                  ),
+                                ...filtered.map((r) {
+                                  final c = r['cafe'] as CafeModel;
+                                  return Marker(
+                                    point: LatLng(c.latitude, c.longitude),
+                                    width: 56,
+                                    height: 56,
+                                    child: GestureDetector(
+                                      onTap: () => _onCafeTap(context, c),
+                                      child: Semantics(
+                                        label: 'Cafe ${c.name}',
+                                        child: const Icon(Icons.location_on,
+                                            color: Colors.red, size: 36),
+                                      ),
+                                    ),
+                                  );
+                                }),
+                              ],
+                              builder: (context, markers) {
+                                return Container(
+                                  decoration: BoxDecoration(
+                                    color: AppTheme.gold,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Center(
+                                    child: Text('${markers.length}',
+                                        style: const TextStyle(
+                                            color: Colors.black,
+                                            fontWeight: FontWeight.bold)),
+                                  ),
+                                );
+                              },
+                            ),
+                          )
+                        else
+                          MarkerLayer(
+                            markers: [
+                              if (_currentPosition != null)
+                                Marker(
+                                  point: LatLng(_currentPosition!.latitude,
+                                      _currentPosition!.longitude),
+                                  width: 40,
+                                  height: 40,
+                                  child: Semantics(
+                                    label: 'Your location',
+                                    child: const Icon(Icons.my_location_rounded,
+                                        color: AppTheme.gold),
+                                  ),
+                                ),
+                              ...filtered.map((r) {
+                                final c = r['cafe'] as CafeModel;
+                                return Marker(
                                   point: LatLng(c.latitude, c.longitude),
                                   width: 56,
                                   height: 56,
@@ -185,9 +482,10 @@ class MapsScreenState extends State<MapsScreen> {
                                           color: Colors.red, size: 36),
                                     ),
                                   ),
-                                )),
-                          ],
-                        ),
+                                );
+                              }),
+                            ],
+                          ),
                       ],
                     ),
 
@@ -200,8 +498,8 @@ class MapsScreenState extends State<MapsScreen> {
                           FloatingActionButton(
                             mini: true,
                             backgroundColor: AppTheme.gold,
-                                heroTag: 'center_on_user',
-                                onPressed: () {
+                            heroTag: 'center_on_user',
+                            onPressed: () {
                               if (_currentPosition != null) {
                                 _mapController.move(
                                     LatLng(_currentPosition!.latitude,
@@ -220,11 +518,11 @@ class MapsScreenState extends State<MapsScreen> {
                           const SizedBox(height: 8),
                           FloatingActionButton(
                             mini: true,
-                                backgroundColor: Colors.white,
-                                heroTag: 'fit_bounds',
-                                onPressed: () => _fitBoundsAll(cafes),
-                                child: const Icon(Icons.fit_screen,
-                                    color: Colors.black),
+                            backgroundColor: Colors.white,
+                            heroTag: 'fit_bounds',
+                            onPressed: () => _fitBoundsAll(cafes),
+                            child: const Icon(Icons.fit_screen,
+                                color: Colors.black),
                           ),
                         ],
                       ),
@@ -249,11 +547,11 @@ class MapsScreenState extends State<MapsScreen> {
                       ),
                       Expanded(
                         child: ListView.separated(
-                          itemCount: cafesWithDistance.length,
+                          itemCount: filtered.length,
                           separatorBuilder: (_, __) =>
                               const Divider(color: Colors.white24),
                           itemBuilder: (context, index) {
-                            final row = cafesWithDistance[index];
+                            final row = filtered[index];
                             final CafeModel cafe = row['cafe'] as CafeModel;
                             final double dist = row['dist'] as double;
                             return ListTile(
@@ -442,6 +740,15 @@ class MapsScreenState extends State<MapsScreen> {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text('Tile fetch error: $e')));
     }
+  }
+
+  double _zoomForRadius(int meters) {
+    // Simple heuristic mapping radius to zoom level
+    if (meters <= 500) return 15.0;
+    if (meters <= 1000) return 14.0;
+    if (meters <= 3000) return 12.5;
+    if (meters <= 5000) return 11.5;
+    return 10.0;
   }
 
   double _lonToTileX(double lon, int zoom) =>

@@ -82,14 +82,17 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
       await auth.register(email: email, password: password);
 
       // ensure a users/{uid} doc exists and mark role=admin
-      await userService.createUserData(name: 'Admin', email: email, role: 'admin');
+      await userService.createUserData(
+          name: 'Admin', email: email, role: 'admin');
 
       if (!mounted) return;
-      messenger.showSnackBar(const SnackBar(content: Text('Akun admin dibuat')));
+      messenger
+          .showSnackBar(const SnackBar(content: Text('Akun admin dibuat')));
       Navigator.pushReplacementNamed(context, AppRoutes.home);
     } catch (e) {
       if (mounted) {
-        messenger.showSnackBar(SnackBar(content: Text('Gagal membuat admin: $e')));
+        messenger
+            .showSnackBar(SnackBar(content: Text('Gagal membuat admin: $e')));
       }
     } finally {
       if (mounted) setState(() => isLoading = false);
