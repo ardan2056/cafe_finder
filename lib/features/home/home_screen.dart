@@ -19,13 +19,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int currentIndex = 0;
 
-  final List<Widget> pages = [
-    HomeContent(),
-    const SearchScreen(),
-    const MapsScreen(),
-    FavoriteScreen(),
-    const ProfileScreen(),
-  ];
+  // Pages are built inside build() so we can pass callbacks that call setState.
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +28,15 @@ class _HomeScreenState extends State<HomeScreen> {
       // Use IndexedStack to keep each tab's state alive when switching.
       body: IndexedStack(
         index: currentIndex,
-        children: pages,
+        children: [
+          HomeContent(onOpenMap: () {
+            setState(() => currentIndex = 2);
+          }),
+          const SearchScreen(),
+          const MapsScreen(),
+          FavoriteScreen(),
+          const ProfileScreen(),
+        ],
       ),
       bottomNavigationBar: Container(
         margin: const EdgeInsets.all(16),
@@ -86,7 +88,9 @@ class _HomeScreenState extends State<HomeScreen> {
 }
 
 class HomeContent extends StatefulWidget {
-  const HomeContent({super.key});
+  final VoidCallback? onOpenMap;
+
+  const HomeContent({super.key, this.onOpenMap});
 
   @override
   State<HomeContent> createState() => _HomeContentState();
@@ -281,7 +285,13 @@ class _HomeContentState extends State<HomeContent> {
           children: [
             IconButton(
               onPressed: () {
-                Navigator.pushNamed(context, AppRoutes.map);
+                // If parent provided a callback, use it to switch to the Maps tab
+                // (keeps UI in a single page and preserves IndexedStack state).
+                if (widget.onOpenMap != null) {
+                  widget.onOpenMap!();
+                } else {
+                  Navigator.pushNamed(context, AppRoutes.map);
+                }
               },
               icon: const Icon(Icons.map_rounded),
               color: AppTheme.gold,
