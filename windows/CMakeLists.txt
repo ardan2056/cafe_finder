@@ -10,6 +10,16 @@ set(BINARY_NAME "cafe_finder")
 # versions of CMake.
 cmake_policy(VERSION 3.14...3.25)
 
+# CMake 4 dropped compatibility with policy versions lower than 3.5.
+# Some third-party plugin CMake files still declare an older minimum version,
+# so set a global floor to keep configuration working.
+set(CMAKE_POLICY_VERSION_MINIMUM "3.5")
+
+# Suppress MSVC experimental coroutine deprecation errors raised by some
+# plugin headers (e.g., <experimental/coroutine>). This defines the macro
+# globally so plugin targets compiled by CMake won't fail on newer MSVC.
+add_compile_definitions(_SILENCE_EXPERIMENTAL_COROUTINE_DEPRECATION_WARNINGS)
+
 # Define build configuration option.
 get_property(IS_MULTICONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
 if(IS_MULTICONFIG)
@@ -32,6 +42,10 @@ set(CMAKE_CXX_FLAGS_PROFILE "${CMAKE_CXX_FLAGS_RELEASE}")
 # Use Unicode for all projects.
 add_definitions(-DUNICODE -D_UNICODE)
 
+# Suppress MSVC experimental coroutine deprecation errors from some plugins
+# which still include <experimental/coroutine>.
+add_compile_definitions(_SILENCE_EXPERIMENTAL_COROUTINE_DEPRECATION_WARNINGS)
+
 # Compilation settings that should be applied to most targets.
 #
 # Be cautious about adding new options here, as plugins use this function by
@@ -41,6 +55,9 @@ function(APPLY_STANDARD_SETTINGS TARGET)
   target_compile_features(${TARGET} PUBLIC cxx_std_17)
   target_compile_options(${TARGET} PRIVATE /W4 /WX /wd"4100")
   target_compile_options(${TARGET} PRIVATE /EHsc)
+  if(MSVC)
+    target_compile_options(${TARGET} PRIVATE /FS)
+  endif()
   target_compile_definitions(${TARGET} PRIVATE "_HAS_EXCEPTIONS=0")
   target_compile_definitions(${TARGET} PRIVATE "$<$<CONFIG:Debug>:_DEBUG>")
 endfunction()

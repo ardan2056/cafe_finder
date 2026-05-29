@@ -9,6 +9,7 @@ import '../../services/admin_image_picker.dart';
 // import '../../services/image_uploader.dart';
 import '../../services/user_image_uploader.dart';
 import '../../core/firebase_status.dart' as fb_status;
+import '../../core/config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -250,13 +251,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> logout() async {
-    await authService.logout();
-
-    if (!mounted) {
-      return;
+    bool shouldNavigate = false;
+    final navigator = Navigator.of(context);
+    try {
+      await authService.logout();
+    } catch (e) {
+      // If logout fails, still continue to navigate back to login
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Gagal saat logout: $e')));
+      }
+    } finally {
+      shouldNavigate = mounted;
     }
-    Navigator.pushNamedAndRemoveUntil(
-      context,
+
+    if (!shouldNavigate) return;
+
+    navigator.pushNamedAndRemoveUntil(
       AppRoutes.login,
       (route) => false,
     );
@@ -475,15 +486,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 borderRadius: BorderRadius.circular(18),
               ),
               child: ListTile(
-                leading:
-                    const Icon(Icons.upgrade_rounded, color: AppTheme.gold),
+                leading: const Icon(Icons.upgrade_rounded, color: AppTheme.gold),
                 title: const Text('Upgrade ke Akun'),
                 subtitle: const Text('Ubah akun tamu menjadi akun terdaftar'),
                 trailing: const Icon(Icons.chevron_right_rounded),
                 onTap: _showUpgradeDialogWeb,
               ),
             ),
-          // Developer-only promote button removed — admin management is handled elsewhere.
           const SizedBox(height: 30),
           const Text(
             'Preferensi Kafe',
@@ -586,6 +595,52 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               child: const Text('Logout'),
             ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget buildWebProfileSimple() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(22),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Profil',
+            style: TextStyle(
+              fontSize: 30,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 24),
+          _profileCard(
+            name: webName ?? demoName,
+            email: webEmail ?? demoEmail,
+            role: webRole,
+            photoUrl: webPhoto,
+            onAvatarTap: () {
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                  content: Text('Fitur unggah foto nonaktif di mode sederhana')));
+            },
+          ),
+          const SizedBox(height: 30),
+          SizedBox(
+            width: double.infinity,
+            height: 52,
+            child: OutlinedButton.icon(
+              onPressed: logout,
+              icon: const Icon(Icons.logout_rounded),
+              label: const Text('Keluar'),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppTheme.gold,
+                side: const BorderSide(color: AppTheme.gold),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+              ),
+            ),
           ),
         ],
       ),
@@ -647,7 +702,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (kIsWeb) {
       return Scaffold(
         backgroundColor: AppTheme.navy,
-        body: SafeArea(child: buildWebProfile()),
+        body: SafeArea(
+            child: Config.simpleProfileMode
+                ? buildWebProfileSimple()
+                : buildWebProfile()),
       );
     }
 
@@ -711,130 +769,150 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           },
                     onEditNameTap: () => showEditNameDialog(name),
                   ),
-                  const SizedBox(height: 30),
-                  const Text(
-                    'Preferensi Kafe',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
+                  if (!Config.simpleProfileMode) ...[
+                    const SizedBox(height: 30),
+                    const Text(
+                      'Preferensi Kafe',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 14),
-                  Wrap(
-                    spacing: 10,
-                    runSpacing: 10,
-                    children: allPreferences.map((item) {
-                      final selected = selectedPreferences.contains(item);
+                    const SizedBox(height: 14),
+                    Wrap(
+                      spacing: 10,
+                      runSpacing: 10,
+                      children: allPreferences.map((item) {
+                        final selected = selectedPreferences.contains(item);
 
-                      return GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            selected
-                                ? selectedPreferences.remove(item)
-                                : selectedPreferences.add(item);
-                          });
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 14,
-                            vertical: 9,
-                          ),
-                          decoration: BoxDecoration(
-                            color: selected
-                                ? AppTheme.gold
-                                : Colors.white.withValues(alpha: 0.08),
-                            borderRadius: BorderRadius.circular(18),
-                          ),
-                          child: Text(
-                            item,
-                            style: TextStyle(
-                              color: selected ? Colors.black : Colors.white,
-                              fontWeight: FontWeight.bold,
+                        return GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              selected
+                                  ? selectedPreferences.remove(item)
+                                  : selectedPreferences.add(item);
+                            });
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 9,
+                            ),
+                            decoration: BoxDecoration(
+                              color: selected
+                                  ? AppTheme.gold
+                                  : Colors.white.withValues(alpha: 0.08),
+                              borderRadius: BorderRadius.circular(18),
+                            ),
+                            child: Text(
+                              item,
+                              style: TextStyle(
+                                color: selected ? Colors.black : Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
+                        );
+                      }).toList(),
+                    ),
+                    const SizedBox(height: 24),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 52,
+                      child: ElevatedButton(
+                        onPressed: savePreferences,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppTheme.gold,
+                          foregroundColor: Colors.black,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
                         ),
-                      );
-                    }).toList(),
-                  ),
-                  const SizedBox(height: 24),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 52,
-                    child: ElevatedButton(
-                      onPressed: savePreferences,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.gold,
-                        foregroundColor: Colors.black,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
+                        child: const Text(
+                          'Simpan Preferensi',
+                          style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ),
-                      child: const Text(
-                        'Simpan Preferensi',
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 28),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.08),
+                        borderRadius: BorderRadius.circular(24),
                       ),
-                    ),
-                  ),
-                  const SizedBox(height: 28),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(24),
-                    ),
-                    child: Column(
-                      children: [
-                        if (data['role'] == 'admin')
-                          ListTile(
-                            leading: const Icon(
-                              Icons.admin_panel_settings_rounded,
-                              color: AppTheme.gold,
+                      child: Column(
+                        children: [
+                          if (data['role'] == 'admin')
+                            ListTile(
+                              leading: const Icon(
+                                Icons.admin_panel_settings_rounded,
+                                color: AppTheme.gold,
+                              ),
+                              title: const Text('Admin Panel'),
+                              trailing: const Icon(Icons.chevron_right_rounded),
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => const AdminDashboardScreen(),
+                                  ),
+                                );
+                              },
                             ),
-                            title: const Text('Admin Panel'),
-                            trailing: const Icon(Icons.chevron_right_rounded),
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => const AdminDashboardScreen(),
-                                ),
-                              );
-                            },
-                          ),
-                        if (data['role'] == 'guest')
-                          ListTile(
-                            leading: const Icon(Icons.upgrade_rounded,
-                                color: AppTheme.gold),
-                            title: const Text('Upgrade ke Akun'),
-                            subtitle: const Text(
-                                'Ubah akun tamu menjadi akun terdaftar'),
-                            trailing: const Icon(Icons.chevron_right_rounded),
-                            onTap: _showUpgradeDialogNative,
-                          ),
-                        menuItem(Icons.notifications_rounded, 'Notifikasi'),
-                        menuItem(Icons.dark_mode_rounded, 'Dark Mode'),
-                        menuItem(
-                            Icons.privacy_tip_rounded, 'Kebijakan Privasi'),
-                        menuItem(Icons.help_rounded, 'Bantuan'),
-                      ],
+                          if (data['role'] == 'guest')
+                            ListTile(
+                              leading: const Icon(Icons.upgrade_rounded,
+                                  color: AppTheme.gold),
+                              title: const Text('Upgrade ke Akun'),
+                              subtitle: const Text(
+                                  'Ubah akun tamu menjadi akun terdaftar'),
+                              trailing: const Icon(Icons.chevron_right_rounded),
+                              onTap: _showUpgradeDialogNative,
+                            ),
+                          menuItem(Icons.notifications_rounded, 'Notifikasi'),
+                          menuItem(Icons.dark_mode_rounded, 'Dark Mode'),
+                          menuItem(
+                              Icons.privacy_tip_rounded, 'Kebijakan Privasi'),
+                          menuItem(Icons.help_rounded, 'Bantuan'),
+                        ],
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 24),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 52,
-                    child: OutlinedButton.icon(
-                      onPressed: logout,
-                      icon: const Icon(Icons.logout_rounded),
-                      label: const Text('Keluar'),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: AppTheme.gold,
-                        side: const BorderSide(color: AppTheme.gold),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
+                    const SizedBox(height: 24),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 52,
+                      child: OutlinedButton.icon(
+                        onPressed: logout,
+                        icon: const Icon(Icons.logout_rounded),
+                        label: const Text('Keluar'),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: AppTheme.gold,
+                          side: const BorderSide(color: AppTheme.gold),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
                         ),
                       ),
                     ),
-                  ),
+                  ] else ...[
+                    const SizedBox(height: 24),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 52,
+                      child: OutlinedButton.icon(
+                        onPressed: logout,
+                        icon: const Icon(Icons.logout_rounded),
+                        label: const Text('Keluar'),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: AppTheme.gold,
+                          side: const BorderSide(color: AppTheme.gold),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ],
               ),
             );

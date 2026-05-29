@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../../core/routes/app_routes.dart';
 import '../../core/theme/app_theme.dart';
 import 'dart:io';
+import 'dart:async';
+import 'dart:developer' as developer;
 import '../../services/user_service.dart';
 import '../../services/admin_image_picker.dart';
 // image_uploader not used directly in this screen
@@ -46,7 +48,6 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
       );
       return;
     }
-
     setState(() => isSaving = true);
     try {
       // If user picked an avatar, upload it first
@@ -55,33 +56,46 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
       }
 
       // Create or update canonical user data in Firestore / demo storage
-      await userService.createUserData(
-        name: nameController.text.trim(),
-        email: widget.initialEmail,
-        phone: phoneController.text.trim(),
-        role: 'user',
-      );
+      // Add a timeout so we don't hang indefinitely if network/rules block the request
+      await userService
+          .createUserData(
+            name: nameController.text.trim(),
+            email: widget.initialEmail,
+            phone: phoneController.text.trim(),
+            role: 'user',
+          )
+          .timeout(const Duration(seconds: 15));
 
-      // If we have an uploaded photoUrl, persist it
+      // If we have an uploaded photoUrl, persist it (also guarded by timeout)
       if (photoUrl != null) {
-        await userService.updatePhoto(photoUrl!);
+        await userService.updatePhoto(photoUrl!).timeout(const Duration(seconds: 15));
       }
 
       if (!mounted) {
         return;
       }
       Navigator.pushReplacementNamed(context, AppRoutes.home);
-    } catch (e) {
+    } on TimeoutException catch (_) {
+      // Network or firestore hung — show friendly message
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Waktu tunggu habis saat menyimpan profil. Coba lagi.')),
+        );
+      }
+    } catch (e, st) {
+      // Log and surface the error so we can debug
+      developer.log('Error saving profile', error: e, stackTrace: st);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Gagal menyimpan profil: $e')),
         );
       }
-    }
-    if (mounted) {
-      setState(() {
-        isSaving = false;
-      });
+    } finally {
+      if (mounted) {
+        setState(() {
+          isSaving = false;
+        });
+      }
     }
   }
 

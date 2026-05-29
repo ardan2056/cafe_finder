@@ -4,6 +4,8 @@ import '../../core/theme/app_theme.dart';
 import '../../services/auth_service.dart';
 import '../../services/user_service.dart';
 import '../../core/config.dart';
+import 'dart:developer' as developer;
+import 'package:firebase_auth/firebase_auth.dart';
 // imports intentionally minimal; admin flow uses separate AdminLoginScreen
 
 class LoginScreen extends StatefulWidget {
@@ -39,11 +41,17 @@ class _LoginScreenState extends State<LoginScreen> {
     });
     try {
       await authService.login(email: email, password: password);
-      if (!mounted) {
-        return;
-      }
+      if (!mounted) return;
       Navigator.pushReplacementNamed(context, AppRoutes.home);
-    } catch (e) {
+    } on FirebaseAuthException catch (e, st) {
+      developer.log('FirebaseAuthException during login', error: e, stackTrace: st);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Login gagal: [${e.code}] ${e.message}')),
+        );
+      }
+    } catch (e, st) {
+      developer.log('Unknown error during login', error: e, stackTrace: st);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Login gagal: $e')),

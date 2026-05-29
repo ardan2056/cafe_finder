@@ -30,8 +30,8 @@ class _MapsScreenState extends State<MapsScreen> {
   Position? _currentPosition;
 
   String get _resolvedTileUrl {
-    // Use a standard OpenStreetMap tile template as a safe default.
-    return 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+    // Use CartoDB's Voyager tiles which are permissively available for modest use.
+    return 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png';
   }
 
   @override
@@ -143,8 +143,13 @@ class _MapsScreenState extends State<MapsScreen> {
                       children: [
                         TileLayer(
                           urlTemplate: _resolvedTileUrl,
-                          subdomains: const ['a', 'b', 'c'],
-                          additionalOptions: const <String, String>{},
+                          subdomains: const ['a', 'b', 'c', 'd'],
+                          tileProvider: NetworkTileProvider(
+                            headers: {
+                              'User-Agent': 'cafe-finder/1.0',
+                              'Referer': 'https://github.com/your-repo'
+                            },
+                          ),
                         ),
                         MarkerLayer(
                           markers: [
@@ -187,7 +192,8 @@ class _MapsScreenState extends State<MapsScreen> {
                           FloatingActionButton(
                             mini: true,
                             backgroundColor: AppTheme.gold,
-                            onPressed: () {
+                                heroTag: 'center_on_user',
+                                onPressed: () {
                               if (_currentPosition != null) {
                                 _mapController.move(
                                     LatLng(_currentPosition!.latitude,
@@ -206,10 +212,11 @@ class _MapsScreenState extends State<MapsScreen> {
                           const SizedBox(height: 8),
                           FloatingActionButton(
                             mini: true,
-                            backgroundColor: Colors.white,
-                            onPressed: () => _fitBoundsAll(cafes),
-                            child: const Icon(Icons.fit_screen,
-                                color: Colors.black),
+                                backgroundColor: Colors.white,
+                                heroTag: 'fit_bounds',
+                                onPressed: () => _fitBoundsAll(cafes),
+                                child: const Icon(Icons.fit_screen,
+                                    color: Colors.black),
                           ),
                         ],
                       ),
@@ -406,7 +413,10 @@ class _MapsScreenState extends State<MapsScreen> {
           .replaceAll('{z}', '$zoom')
           .replaceAll('{x}', '$x')
           .replaceAll('{y}', '$y');
-      final res = await http.get(Uri.parse(url));
+      final res = await http.get(Uri.parse(url), headers: {
+        'User-Agent': 'cafe-finder/1.0',
+        'Referer': 'https://github.com/your-repo'
+      });
       if (!mounted) {
         return;
       }

@@ -1,15 +1,15 @@
 # Basic Usage
 
 ```dart
-ExampleConnector.instance.CreateMovie(createMovieVariables).execute();
-ExampleConnector.instance.UpsertUser(upsertUserVariables).execute();
-ExampleConnector.instance.AddReview(addReviewVariables).execute();
-ExampleConnector.instance.DeleteReview(deleteReviewVariables).execute();
 ExampleConnector.instance.ListMovies().execute();
 ExampleConnector.instance.ListUsers().execute();
 ExampleConnector.instance.ListUserReviews().execute();
 ExampleConnector.instance.GetMovieById(getMovieByIdVariables).execute();
 ExampleConnector.instance.SearchMovie(searchMovieVariables).execute();
+ExampleConnector.instance.CreateMovie(createMovieVariables).execute();
+ExampleConnector.instance.UpsertUser(upsertUserVariables).execute();
+ExampleConnector.instance.AddReview(addReviewVariables).execute();
+ExampleConnector.instance.DeleteReview(deleteReviewVariables).execute();
 
 ```
 

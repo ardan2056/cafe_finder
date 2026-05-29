@@ -30,10 +30,20 @@ class AuthService {
 
   Future<void> logout() async {
     final googleSignIn = GoogleSignIn();
-    await Future.wait([
-      _instance.signOut(),
-      googleSignIn.signOut(),
-    ]);
+    // Sign out from Firebase and Google sign-in.
+    // Some platforms (e.g. Windows) may not have GoogleSignIn plugin available
+    // and could throw. Handle errors per-call so logout never throws unexpectedly.
+    try {
+      await _instance.signOut();
+    } catch (e) {
+      // ignore firebase signOut errors but log if needed
+    }
+
+    try {
+      await googleSignIn.signOut();
+    } catch (e) {
+      // ignore google sign out errors (plugin not available on platform)
+    }
   }
 
   User? get currentUser => _instance.currentUser;

@@ -11,5 +11,9 @@ class Config {
   // Allow anonymous/guest sign-in when enabled via --dart-define.
   // Default: false (recommended for production/demo safety)
   static const bool allowAnonymousLogin =
-      bool.fromEnvironment('ALLOW_ANONYMOUS_LOGIN', defaultValue: false);
+      bool.fromEnvironment('ALLOW_ANONYMOUS_LOGIN', defaultValue: true);
+  // When true, show a minimal profile view: hide preferences, admin panel,
+  // and extra settings. Useful for simpler UX or demo flows.
+  static const bool simpleProfileMode =
+      bool.fromEnvironment('SIMPLE_PROFILE_MODE', defaultValue: true);
 }

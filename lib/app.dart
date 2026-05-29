@@ -6,6 +6,7 @@ import 'features/splash/splash_screen.dart';
 import 'features/onboarding/onboarding_screen.dart';
 import 'features/auth/login_screen.dart';
 import 'features/auth/register_screen.dart';
+import 'features/admin/admin_login_screen.dart';
 import 'features/home/home_screen.dart';
 import 'features/cafe_detail/cafe_detail_screen.dart';
 import 'features/maps/maps_screen.dart';
@@ -25,6 +26,7 @@ class CafeFinderApp extends StatelessWidget {
         AppRoutes.onboarding: (context) => const OnboardingScreen(),
         AppRoutes.login: (context) => const LoginScreen(),
         AppRoutes.register: (context) => const RegisterScreen(),
+        AppRoutes.adminLogin: (context) => const AdminLoginScreen(),
         AppRoutes.home: (context) => const HomeScreen(),
         AppRoutes.cafeDetail: (context) => CafeDetailScreen(),
         AppRoutes.map: (context) => const MapsScreen(),

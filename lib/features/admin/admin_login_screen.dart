@@ -4,6 +4,8 @@ import '../../core/routes/app_routes.dart';
 import '../../core/theme/app_theme.dart';
 import '../../services/auth_service.dart';
 import '../../services/user_service.dart';
+import '../../bootstrap/firebase_bootstrap.dart' as fb_boot;
+import '../../core/firebase_status.dart' as fb_status;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -63,6 +65,34 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
           isLoading = false;
         });
       }
+    }
+  }
+
+  Future<void> _createAdminAccount() async {
+    setState(() => isLoading = true);
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      final email = emailController.text.trim();
+      final password = passwordController.text;
+      if (email.isEmpty || password.isEmpty) {
+        throw Exception('Email dan password wajib diisi');
+      }
+
+      // create account via AuthService
+      await auth.register(email: email, password: password);
+
+      // ensure a users/{uid} doc exists and mark role=admin
+      await userService.createUserData(name: 'Admin', email: email, role: 'admin');
+
+      if (!mounted) return;
+      messenger.showSnackBar(const SnackBar(content: Text('Akun admin dibuat')));
+      Navigator.pushReplacementNamed(context, AppRoutes.home);
+    } catch (e) {
+      if (mounted) {
+        messenger.showSnackBar(SnackBar(content: Text('Gagal membuat admin: $e')));
+      }
+    } finally {
+      if (mounted) setState(() => isLoading = false);
     }
   }
 
@@ -147,6 +177,46 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            if (!fb_status.isFirebaseReady) ...[
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.redAccent.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.warning_rounded, color: Colors.redAccent),
+                    const SizedBox(width: 8),
+                    const Expanded(
+                        child: Text(
+                            'Firebase belum terhubung. Beberapa fitur dinonaktifkan.')),
+                    TextButton(
+                      onPressed: () async {
+                        final messenger = ScaffoldMessenger.of(context);
+                        try {
+                          if (!mounted) return;
+                          setState(() => isLoading = true);
+                          await fb_boot.initializeFirebase();
+                          fb_status.firebaseInitError = null;
+                          if (mounted) setState(() => isLoading = false);
+                        } catch (e) {
+                          if (mounted) {
+                            setState(() => isLoading = false);
+                            messenger.showSnackBar(SnackBar(
+                                content:
+                                    Text('Gagal inisialisasi Firebase: $e')));
+                          }
+                        }
+                      },
+                      child: const Text('Ulangi'),
+                    )
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+            ],
             const SizedBox(height: 12),
             if (kIsWeb) ...[
               const Text('Masuk sebagai Admin (Web demo)',
@@ -168,7 +238,9 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                 width: double.infinity,
                 height: 48,
                 child: ElevatedButton(
-                  onPressed: isLoading ? null : _loginAsAdminWeb,
+                  onPressed: (!fb_status.isFirebaseReady || isLoading)
+                      ? null
+                      : _loginAsAdminWeb,
                   style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.gold,
                       foregroundColor: Colors.black),
@@ -210,13 +282,35 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                 width: double.infinity,
                 height: 48,
                 child: ElevatedButton(
-                  onPressed: isLoading ? null : _loginAsAdminNative,
+                  onPressed: (!fb_status.isFirebaseReady || isLoading)
+                      ? null
+                      : _loginAsAdminNative,
                   style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.gold,
                       foregroundColor: Colors.black),
                   child: isLoading
                       ? const CircularProgressIndicator()
                       : const Text('Masuk sebagai Admin'),
+                ),
+              ),
+              const SizedBox(height: 8),
+              SizedBox(
+                width: double.infinity,
+                height: 48,
+                child: OutlinedButton(
+                  onPressed: (!fb_status.isFirebaseReady || isLoading)
+                      ? null
+                      : _createAdminAccount,
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    side: const BorderSide(color: AppTheme.gold),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: isLoading
+                      ? const CircularProgressIndicator()
+                      : const Text('Buat Akun Admin'),
                 ),
               ),
             ],
