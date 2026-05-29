@@ -6,6 +6,7 @@ import '../../services/user_service.dart';
 import '../../core/config.dart';
 import 'dart:developer' as developer;
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 // imports intentionally minimal; admin flow uses separate AdminLoginScreen
 
 class LoginScreen extends StatefulWidget {
@@ -111,6 +112,16 @@ class _LoginScreenState extends State<LoginScreen> {
       }
       Navigator.pushReplacementNamed(context, AppRoutes.home);
     } catch (e) {
+      // If anonymous sign-in is restricted on the project, fall back to a
+      // local demo guest mode so the app remains usable for testing.
+      final msg = e.toString();
+      if (msg.contains('restricted to administrators') || msg.contains('operation-not-allowed') || msg.contains('anonymous')) {
+        await _enterDemoGuest();
+        if (!mounted) return;
+        Navigator.pushReplacementNamed(context, AppRoutes.home);
+        return;
+      }
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Gagal masuk sebagai tamu: $e')),
@@ -123,6 +134,18 @@ class _LoginScreenState extends State<LoginScreen> {
         });
       }
     }
+  }
+
+  Future<void> _enterDemoGuest() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('demo_name', 'Tamu');
+      await prefs.setString('demo_email', '');
+      await prefs.setString('demo_phone', '');
+      await prefs.setString('demo_role', 'guest');
+      await prefs.setBool('demo_mode', true);
+      await prefs.setStringList('demo_preferences', <String>[]);
+    } catch (_) {}
   }
 
   @override

@@ -57,6 +57,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
       _loadWebPreferences();
       _loadWebProfile();
     }
+    _loadDemoMode();
+  }
+
+  bool _demoMode = false;
+
+  Future<void> _loadDemoMode() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      _demoMode = prefs.getBool('demo_mode') ?? false;
+      if (mounted) setState(() {});
+    } catch (_) {}
   }
 
   Future<void> _loadSimpleOverride() async {
@@ -288,6 +299,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
 
     if (!shouldNavigate) return;
+
+    // Clear demo-mode preferences if present
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      if (prefs.getBool('demo_mode') == true) {
+        await prefs.remove('demo_mode');
+        await prefs.remove('demo_name');
+        await prefs.remove('demo_email');
+        await prefs.remove('demo_phone');
+        await prefs.remove('demo_role');
+        await prefs.remove('demo_photo');
+        await prefs.remove('demo_preferences');
+      }
+    } catch (_) {}
 
     navigator.pushNamedAndRemoveUntil(
       AppRoutes.login,
@@ -766,6 +791,72 @@ class _ProfileScreenState extends State<ProfileScreen> {
           stream: userService.getUserData(),
           builder: (context, snapshot) {
             if (!snapshot.hasData) {
+              if (_demoMode) {
+                return FutureBuilder<SharedPreferences>(
+                  future: SharedPreferences.getInstance(),
+                  builder: (ctx, spSnap) {
+                    if (!spSnap.hasData) {
+                      return const Center(
+                        child: CircularProgressIndicator(color: AppTheme.gold),
+                      );
+                    }
+                    final prefs = spSnap.data!;
+                    final name = prefs.getString('demo_name') ?? 'Tamu';
+                    final email = prefs.getString('demo_email') ?? '';
+                    final photoUrl = prefs.getString('demo_photo') ?? '';
+                    final role = prefs.getString('demo_role') ?? 'guest';
+                    final preferences = prefs.getStringList('demo_preferences') ?? [];
+
+                    if (selectedPreferences.isEmpty && preferences.isNotEmpty) {
+                      selectedPreferences = preferences;
+                    }
+
+                    return SingleChildScrollView(
+                      padding: const EdgeInsets.all(22),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Profil',
+                            style: TextStyle(
+                              fontSize: 30,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          _profileCard(
+                            name: name,
+                            email: email,
+                            role: role,
+                            photoUrl: photoUrl,
+                            onAvatarTap: () {
+                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                                  content: Text('Fitur unggah foto nonaktif pada demo tamu')));
+                            },
+                          ),
+                          const SizedBox(height: 24),
+                          SizedBox(
+                            width: double.infinity,
+                            height: 52,
+                            child: OutlinedButton(
+                              onPressed: logout,
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: AppTheme.gold,
+                                side: const BorderSide(color: AppTheme.gold),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                              ),
+                              child: const Text('Keluar'),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                );
+              }
+
               return const Center(
                 child: CircularProgressIndicator(color: AppTheme.gold),
               );
