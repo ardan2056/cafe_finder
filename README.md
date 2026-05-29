@@ -109,3 +109,13 @@ Testing the flow locally:
 3. Go to Profile → Upgrade to register an email/password account; after linking, verify Firestore `users/{uid}` contains the demo data and `photoUrl` if you uploaded an avatar.
 
 If you want an explicit interactive crop UI, consider adding `image_cropper` package and a small cropping step before upload (not included by default to avoid broad dependency upgrades). If you'd like, I can add this next.
+
+## Profile: Simple Mode Toggle & Guest Login
+
+- The app supports a "Simple Profile" mode that hides advanced profile features (preferences, admin panel, etc.) to keep the UI minimal for demos or guest users.
+- You can toggle the mode at runtime from the Profile screen using the `Mode Sederhana` switch — the choice is stored in `SharedPreferences` under the key `simple_profile_mode_override` so you don't need to rebuild the app.
+- Anonymous (guest) login is enabled by default. Use the `Masuk sebagai Tamu` button on the login screen to sign in anonymously. Guest data is stored locally (web) or in Firestore (native) and can be upgraded to a permanent account via the Upgrade flow in Profile.
+
+## Creating an Admin User
+
+For step-by-step secure instructions to create an admin user (script or manual via Console) see [ADMIN_CREATE.md](ADMIN_CREATE.md).
