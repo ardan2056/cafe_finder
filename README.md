@@ -119,3 +119,25 @@ If you want an explicit interactive crop UI, consider adding `image_cropper` pac
 ## Creating an Admin User
 
 For step-by-step secure instructions to create an admin user (script or manual via Console) see [ADMIN_CREATE.md](ADMIN_CREATE.md).
+
+## Demo guest fallback & migration
+
+When Anonymous sign-in is disabled for the Firebase project, the app now provides a safe local "demo guest" fallback so users can still explore the app without remote auth.
+
+- How it works:
+	- When `signInAnonymously()` fails with a restriction, the app stores demo data in `SharedPreferences` and sets `demo_mode = true`.
+	- Keys used (in `SharedPreferences`): `demo_mode`, `demo_name`, `demo_email`, `demo_phone`, `demo_role`, `demo_photo`, `demo_preferences`.
+	- The Profile screen detects `demo_mode` and shows a local demo profile built from those keys. Logout clears the demo keys.
+
+- Migration to a real account:
+	- If a demo user later registers using the app's `Buat Akun` flow, the app will automatically migrate demo data into Firestore under `users/{uid}` for the newly created Firebase user (merge).
+	- After successful migration the app clears the local demo keys.
+
+- How to test locally:
+	1. Run the app and click `Masuk sebagai Tamu` (if Anonymous sign-in disabled, the app enters demo mode automatically).
+ 2. Go to Profile and verify demo name/role shown.
+ 3. Use `Buat Akun` to register; after registration check Firestore `users/{uid}` for migrated fields (name, preferences, role).
+
+- Notes:
+	- Demo mode stores data locally only; it is intended for development and demos. For production, prefer enabling Anonymous sign-in in Firebase and using real Firestore documents.
+	- The migration attempts to copy name, phone, photo URL, and preferences into the Firestore document for the new user and marks role as `user`.
