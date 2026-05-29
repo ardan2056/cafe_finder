@@ -4,6 +4,8 @@ import '../../core/routes/app_routes.dart';
 import '../../core/theme/app_theme.dart';
 import '../../services/auth_service.dart';
 import '../../services/user_service.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 /// Admin login screen:
 /// - Web: accept an admin passcode defined via --dart-define=ADMIN_SECRET
@@ -29,10 +31,13 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
   Future<void> _loginAsAdminNative() async {
     setState(() => isLoading = true);
     try {
-      await auth.login(
-        email: emailController.text,
-        password: passwordController.text,
-      );
+      final email = emailController.text.trim();
+      final password = passwordController.text;
+      if (email.isEmpty || password.isEmpty) {
+        throw Exception('Email dan password wajib diisi');
+      }
+
+      await auth.login(email: email, password: password);
 
       // verify role from user document
       final snapshot = await userService.getUserData().first;
@@ -42,7 +47,9 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
         throw Exception('Akun bukan admin');
       }
 
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
       Navigator.pushReplacementNamed(context, AppRoutes.home);
     } catch (e) {
       if (mounted) {
@@ -52,7 +59,9 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
       }
     } finally {
       if (mounted) {
-        setState(() => isLoading = false);
+        setState(() {
+          isLoading = false;
+        });
       }
     }
   }
@@ -60,29 +69,67 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
   Future<void> _loginAsAdminWeb() async {
     setState(() => isLoading = true);
     try {
-      const secret = String.fromEnvironment('ADMIN_SECRET', defaultValue: '');
-      if (secret.isEmpty) {
-        throw Exception('Admin secret not configured');
+      // Try reading admin secret from Firestore so it can be rotated remotely.
+      String secret = '';
+      try {
+        final doc = await FirebaseFirestore.instance
+            .collection('config')
+            .doc('app')
+            .get();
+        secret = (doc.data()?['admin_secret'] as String?) ?? '';
+      } catch (fireErr) {
+        // Firestore read failed (offline/misconfigured). We'll fall back to
+        // compile-time dart-define ADMIN_SECRET if provided.
+        secret = const String.fromEnvironment('ADMIN_SECRET', defaultValue: '');
       }
 
+      // If still empty, try dart-define again (explicit fallback)
+      if (secret.isEmpty) {
+        secret = const String.fromEnvironment('ADMIN_SECRET', defaultValue: '');
+      }
+
+      if (secret.isEmpty) {
+        throw Exception(
+            'Admin secret tidak ditemukan. Atur field config/app.admin_secret di Firestore atau jalankan dengan --dart-define=ADMIN_SECRET=your_secret');
+      }
+
+      if (passcodeController.text.trim().isEmpty) {
+        throw Exception('Masukkan kode admin');
+      }
       if (passcodeController.text.trim() != secret.trim()) {
         throw Exception('Kode admin salah');
       }
 
-      // promote locally for web demo
+      // Only promote if there's an authenticated user. Otherwise ask them to
+      // register/login first so we can persist the admin role to users/{uid}.
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        if (!mounted) {
+          return;
+        }
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text(
+                'Silakan login/daftar dengan email terlebih dahulu sebelum mengaktifkan akses admin')));
+        return;
+      }
+
+      // promote user in backend (userService will write to Firestore when user exists)
       await userService.setRole('admin');
 
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
       Navigator.pushReplacementNamed(context, AppRoutes.home);
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Login admin gagal: $e')),
-        );
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Login admin gagal: $e')));
       }
     } finally {
       if (mounted) {
-        setState(() => isLoading = false);
+        setState(() {
+          isLoading = false;
+        });
       }
     }
   }

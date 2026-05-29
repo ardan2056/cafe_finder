@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../core/theme/app_theme.dart';
+import '../../core/firebase_status.dart' as fb_status;
 import '../../models/cafe_model.dart';
 import '../../services/favorite_service.dart';
 import '../../services/review_service.dart';
@@ -36,9 +37,14 @@ class _CafeDetailScreenState extends State<CafeDetailScreen> {
       backgroundColor: AppTheme.navy,
       body: SafeArea(
         child: StreamBuilder<DocumentSnapshot>(
-          stream: FirebaseFirestore.instance.collection('cafes').doc(initialCafe.id).snapshots(),
+          stream: FirebaseFirestore.instance
+              .collection('cafes')
+              .doc(initialCafe.id)
+              .snapshots(),
           builder: (_, snapshot) {
-            final cafe = snapshot.hasData ? CafeModel.fromFirestore(snapshot.data!) : initialCafe;
+            final cafe = snapshot.hasData
+                ? CafeModel.fromFirestore(snapshot.data!)
+                : initialCafe;
 
             return SingleChildScrollView(
               padding: const EdgeInsets.all(22),
@@ -72,7 +78,8 @@ class _CafeDetailScreenState extends State<CafeDetailScreen> {
                   const SizedBox(height: 24),
                   Text(
                     cafe.name,
-                    style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                        fontSize: 30, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 10),
                   Row(
@@ -81,7 +88,8 @@ class _CafeDetailScreenState extends State<CafeDetailScreen> {
                       const SizedBox(width: 6),
                       Text(cafe.rating.toString()),
                       const SizedBox(width: 16),
-                      const Icon(Icons.location_on_rounded, color: AppTheme.blue),
+                      const Icon(Icons.location_on_rounded,
+                          color: AppTheme.blue),
                       const SizedBox(width: 6),
                       Expanded(
                         child: Text(
@@ -94,7 +102,8 @@ class _CafeDetailScreenState extends State<CafeDetailScreen> {
                   const SizedBox(height: 24),
                   Text(
                     cafe.description,
-                    style: const TextStyle(color: AppTheme.lightGray, height: 1.6),
+                    style:
+                        const TextStyle(color: AppTheme.lightGray, height: 1.6),
                   ),
                   const SizedBox(height: 28),
                   _sectionTitle('Kategori'),
@@ -107,7 +116,8 @@ class _CafeDetailScreenState extends State<CafeDetailScreen> {
                   _chipWrap(cafe.atmosphere),
                   const SizedBox(height: 24),
                   _sectionTitle('Range Harga'),
-                  Text(cafe.priceRange, style: const TextStyle(color: AppTheme.lightGray)),
+                  Text(cafe.priceRange,
+                      style: const TextStyle(color: AppTheme.lightGray)),
                   const SizedBox(height: 34),
                   SizedBox(
                     width: double.infinity,
@@ -119,7 +129,8 @@ class _CafeDetailScreenState extends State<CafeDetailScreen> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.gold,
                         foregroundColor: Colors.black,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(22)),
                       ),
                     ),
                   ),
@@ -131,7 +142,8 @@ class _CafeDetailScreenState extends State<CafeDetailScreen> {
                       onPressed: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (_) => ReviewScreen(cafeId: cafe.id)),
+                          MaterialPageRoute(
+                              builder: (_) => ReviewScreen(cafeId: cafe.id)),
                         );
                       },
                       icon: const Icon(Icons.rate_review_rounded),
@@ -139,7 +151,8 @@ class _CafeDetailScreenState extends State<CafeDetailScreen> {
                       style: OutlinedButton.styleFrom(
                         foregroundColor: AppTheme.gold,
                         side: const BorderSide(color: AppTheme.gold),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(22)),
                       ),
                     ),
                   ),
@@ -161,7 +174,9 @@ class _CafeDetailScreenState extends State<CafeDetailScreen> {
                                 margin: const EdgeInsets.only(right: 8),
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(12),
-                                  image: DecorationImage(image: NetworkImage(url), fit: BoxFit.cover),
+                                  image: DecorationImage(
+                                      image: NetworkImage(url),
+                                      fit: BoxFit.cover),
                                 ),
                               ),
                               Positioned(
@@ -173,34 +188,62 @@ class _CafeDetailScreenState extends State<CafeDetailScreen> {
                                       context: context,
                                       builder: (dialogCtx) => AlertDialog(
                                         title: const Text('Hapus gambar?'),
-                                        content: const Text('Gambar akan dihapus permanen.'),
+                                        content: const Text(
+                                            'Gambar akan dihapus permanen.'),
                                         actions: [
-                                          TextButton(onPressed: () => Navigator.pop(dialogCtx, false), child: const Text('Batal')),
-                                          TextButton(onPressed: () => Navigator.pop(dialogCtx, true), child: const Text('Hapus')),
+                                          TextButton(
+                                              onPressed: () => Navigator.pop(
+                                                  dialogCtx, false),
+                                              child: const Text('Batal')),
+                                          TextButton(
+                                              onPressed: () => Navigator.pop(
+                                                  dialogCtx, true),
+                                              child: const Text('Hapus')),
                                         ],
                                       ),
                                     );
 
-                                    if (!mounted) return;
+                                    if (!mounted) {
+                                      return;
+                                    }
 
                                     if (confirm == true) {
-                                      showDialog(context: context, barrierDismissible: false, builder: (_) => const Center(child: CircularProgressIndicator()));
+                                      showDialog(
+                                          context: context,
+                                          barrierDismissible: false,
+                                          builder: (_) => const Center(
+                                              child:
+                                                  CircularProgressIndicator()));
                                       try {
-                                        await CafeImageService().deleteImage(cafe.id, url);
-                                        if (!mounted) return;
+                                        await CafeImageService()
+                                            .deleteImage(cafe.id, url);
+                                        if (!mounted) {
+                                          return;
+                                        }
                                         Navigator.pop(context);
-                                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Gambar dihapus')));
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(const SnackBar(
+                                                content:
+                                                    Text('Gambar dihapus')));
                                       } catch (e) {
-                                        if (!mounted) return;
+                                        if (!mounted) {
+                                          return;
+                                        }
                                         Navigator.pop(context);
-                                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Gagal menghapus gambar')));
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(const SnackBar(
+                                                content: Text(
+                                                    'Gagal menghapus gambar')));
                                       }
                                     }
                                   },
                                   child: Container(
-                                    decoration: BoxDecoration(color: Colors.black45, shape: BoxShape.circle),
+                                    decoration: BoxDecoration(
+                                        color: Colors.black45,
+                                        shape: BoxShape.circle),
                                     padding: const EdgeInsets.all(6),
-                                    child: const Icon(Icons.delete, color: Colors.white, size: 18),
+                                    child: const Icon(Icons.delete,
+                                        color: Colors.white, size: 18),
                                   ),
                                 ),
                               ),
@@ -220,37 +263,62 @@ class _CafeDetailScreenState extends State<CafeDetailScreen> {
                     height: 56,
                     child: OutlinedButton.icon(
                       onPressed: () async {
-                        showDialog(context: context, barrierDismissible: false, builder: (_) => const Center(child: CircularProgressIndicator()));
+                        if (!fb_status.isFirebaseReady) {
+                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                              content: Text(
+                                  'Firebase belum siap — upload dinonaktifkan.')));
+                          return;
+                        }
+
+                        showDialog(
+                            context: context,
+                            barrierDismissible: false,
+                            builder: (_) => const Center(
+                                child: CircularProgressIndicator()));
                         try {
-                          final uploaded = await CafeImageService().pickAndUploadImages(cafe.id);
-                          if (!mounted) return;
+                          final uploaded = await CafeImageService()
+                              .pickAndUploadImages(cafe.id);
+                          if (!mounted) {
+                            return;
+                          }
 
                           if (uploaded.isEmpty) {
                             Navigator.pop(context);
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Tidak ada gambar yang diupload')),
+                              const SnackBar(
+                                  content:
+                                      Text('Tidak ada gambar yang diupload')),
                             );
                             return;
                           }
 
                           Navigator.pop(context);
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Berhasil mengupload ${uploaded.length} gambar')),
+                            SnackBar(
+                                content: Text(
+                                    'Berhasil mengupload ${uploaded.length} gambar')),
                           );
                         } catch (e) {
-                          if (!mounted) return;
+                          if (!mounted) {
+                            return;
+                          }
                           Navigator.pop(context);
                           if (e.toString().contains('NOT_ADMIN')) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Hanya admin yang bisa mengupload gambar')),
+                              const SnackBar(
+                                  content: Text(
+                                      'Hanya admin yang bisa mengupload gambar')),
                             );
                           } else if (e.toString().contains('AUTH_REQUIRED')) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Silakan login terlebih dahulu')),
+                              const SnackBar(
+                                  content:
+                                      Text('Silakan login terlebih dahulu')),
                             );
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Gagal mengupload gambar')),
+                              const SnackBar(
+                                  content: Text('Gagal mengupload gambar')),
                             );
                           }
                         }
@@ -260,7 +328,8 @@ class _CafeDetailScreenState extends State<CafeDetailScreen> {
                       style: OutlinedButton.styleFrom(
                         foregroundColor: AppTheme.blue,
                         side: const BorderSide(color: AppTheme.blue),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(22)),
                       ),
                     ),
                   ),
@@ -271,12 +340,14 @@ class _CafeDetailScreenState extends State<CafeDetailScreen> {
                     stream: ReviewService().getReviews(cafe.id),
                     builder: (_, snap) {
                       if (!snap.hasData) {
-                        return const Text('Belum ada ulasan', style: TextStyle(color: AppTheme.lightGray));
+                        return const Text('Belum ada ulasan',
+                            style: TextStyle(color: AppTheme.lightGray));
                       }
 
                       final reviews = snap.data!.docs;
                       if (reviews.isEmpty) {
-                        return const Text('Belum ada ulasan', style: TextStyle(color: AppTheme.lightGray));
+                        return const Text('Belum ada ulasan',
+                            style: TextStyle(color: AppTheme.lightGray));
                       }
 
                       return Column(
@@ -293,11 +364,15 @@ class _CafeDetailScreenState extends State<CafeDetailScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(data['userName'] ?? 'Pengguna', style: const TextStyle(fontWeight: FontWeight.bold)),
+                                Text(data['userName'] ?? 'Pengguna',
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold)),
                                 const SizedBox(height: 6),
                                 Text('⭐ ${data['rating']}'),
                                 const SizedBox(height: 6),
-                                Text(data['comment'] ?? '', style: const TextStyle(color: AppTheme.lightGray)),
+                                Text(data['comment'] ?? '',
+                                    style: const TextStyle(
+                                        color: AppTheme.lightGray)),
                               ],
                             ),
                           );
@@ -323,8 +398,12 @@ class _CafeDetailScreenState extends State<CafeDetailScreen> {
                               await favoriteService.addFavorite(cafe.id);
                             }
                           },
-                          icon: Icon(isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded),
-                          label: Text(isFavorite ? 'Hapus dari Favorit' : 'Simpan Favorit'),
+                          icon: Icon(isFavorite
+                              ? Icons.favorite_rounded
+                              : Icons.favorite_border_rounded),
+                          label: Text(isFavorite
+                              ? 'Hapus dari Favorit'
+                              : 'Simpan Favorit'),
                         ),
                       );
                     },
@@ -341,7 +420,8 @@ class _CafeDetailScreenState extends State<CafeDetailScreen> {
   Widget _sectionTitle(String title) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
-      child: Text(title, style: const TextStyle(fontSize: 19, fontWeight: FontWeight.bold)),
+      child: Text(title,
+          style: const TextStyle(fontSize: 19, fontWeight: FontWeight.bold)),
     );
   }
 

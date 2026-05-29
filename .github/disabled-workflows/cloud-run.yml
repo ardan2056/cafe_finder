@@ -1,0 +1,6 @@
+name: Deploy to Cloud Run (archived)
+
+info: |
+  This workflow has been archived to avoid editor schema warnings.
+  To restore deployment automation, move this file back to .github/workflows/ and
+  ensure required GitHub secrets are configured: GCP_SA_KEY, GCP_PROJECT, GCP_REGION, DATABASE_URL.

@@ -29,7 +29,11 @@ class _ReviewScreenState extends State<ReviewScreen> {
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
-          Text('Leave a review', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
+          Text('Leave a review',
+              style: Theme.of(context)
+                  .textTheme
+                  .titleLarge
+                  ?.copyWith(fontWeight: FontWeight.w700)),
           const SizedBox(height: 12),
           Slider(
             value: _rating,
@@ -52,14 +56,19 @@ class _ReviewScreenState extends State<ReviewScreen> {
             onPressed: () {
               if (mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Review placeholder saved locally')),
+                  const SnackBar(
+                      content: Text('Review placeholder saved locally')),
                 );
               }
             },
             child: const Text('Submit review'),
           ),
           const SizedBox(height: 32),
-          Text('Recent reviews', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
+          Text('Recent reviews',
+              style: Theme.of(context)
+                  .textTheme
+                  .titleLarge
+                  ?.copyWith(fontWeight: FontWeight.w700)),
           const SizedBox(height: 12),
           ...reviews.map(
             (review) => Card(

@@ -31,7 +31,9 @@ class _LoginScreenState extends State<LoginScreen> {
           password: _passwordController.text.trim(),
         );
 
-    if (!mounted) return;
+    if (!mounted) {
+      return;
+    }
     Navigator.pushReplacementNamed(context, AppRoutes.home);
   }
 
@@ -49,21 +51,29 @@ class _LoginScreenState extends State<LoginScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 32),
-                Text('Welcome back', style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w800)),
+                Text('Welcome back',
+                    style: Theme.of(context)
+                        .textTheme
+                        .headlineMedium
+                        ?.copyWith(fontWeight: FontWeight.w800)),
                 const SizedBox(height: 8),
                 const Text('Login untuk melanjutkan ke Home.'),
                 const SizedBox(height: 32),
                 TextFormField(
                   controller: _emailController,
                   decoration: const InputDecoration(labelText: 'Email'),
-                  validator: (value) => value == null || value.isEmpty ? 'Email wajib diisi' : null,
+                  validator: (value) => value == null || value.isEmpty
+                      ? 'Email wajib diisi'
+                      : null,
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _passwordController,
                   obscureText: true,
                   decoration: const InputDecoration(labelText: 'Password'),
-                  validator: (value) => value == null || value.length < 6 ? 'Password minimal 6 karakter' : null,
+                  validator: (value) => value == null || value.length < 6
+                      ? 'Password minimal 6 karakter'
+                      : null,
                 ),
                 const SizedBox(height: 24),
                 SizedBox(
@@ -80,7 +90,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 TextButton(
-                  onPressed: () => Navigator.pushNamed(context, AppRoutes.register),
+                  onPressed: () =>
+                      Navigator.pushNamed(context, AppRoutes.register),
                   child: const Text('Belum punya akun? Register'),
                 ),
               ],

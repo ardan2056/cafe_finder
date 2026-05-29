@@ -13,18 +13,8 @@ class UserService {
   Future<void> createUserData({
     required String name,
     required String email,
-  }) async {
-    await createOrUpdateUserData(
-      name: name,
-      email: email,
-      photoUrl: '',
-    );
-  }
-
-  Future<void> createOrUpdateUserData({
-    required String name,
-    required String email,
-    String? photoUrl,
+    String? phone,
+    String role = 'user',
   }) async {
     if (uid.isEmpty) {
       return;
@@ -34,12 +24,13 @@ class UserService {
       'uid': uid,
       'name': name,
       'email': email,
-      'photoUrl': photoUrl ?? '',
+      'phone': phone ?? '',
+      'photoUrl': '',
       'preferences': [],
-      'role': 'user',
+      'role': role,
       'createdAt': FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),
-    }, SetOptions(merge: true));
+    });
   }
 
   Stream<DocumentSnapshot> getUserData() {
@@ -61,22 +52,12 @@ class UserService {
     });
   }
 
-  Future<void> setName(String name) async {
-    await updateName(name);
-  }
-
-  Future<String?> getName() async {
-    if (uid.isEmpty) return null;
-    final doc = await _instance.collection('users').doc(uid).get();
-    final data = doc.data();
-    return data == null ? null : data['name'] as String?;
-  }
-
-  Future<String?> getPhoto() async {
-    if (uid.isEmpty) return null;
-    final doc = await _instance.collection('users').doc(uid).get();
-    final data = doc.data();
-    return data == null ? null : data['photoUrl'] as String?;
+  Future<void> updatePhone(String phone) async {
+    if (uid.isEmpty) return;
+    await _instance.collection('users').doc(uid).update({
+      'phone': phone,
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
   }
 
   Future<void> updatePhoto(String photoUrl) async {
@@ -104,5 +85,23 @@ class UserService {
       'role': role,
       'updatedAt': FieldValue.serverTimestamp(),
     });
+  }
+
+  Future<String> getName() async {
+    if (uid.isEmpty) return '';
+    final doc = await _instance.collection('users').doc(uid).get();
+    final data = doc.data();
+    return (data != null && data['name'] != null) ? data['name'] as String : '';
+  }
+
+  Future<String> getPhoto() async {
+    if (uid.isEmpty) return '';
+    final doc = await _instance.collection('users').doc(uid).get();
+    final data = doc.data();
+    return (data != null && data['photoUrl'] != null) ? data['photoUrl'] as String : '';
+  }
+
+  Future<void> setName(String name) async {
+    await updateName(name);
   }
 }

@@ -33,7 +33,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
           password: _passwordController.text.trim(),
         );
 
-    if (!mounted) return;
+    if (!mounted) {
+      return;
+    }
     Navigator.pushReplacementNamed(context, AppRoutes.home);
   }
 
@@ -51,27 +53,37 @@ class _RegisterScreenState extends State<RegisterScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 32),
-                Text('Create account', style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w800)),
+                Text('Create account',
+                    style: Theme.of(context)
+                        .textTheme
+                        .headlineMedium
+                        ?.copyWith(fontWeight: FontWeight.w800)),
                 const SizedBox(height: 8),
                 const Text('Daftar untuk menyimpan cafe favorit dan review.'),
                 const SizedBox(height: 32),
                 TextFormField(
                   controller: _nameController,
                   decoration: const InputDecoration(labelText: 'Full name'),
-                  validator: (value) => value == null || value.isEmpty ? 'Nama wajib diisi' : null,
+                  validator: (value) => value == null || value.isEmpty
+                      ? 'Nama wajib diisi'
+                      : null,
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _emailController,
                   decoration: const InputDecoration(labelText: 'Email'),
-                  validator: (value) => value == null || value.isEmpty ? 'Email wajib diisi' : null,
+                  validator: (value) => value == null || value.isEmpty
+                      ? 'Email wajib diisi'
+                      : null,
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _passwordController,
                   obscureText: true,
                   decoration: const InputDecoration(labelText: 'Password'),
-                  validator: (value) => value == null || value.length < 6 ? 'Password minimal 6 karakter' : null,
+                  validator: (value) => value == null || value.length < 6
+                      ? 'Password minimal 6 karakter'
+                      : null,
                 ),
                 const SizedBox(height: 24),
                 SizedBox(
@@ -88,7 +100,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                 ),
                 TextButton(
-                  onPressed: () => Navigator.pushNamed(context, AppRoutes.login),
+                  onPressed: () =>
+                      Navigator.pushNamed(context, AppRoutes.login),
                   child: const Text('Sudah punya akun? Login'),
                 ),
               ],

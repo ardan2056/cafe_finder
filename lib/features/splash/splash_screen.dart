@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../core/routes/app_routes.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/firebase_status.dart' as fb_status;
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -38,7 +39,22 @@ class _SplashScreenState extends State<SplashScreen>
 
     Timer(const Duration(seconds: 3), () {
       if (mounted) {
-        Navigator.pushReplacementNamed(context, AppRoutes.onboarding);
+        // If Firebase failed to initialize, show a prominent SnackBar on the onboarding route.
+        if (fb_status.firebaseInitError != null) {
+          // pass along by navigating and showing a banner
+          Navigator.pushReplacementNamed(context, AppRoutes.onboarding);
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            final ctx = context;
+            ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(
+              content:
+                  Text('Firebase init error: ${fb_status.firebaseInitError}'),
+              backgroundColor: Colors.redAccent,
+              duration: const Duration(seconds: 6),
+            ));
+          });
+        } else {
+          Navigator.pushReplacementNamed(context, AppRoutes.onboarding);
+        }
       }
     });
   }

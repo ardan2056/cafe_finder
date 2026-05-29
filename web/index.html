@@ -31,8 +31,26 @@
 
   <title>cafe_finder</title>
   <link rel="manifest" href="manifest.json">
+  <!-- Add your Google Sign-In Web OAuth Client ID here. Replace with real client id from Google Cloud / Firebase Console. -->
+  <meta name="google-signin-client_id" content="YOUR_CLIENT_ID.apps.googleusercontent.com">
   <!-- Google Maps JavaScript API: replace YOUR_WEB_API_KEY with your real key -->
   <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_WEB_API_KEY&libraries=places"></script>
+  <!-- Firebase Web config (replace values with your project's config) -->
+  <script>
+    // Example Firebase config for web. Replace the values below with your project's
+    // configuration from the Firebase Console (Project Settings → General).
+    // This snippet uses the modular SDK via CDN in the app code; Flutter web will
+    // typically initialize Firebase from Dart using the generated firebase_options.dart.
+    window.__FIREBASE_CONFIG = {
+      apiKey: "AIzaSyA8SvWwuePImsFy_ju46BQkriCsQaVRPcc",
+      authDomain: "cafee-finder.firebaseapp.com",
+      projectId: "cafee-finder",
+      storageBucket: "cafee-finder.appspot.com",
+      messagingSenderId: "913193457524",
+      appId: "1:913193457524:web:2bf7fb1cced6927d4f3e21",
+      measurementId: "G-FRPN64WD2T"
+    };
+  </script>
 </head>
 <body>
   <!--

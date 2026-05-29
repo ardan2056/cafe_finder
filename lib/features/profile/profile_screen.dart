@@ -5,8 +5,13 @@ import '../../core/theme/app_theme.dart';
 import '../../services/auth_service.dart';
 import '../../services/user_service.dart';
 import '../../services/admin_image_picker.dart';
-import '../../services/image_uploader.dart';
+// image_uploader not used here anymore (we use user_image_uploader)
+// import '../../services/image_uploader.dart';
+import '../../services/user_image_uploader.dart';
+import '../../core/firebase_status.dart' as fb_status;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../admin/admin_dashboard_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -54,7 +59,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _loadWebProfile() async {
     final name = await userService.getName();
     final photo = await userService.getPhoto();
-    if (!mounted) return;
+    if (!mounted) {
+      return;
+    }
     webName = name;
     webPhoto = photo;
     webEmail = demoEmail;
@@ -65,17 +72,189 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final prefs = await SharedPreferences.getInstance();
     final stored = prefs.getStringList('demo_preferences') ?? [];
     final role = prefs.getString('demo_role') ?? 'user';
-    if (!mounted) return;
+    if (!mounted) {
+      return;
+    }
     setState(() {
       selectedPreferences = List<String>.from(stored);
       webRole = role;
     });
   }
 
+  Future<void> _showUpgradeDialogWeb() async {
+    final emailController = TextEditingController();
+    final passController = TextEditingController();
+
+    final ok = await showDialog<bool?>(
+      context: context,
+      builder: (_) {
+        return AlertDialog(
+          title: const Text('Upgrade Akun'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: emailController,
+                decoration: const InputDecoration(labelText: 'Email'),
+              ),
+              TextField(
+                controller: passController,
+                decoration: const InputDecoration(labelText: 'Password'),
+                obscureText: true,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Batal')),
+            ElevatedButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text('Upgrade')),
+          ],
+        );
+      },
+    );
+
+    if (ok != true) return;
+
+    try {
+      await authService.upgradeAnonymousWithEmail(
+        email: emailController.text,
+        password: passController.text,
+      );
+      final prefs = await SharedPreferences.getInstance();
+      // copy local demo data into Firestore for the newly linked user
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        final name = prefs.getString('demo_name') ?? 'Pengguna';
+        final phone = prefs.getString('demo_phone') ?? '';
+        final photo = prefs.getString('demo_photo') ?? '';
+        final demoPrefs = prefs.getStringList('demo_preferences') ?? [];
+
+        await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+          'uid': user.uid,
+          'name': name,
+          'email': emailController.text,
+          'phone': phone,
+          'photoUrl': photo,
+          'preferences': demoPrefs,
+          'role': 'user',
+          'createdAt': FieldValue.serverTimestamp(),
+          'updatedAt': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
+
+        // clear demo local storage keys
+        await prefs.remove('demo_name');
+        await prefs.remove('demo_email');
+        await prefs.remove('demo_phone');
+        await prefs.remove('demo_role');
+        await prefs.remove('demo_photo');
+        await prefs.remove('demo_preferences');
+      }
+
+      await prefs.setString('demo_role', 'user');
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        webRole = 'user';
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Akun berhasil di-upgrade')));
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Gagal upgrade: $e')));
+      }
+    }
+  }
+
+  Future<void> _showUpgradeDialogNative() async {
+    final emailController = TextEditingController();
+    final passController = TextEditingController();
+
+    final ok = await showDialog<bool?>(
+      context: context,
+      builder: (_) {
+        return AlertDialog(
+          title: const Text('Upgrade Akun'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: emailController,
+                decoration: const InputDecoration(labelText: 'Email'),
+              ),
+              TextField(
+                controller: passController,
+                decoration: const InputDecoration(labelText: 'Password'),
+                obscureText: true,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Batal')),
+            ElevatedButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text('Upgrade')),
+          ],
+        );
+      },
+    );
+
+    if (ok != true) return;
+
+    try {
+      await authService.upgradeAnonymousWithEmail(
+        email: emailController.text,
+        password: passController.text,
+      );
+      // Ensure role updated in backend
+      await userService.setRole('user');
+      // Copy any demo/local preferences into Firestore if present
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        final demoPrefs = prefs.getStringList('demo_preferences') ?? [];
+        final name = prefs.getString('demo_name');
+        final phone = prefs.getString('demo_phone');
+        final photo = prefs.getString('demo_photo');
+
+        if (name != null) {
+          await userService.updateName(name);
+        }
+        if (phone != null) {
+          await userService.updatePhone(phone);
+        }
+        if (photo != null) {
+          await userService.updatePhoto(photo);
+        }
+        if (demoPrefs.isNotEmpty) {
+          await userService.updatePreferences(demoPrefs);
+        }
+      } catch (_) {}
+      if (!mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Akun berhasil di-upgrade')));
+      setState(() {});
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Gagal upgrade: $e')));
+      }
+    }
+  }
+
   Future<void> logout() async {
     await authService.logout();
 
-    if (!mounted) return;
+    if (!mounted) {
+      return;
+    }
     Navigator.pushNamedAndRemoveUntil(
       context,
       AppRoutes.login,
@@ -91,34 +270,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
       await userService.updatePreferences(selectedPreferences);
     }
 
-    if (!mounted) return;
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Preferensi berhasil disimpan')),
-      );
+    if (!mounted) {
+      return;
     }
-  }
-
-  Future<void> _promoteToAdmin() async {
-    try {
-      await userService.setRole('admin');
-      if (kIsWeb) {
-        webRole = 'admin';
-      }
-      if (!mounted) return;
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Akun dipromosikan menjadi admin (dev)')),
-        );
-      }
-    } catch (e) {
-      if (!mounted) return;
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Gagal mempromosikan: $e')),
-        );
-      }
-    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Preferensi berhasil disimpan')),
+    );
   }
 
   String _displayRole(String? role) {
@@ -159,7 +316,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       final id = userService.uid.isEmpty
           ? DateTime.now().millisecondsSinceEpoch.toString()
           : userService.uid;
-      final uploaded = await uploadImagesIfNeeded(picked, cafeId: id);
+      final uploaded = await uploadUserImageFiles(picked, uid: id);
       if (uploaded.isEmpty) return;
       final url = uploaded.first;
       // Update backend/storage and local UI state
@@ -167,13 +324,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
       if (kIsWeb) {
         webPhoto = url;
       }
-      if (!mounted) return;
-        setState(() {});
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Foto profil diperbarui')),
-          );
-        }
+      if (!mounted) {
+        return;
+      }
+      setState(() {});
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Foto profil diperbarui')),
+        );
+      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context)
@@ -292,19 +451,39 @@ class _ProfileScreenState extends State<ProfileScreen> {
             email: webEmail ?? demoEmail,
             role: webRole,
             photoUrl: webPhoto,
-            onAvatarTap: _onPickAvatar,
+            onAvatarTap: webRole == 'guest'
+                ? () {
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                        content:
+                            Text('Upgrade akun untuk mengunggah foto profil')));
+                  }
+                : () {
+                    if (!fb_status.isFirebaseReady) {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                          content: Text(
+                              'Firebase belum siap. Periksa konfigurasi atau jalankan dengan --dart-define=ADMIN_SECRET untuk demo.')));
+                      return;
+                    }
+                    _onPickAvatar();
+                  },
           ),
-          if (kIsWeb)
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _promoteToAdmin,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.redAccent,
-                ),
-                child: const Text('Promote to Admin (dev)'),
+          if (webRole == 'guest') const SizedBox(height: 18),
+          if (webRole == 'guest')
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.04),
+                borderRadius: BorderRadius.circular(18),
+              ),
+              child: ListTile(
+                leading:
+                    const Icon(Icons.upgrade_rounded, color: AppTheme.gold),
+                title: const Text('Upgrade ke Akun'),
+                subtitle: const Text('Ubah akun tamu menjadi akun terdaftar'),
+                trailing: const Icon(Icons.chevron_right_rounded),
+                onTap: _showUpgradeDialogWeb,
               ),
             ),
+          // Developer-only promote button removed — admin management is handled elsewhere.
           const SizedBox(height: 30),
           const Text(
             'Preferensi Kafe',
@@ -440,7 +619,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 } else {
                   await userService.updateName(controller.text);
                 }
-                if (!mounted) return;
+                if (!mounted) {
+                  return;
+                }
                 Navigator.pop(context);
                 setState(() {});
               },
@@ -511,7 +692,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     email: email,
                     role: role,
                     photoUrl: photoUrl,
-                    onAvatarTap: _onPickAvatar,
+                    onAvatarTap: role == 'guest'
+                        ? () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content: Text(
+                                        'Upgrade akun untuk mengunggah foto profil')));
+                          }
+                        : () {
+                            if (!fb_status.isFirebaseReady) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                      content: Text(
+                                          'Firebase belum siap. Upload dinonaktifkan sementara.')));
+                              return;
+                            }
+                            _onPickAvatar();
+                          },
                     onEditNameTap: () => showEditNameDialog(name),
                   ),
                   const SizedBox(height: 30),
@@ -602,6 +799,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ),
                               );
                             },
+                          ),
+                        if (data['role'] == 'guest')
+                          ListTile(
+                            leading: const Icon(Icons.upgrade_rounded,
+                                color: AppTheme.gold),
+                            title: const Text('Upgrade ke Akun'),
+                            subtitle: const Text(
+                                'Ubah akun tamu menjadi akun terdaftar'),
+                            trailing: const Icon(Icons.chevron_right_rounded),
+                            onTap: _showUpgradeDialogNative,
                           ),
                         menuItem(Icons.notifications_rounded, 'Notifikasi'),
                         menuItem(Icons.dark_mode_rounded, 'Dark Mode'),

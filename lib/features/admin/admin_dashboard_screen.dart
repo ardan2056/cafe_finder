@@ -48,7 +48,7 @@ class AdminDashboardScreen extends StatelessWidget {
               subtitle: 'Reset dan isi data demo default',
               onTap: () async {
                 // call DemoCafeStore.seedDefaults via service import
-                  try {
+                try {
                   await DemoCafeStore.instance.seedDefaults();
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(

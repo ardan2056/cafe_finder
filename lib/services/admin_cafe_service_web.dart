@@ -2,10 +2,6 @@ import '../models/cafe_model.dart';
 import 'cafe_service_web.dart';
 
 class AdminCafeService {
-  Future<void> seedDefaults() async {
-    await DemoCafeStore.instance.seedDefaults();
-  }
-
   Future<void> addCafe({
     required String name,
     required String description,
@@ -18,7 +14,7 @@ class AdminCafeService {
     required String priceRange,
     List<String>? images,
   }) async {
-    final id = 'demo-${DateTime.now().millisecondsSinceEpoch}';
+      final id = 'demo-${DateTime.now().millisecondsSinceEpoch}';
     final cafe = CafeModel(
       id: id,
       name: name,
@@ -59,11 +55,7 @@ class AdminCafeService {
     required bool isActive,
   }) async {
     final current = await DemoCafeStore.instance.readAll();
-    final updated = current
-        .map((c) => c.id == cafeId
-            ? CafeModel.fromMap({...c.toMap(), 'isActive': isActive}, id: c.id)
-            : c)
-        .toList();
+    final updated = current.map((c) => c.id == cafeId ? CafeModel.fromMap({...c.toMap(), 'isActive': isActive}, id: c.id) : c).toList();
     await DemoCafeStore.instance.replaceAll(updated);
   }
 }

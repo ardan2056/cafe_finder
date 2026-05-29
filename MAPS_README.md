@@ -1,38 +1,21 @@
-Panduan singkat konfigurasi peta (flutter_map)
+Panduan singkat konfigurasi Google Maps
 
-Project ini memakai `flutter_map` dan tile source yang dikonfigurasi via `--dart-define`.
+1) Buat API key di Google Cloud Console
+   - Aktifkan Maps SDK for Android, Maps SDK for iOS, Maps JavaScript API
+   - Hubungkan billing
+   - (Opsional) Batasi key sesuai platform
 
-Default dev:
-- `MAP_TILE_URL_TEMPLATE=https://tile.openstreetmap.org/{z}/{x}/{y}.png`
-- `MAP_TILE_FALLBACK_URL_TEMPLATE=https://tile.openstreetmap.org/{z}/{x}/{y}.png`
-- tanpa API key
+2) Gunakan helper script untuk memasukkan key (Windows PowerShell):
 
-Untuk production, pakai provider tile resmi (contoh MapTiler) agar sesuai kebijakan pemakaian tile.
-
-1) Contoh jalankan dengan tile provider production (MapTiler):
-
-```bash
-flutter run -d chrome \
-  --dart-define=MAP_TILE_URL_TEMPLATE=https://api.maptiler.com/maps/streets/{z}/{x}/{y}.png?key={key} \
-  --dart-define=MAP_TILE_API_KEY=YOUR_MAPTILER_KEY
+```powershell
+cd c:\Users\ASUS\cafe_finder
+.\scripts\insert_map_keys.ps1 -webKey "YOUR_WEB_KEY" -androidKey "YOUR_ANDROID_KEY" -iosKey "YOUR_IOS_KEY"
 ```
 
-2) Opsional set user-agent package:
+3) Alternatif: jalankan dengan `--dart-define` untuk runtime config (terutama untuk web builds):
 
 ```bash
-flutter run -d chrome --dart-define=MAP_TILE_USER_AGENT_PACKAGE=com.cafefinder.app
+flutter run -d chrome --dart-define=GOOGLE_MAPS_API_KEY=YOUR_WEB_KEY
 ```
 
-3) Opsional fallback URL (dipakai jika primary URL kosong):
-
-```bash
-flutter run -d chrome \
-  --dart-define=MAP_TILE_URL_TEMPLATE= \
-  --dart-define=MAP_TILE_FALLBACK_URL_TEMPLATE=https://tile.openstreetmap.org/{z}/{x}/{y}.png
-```
-
-4) Jangan commit API key ke repository.
-   Simpan key di secret manager atau CI variables.
-
-5) Referensi kebijakan OSM tile server publik:
-   - https://operations.osmfoundation.org/policies/tiles
+4) Jangan commit API keys ke git. Simpan di secret manager atau environment variables.

@@ -51,7 +51,9 @@ class _ReviewScreenState extends State<ReviewScreen> {
         tags: selectedTags,
       );
 
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
       Navigator.pop(context);
     } catch (e) {
       if (mounted) {
@@ -62,7 +64,9 @@ class _ReviewScreenState extends State<ReviewScreen> {
     }
 
     if (mounted) {
-      setState(() => isLoading = false);
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 

@@ -1,0 +1,31 @@
+{
+  "name": "cafe_finder",
+  "version": "1.0.0",
+  "description": "Project Flutter untuk aplikasi Cafe Finder.",
+  "main": "set_admin_role.js",
+  "directories": {
+    "lib": "lib",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ardan2056/cafe_finder.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/ardan2056/cafe_finder/issues"
+  },
+  "homepage": "https://github.com/ardan2056/cafe_finder#readme",
+  "dependencies": {
+    "@dataconnect/admin-generated": "file:src/dataconnect-admin-generated",
+    "@dataconnect/generated": "file:src/dataconnect-generated",
+    "firebase": "^12.14.0",
+    "firebase-admin": "^13.10.0"
+  }
+}

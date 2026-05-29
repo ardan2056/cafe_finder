@@ -3,6 +3,8 @@ import '../../core/routes/app_routes.dart';
 import '../../core/theme/app_theme.dart';
 import '../../services/auth_service.dart';
 import '../../services/user_service.dart';
+import '../../core/config.dart';
+// imports intentionally minimal; admin flow uses separate AdminLoginScreen
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -22,15 +24,24 @@ class _LoginScreenState extends State<LoginScreen> {
   bool hidePassword = true;
 
   Future<void> loginUser() async {
-    setState(() => isLoading = true);
-
-    try {
-      await authService.login(
-        email: emailController.text,
-        password: passwordController.text,
+    // Basic validation: require email and password
+    final email = emailController.text.trim();
+    final password = passwordController.text;
+    if (email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Email dan password wajib diisi')),
       );
+      return;
+    }
 
-      if (!mounted) return;
+    setState(() {
+      isLoading = true;
+    });
+    try {
+      await authService.login(email: email, password: password);
+      if (!mounted) {
+        return;
+      }
       Navigator.pushReplacementNamed(context, AppRoutes.home);
     } catch (e) {
       if (mounted) {
@@ -38,24 +49,30 @@ class _LoginScreenState extends State<LoginScreen> {
           SnackBar(content: Text('Login gagal: $e')),
         );
       }
-    }
-
-    if (mounted) {
-      setState(() => isLoading = false);
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
     }
   }
 
   Future<void> loginWithGoogle() async {
-    setState(() => isGoogleLoading = true);
+    setState(() {
+      isGoogleLoading = true;
+    });
 
     try {
       final identity = await authService.loginWithGoogle();
-       await userService.createUserData(
-         name: identity.name,
-         email: identity.email,
-       );
+      await userService.createUserData(
+        name: identity.name,
+        email: identity.email,
+      );
 
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
       Navigator.pushReplacementNamed(context, AppRoutes.home);
     } catch (e) {
       if (mounted) {
@@ -65,7 +82,37 @@ class _LoginScreenState extends State<LoginScreen> {
       }
     } finally {
       if (mounted) {
-        setState(() => isGoogleLoading = false);
+        setState(() {
+          isGoogleLoading = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _loginAsGuest() async {
+    setState(() {
+      isLoading = true;
+    });
+    try {
+      await authService.signInAnonymously();
+      // create minimal user data (native will write to Firestore, web stores demo data)
+      await userService.createUserData(
+          name: 'Tamu', email: '', phone: '', role: 'guest');
+      if (!mounted) {
+        return;
+      }
+      Navigator.pushReplacementNamed(context, AppRoutes.home);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Gagal masuk sebagai tamu: $e')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
       }
     }
   }
@@ -75,10 +122,9 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       backgroundColor: AppTheme.navy,
       body: SafeArea(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(28),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Icon(
                 Icons.local_cafe_rounded,
@@ -152,6 +198,23 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                 ),
               ),
+              const SizedBox(height: 14),
+              if (Config.allowAnonymousLogin)
+                SizedBox(
+                  width: double.infinity,
+                  height: 48,
+                  child: OutlinedButton(
+                    onPressed: isLoading ? null : _loginAsGuest,
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      side: const BorderSide(color: AppTheme.gold),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(22),
+                      ),
+                    ),
+                    child: const Text('Masuk sebagai Tamu'),
+                  ),
+                ),
               const SizedBox(height: 14),
               SizedBox(
                 width: double.infinity,

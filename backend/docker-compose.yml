@@ -1,0 +1,26 @@
+version: '3.8'
+services:
+  cloudsql-proxy:
+    image: gcr.io/cloudsql-docker/gce-proxy:1.33.2
+    command: ["/cloud_sql_proxy", "-instances=${CLOUDSQL_CONNECTION_NAME}=tcp:5432", "-credential_file=/secrets/service-account.json"]
+    volumes:
+      - ./cloudsql:/secrets:ro
+    environment:
+      - CLOUDSQL_CONNECTION_NAME=${CLOUDSQL_CONNECTION_NAME}
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+
+  postgres-local:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: dev
+      POSTGRES_PASSWORD: dev
+      POSTGRES_DB: cafefinder
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:

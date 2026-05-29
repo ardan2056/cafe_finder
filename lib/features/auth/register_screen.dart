@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../../core/routes/app_routes.dart';
 import '../../core/theme/app_theme.dart';
 import '../../services/auth_service.dart';
 import '../../services/user_service.dart';
+import 'complete_profile_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -13,6 +13,7 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   final nameController = TextEditingController();
+  final phoneController = TextEditingController();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
@@ -23,11 +24,31 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool hidePassword = true;
 
   Future<void> registerUser() async {
-    if (nameController.text.isEmpty ||
-        emailController.text.isEmpty ||
-        passwordController.text.isEmpty) {
+    final name = nameController.text.trim();
+    final email = emailController.text.trim();
+    final password = passwordController.text;
+    final phone = phoneController.text.trim();
+
+    if (name.isEmpty || email.isEmpty || password.isEmpty || phone.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Semua data wajib diisi')),
+      );
+      return;
+    }
+
+    // basic email format check
+    final emailRegex = RegExp(r"^[^@\s]+@[^@\s]+\.[^@\s]+$");
+    if (!emailRegex.hasMatch(email)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Format email tidak valid')),
+      );
+      return;
+    }
+
+    // password strength: minimum 6 chars (Firebase requirement)
+    if (password.length < 6) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Password minimal 6 karakter')),
       );
       return;
     }
@@ -40,13 +61,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
         password: passwordController.text,
       );
 
-      await userService.createUserData(
-        name: nameController.text,
-        email: emailController.text,
+      // After creating the Firebase user, let them complete their profile.
+      if (!mounted) {
+        return;
+      }
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => CompleteProfileScreen(
+            initialName: nameController.text,
+            initialEmail: emailController.text,
+            initialPhone: phoneController.text,
+          ),
+        ),
       );
-
-      if (!mounted) return;
-      Navigator.pushReplacementNamed(context, AppRoutes.home);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -56,7 +84,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
 
     if (mounted) {
-      setState(() => isLoading = false);
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
@@ -89,6 +119,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 decoration: inputDecoration(
                   label: 'Nama',
                   icon: Icons.person_rounded,
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: phoneController,
+                keyboardType: TextInputType.phone,
+                decoration: inputDecoration(
+                  label: 'No. Telepon',
+                  icon: Icons.phone_rounded,
                 ),
               ),
               const SizedBox(height: 16),

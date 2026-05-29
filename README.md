@@ -1,64 +1,111 @@
 ﻿# Cafe Finder
 
-This repository is a Flutter app that helps users find nearby cafes.
+Project Flutter untuk aplikasi Cafe Finder.
 
-CI workflows
+## Alur aplikasi
 
-- `CI` (`.github/workflows/ci.yml`): dependency resolution, analyze, test, web build
-- `Format Check` (`.github/workflows/format.yml`): fails PR if Dart formatting is not clean
+Splash Screen -> Onboarding -> Login/Register -> Home -> Detail Cafe -> Search -> Maps -> Favorite -> Review
 
-Quick start
+## Setup sesuai langkah Anda
 
-```bash
-flutter pub get
-flutter run -d chrome
-```
+1. Buat project Flutter: `flutter create cafe_finder`
+2. Masuk folder project: `cd cafe_finder`
+3. Buka VS Code: `code .`
+4. Jalankan project pertama: `flutter run`
+5. Buat Firebase project dengan nama `Cafe Finder`
+6. Install Firebase CLI:
+	- Install NodeJS
+	- `npm install -g firebase-tools`
+	- Cek: `firebase --version`
+7. Login Firebase: `firebase login`
+8. Install FlutterFire CLI: `dart pub global activate flutterfire_cli`
+9. Hubungkan Firebase ke Flutter: `flutterfire configure`
+10. Tambahkan package Firebase di `pubspec.yaml`
+11. Jalankan: `flutter pub get`
+12. Test Firebase dengan `main.dart`
 
-Production checklist
+## Struktur folder
 
-- Upgrade dependencies (`flutter pub outdated`)
-- Run `flutter analyze` and fix issues
-- Add Sentry/Crashlytics DSN via `--dart-define` or CI secrets
-- Prepare platform signing (Android keystore, iOS provisioning)
-- Build and distribute
+- `lib/core`
+- `lib/features`
+- `lib/models`
+- `lib/services`
+- `lib/providers`
 
-Development notes
+## Catatan
 
-- CI runs analyze and tests on push/PR.
-- Format is enforced by `.github/workflows/format.yml`.
-- Localization ARB files are under `lib/l10n/`.
+- File `lib/firebase_options.dart` di project ini masih placeholder sampai Anda menjalankan `flutterfire configure`.
+- `firebase_storage` sudah ditambahkan untuk kebutuhan upload file/foto cafe di tahap berikutnya.
 
-Release checklist (practical)
+## Quick helpers for web development
 
-- Confirm `flutter analyze` and `flutter test` are green locally and in CI
-- Set GitHub secrets for web build:
-	- `SENTRY_DSN`
-	- `MAP_TILE_URL_TEMPLATE`
-	- `MAP_TILE_API_KEY`
-	- `MAP_TILE_FALLBACK_URL_TEMPLATE`
-- Build web release and smoke test map, auth, and detail flows
-- Tag release and update changelog
-
-Detailed release SOP is available in `RELEASE_CHECKLIST.md`.
-Secrets setup template is available in `.github/SECRETS_TEMPLATE.md`.
-Release notes are tracked in `CHANGELOG.md`.
-GitHub release template is available in `.github/RELEASE_TEMPLATE_v1.0.0.md`.
-
-Release scripts
----------------
-
-Simple helpers are provided in `scripts/release.sh` (bash) and `scripts/release.ps1` (PowerShell).
-They commit, tag `v1.0.0`, push, and will create a GitHub Release if the `gh` CLI is installed.
-
-Usage examples:
-
-```bash
-./scripts/release.sh "chore: release v1.0.0"
-```
+- Free ports in the common dev range (8080–8090):
 
 ```powershell
-.\scripts\release.ps1 -Message "chore: release v1.0.0"
+# Lists processes listening on ports 8080..8090 and prompts to kill them
+./scripts/free_port.ps1
 ```
 
-If you don't have `gh` installed, the scripts will still tag and push; create the release manually and paste the release body from `.github/RELEASE_BODY_v1.0.0.md`.
+- Run Flutter for web on a free port (lets Flutter pick a free web port):
 
+```powershell
+# Runs on Chrome using a free web port
+./scripts/run_web.ps1 -Device chrome -Port 0
+```
+
+Use these when you see SocketException Errno 10048 (address already in use) on Windows.
+
+## Setting the admin passcode (web)
+
+The app reads an admin passcode from Cloud Firestore at `config/app.admin_secret` for web demo admin login.
+
+1) Recommended (Firebase Console)
+
+- Open https://console.firebase.google.com/ and select your project.
+- Go to **Firestore Database** → **Data**.
+- Create collection `config` (if missing) and add document `app`.
+- Add field `admin_secret` (type: string) and set its value to the passcode you want (e.g. `ardan2056`).
+
+2) Using Firebase CLI (if you have `firebase-tools` configured)
+
+You can use the REST admin endpoint via `firebase deploy` / scripts, or use a small Node script with a service account (example below).
+
+3) Node script template (requires Firebase service account JSON)
+
+Create `scripts/set_admin_secret.js` and run with `node` (example below). This is useful for automation.
+
+```js
+// scripts/set_admin_secret.js
+// Usage: node set_admin_secret.js /path/to/serviceAccount.json ardan2056
+const admin = require('firebase-admin');
+const [,, keyPath, secret] = process.argv;
+if (!keyPath || !secret) {
+	console.error('Usage: node set_admin_secret.js <serviceAccount.json> <secret>');
+	process.exit(1);
+}
+admin.initializeApp({ credential: admin.credential.cert(require(keyPath)) });
+const db = admin.firestore();
+db.collection('config').doc('app').set({ admin_secret: secret })
+	.then(() => { console.log('admin_secret set'); process.exit(0); })
+	.catch(err => { console.error(err); process.exit(2); });
+```
+
+After setting the secret, open the web app and use the `Kode Admin (Web)` field on the login screen to sign in as admin.
+
+Security note: this passcode flow is intended for development/demo only. For production, use authenticated admin accounts stored in `users/{uid}.role = 'admin'` and secure Firestore rules so only authorized parties can modify `config/app`.
+
+## Avatar Upload & Guest Upgrade
+
+How avatar uploads and guest upgrades work in this project:
+
+- When a user picks an image (mobile), the app automatically crops the image to a centered square and resizes it to a maximum of 1600×1600, then compresses to JPEG (quality 85) or PNG when the source file is PNG.
+- Temporary processed files are written to the system temp directory and uploaded to Firebase Storage under `users/{uid}/` (filename is a timestamped `.jpg`/`.png`). After successful upload the temporary files are cleaned up automatically.
+- Guest (anonymous) users can use the app; when they upgrade (register), the app links the anonymous account to the new credential and migrates demo/local preferences into Firestore under `users/{uid}`.
+
+Testing the flow locally:
+
+1. Run the app on a device/emulator.
+2. Sign in anonymously from the login screen and try the app (create favorites, etc.).
+3. Go to Profile → Upgrade to register an email/password account; after linking, verify Firestore `users/{uid}` contains the demo data and `photoUrl` if you uploaded an avatar.
+
+If you want an explicit interactive crop UI, consider adding `image_cropper` package and a small cropping step before upload (not included by default to avoid broad dependency upgrades). If you'd like, I can add this next.

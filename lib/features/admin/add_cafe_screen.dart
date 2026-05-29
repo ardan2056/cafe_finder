@@ -3,6 +3,7 @@ import '../../core/theme/app_theme.dart';
 import '../../services/admin_cafe_service.dart';
 import '../../services/admin_image_picker.dart';
 import '../../services/image_uploader.dart';
+import '../../core/firebase_status.dart' as fb_status;
 
 class AddCafeScreen extends StatefulWidget {
   const AddCafeScreen({super.key});
@@ -70,7 +71,22 @@ class _AddCafeScreenState extends State<AddCafeScreen> {
       return;
     }
 
-    setState(() => isLoading = true);
+    // Validate numeric latitude/longitude
+    final lat = double.tryParse(latitudeController.text);
+    final lng = double.tryParse(longitudeController.text);
+    if (lat == null || lng == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('Latitude dan Longitude harus berupa angka')),
+        );
+      }
+      return;
+    }
+
+    setState(() {
+      isLoading = true;
+    });
 
     try {
       // validate image URLs and remove invalid ones
@@ -81,12 +97,14 @@ class _AddCafeScreenState extends State<AddCafeScreen> {
           .toList();
 
       final invalid = rawImages.where((u) => !_isValidUrl(u)).toList();
-      var images = rawImages.where((u) => _isValidUrl(u)).toList();
+      final images = rawImages.where((u) => _isValidUrl(u)).toList();
       if (invalid.isNotEmpty) {
         imagesController.text = images.join(', ');
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('${invalid.length} invalid image URL(s) removed')),
+            SnackBar(
+                content:
+                    Text('${invalid.length} invalid image URL(s) removed')),
           );
         }
       }
@@ -95,8 +113,8 @@ class _AddCafeScreenState extends State<AddCafeScreen> {
         name: nameController.text,
         description: descriptionController.text,
         address: addressController.text,
-        latitude: double.parse(latitudeController.text),
-        longitude: double.parse(longitudeController.text),
+        latitude: lat,
+        longitude: lng,
         facilities: selectedFacilities,
         atmosphere: selectedAtmosphere,
         categories: selectedCategories,
@@ -104,7 +122,9 @@ class _AddCafeScreenState extends State<AddCafeScreen> {
         images: images,
       );
 
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
       Navigator.pop(context);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -119,7 +139,9 @@ class _AddCafeScreenState extends State<AddCafeScreen> {
       }
     } finally {
       if (mounted) {
-        setState(() => isLoading = false);
+        setState(() {
+          isLoading = false;
+        });
       }
     }
   }
@@ -132,7 +154,7 @@ class _AddCafeScreenState extends State<AddCafeScreen> {
         decoration: InputDecoration(
           labelText: label,
           filled: true,
-              fillColor: Colors.white.withValues(alpha: 0.08),
+          fillColor: Colors.white.withValues(alpha: 0.08),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(18),
             borderSide: BorderSide.none,
@@ -187,7 +209,7 @@ class _AddCafeScreenState extends State<AddCafeScreen> {
                   vertical: 9,
                 ),
                 decoration: BoxDecoration(
-                    color: selected
+                  color: selected
                       ? AppTheme.gold
                       : Colors.white.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(18),
@@ -254,10 +276,15 @@ class _AddCafeScreenState extends State<AddCafeScreen> {
                 child: Image.network(
                   url,
                   fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) => const Icon(Icons.broken_image, color: Colors.white54),
+                  errorBuilder: (context, error, stackTrace) =>
+                      const Icon(Icons.broken_image, color: Colors.white54),
                   loadingBuilder: (context, child, progress) {
                     if (progress == null) return child;
-                    return const Center(child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)));
+                    return const Center(
+                        child: SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2)));
                   },
                 ),
               ),
@@ -269,6 +296,12 @@ class _AddCafeScreenState extends State<AddCafeScreen> {
   }
 
   Future<void> _onPickImages() async {
+    if (!fb_status.isFirebaseReady) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Firebase belum siap — upload gambar dinonaktifkan.')));
+      return;
+    }
+
     setState(() => isUploadingImages = true);
     try {
       final picked = await pickImages();
@@ -316,11 +349,9 @@ class _AddCafeScreenState extends State<AddCafeScreen> {
             inputField('Latitude', latitudeController),
             inputField('Longitude', longitudeController),
             inputField('Range Harga', priceController),
-
             chipSelector('Fasilitas', facilities, selectedFacilities),
             chipSelector('Suasana', atmospheres, selectedAtmosphere),
             chipSelector('Kategori', categories, selectedCategories),
-
             inputField('Image URLs (comma separated)', imagesController),
             Row(
               children: [
@@ -331,7 +362,11 @@ class _AddCafeScreenState extends State<AddCafeScreen> {
                     foregroundColor: Colors.black,
                   ),
                   child: isUploadingImages
-                      ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.black, strokeWidth: 2))
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                              color: Colors.black, strokeWidth: 2))
                       : Row(
                           mainAxisSize: MainAxisSize.min,
                           children: const [
@@ -345,9 +380,7 @@ class _AddCafeScreenState extends State<AddCafeScreen> {
                 Expanded(child: imagePreview()),
               ],
             ),
-
             const SizedBox(height: 10),
-
             SizedBox(
               width: double.infinity,
               height: 56,

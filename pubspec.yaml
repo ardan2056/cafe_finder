@@ -10,34 +10,36 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.8
-  provider: ^6.1.5
-  firebase_core: ^4.9.0
-  firebase_auth: ^6.5.1
-  google_sign_in: ^6.3.0
-  cloud_firestore: ^6.4.1
-  firebase_storage: ^13.4.1
+  provider: ^6.1.2
+  firebase_core: ^3.4.0
+  firebase_auth: ^5.2.0
+  cloud_firestore: ^5.4.0
+  firebase_storage: ^12.3.0
   url_launcher: ^6.2.0
+  google_maps_flutter: ^2.6.1
+  permission_handler: ^10.4.0
+  geolocator: ^9.0.2
+  shared_preferences: ^2.3.2
+  shimmer: ^2.0.0
+  image_picker: ^0.8.7+6
+  file_picker: ^11.0.2
+  http: ^1.6.0
   flutter_map: ^8.3.0
   latlong2: ^0.9.1
   flutter_map_marker_cluster: ^8.2.2
-  sentry_flutter: ^7.17.0
-  permission_handler: ^12.0.1
-  geolocator: ^14.0.2
-  shared_preferences: ^2.3.2
-  shimmer: ^2.0.0
-  image_picker: ^1.2.2
-  file_picker: ^11.0.2
-  image: ^4.0.17
+  flutter_map_marker_popup: ^8.1.1
+  firebase_data_connect: any
+  google_sign_in: any
+  image: any
+  # image_cropper removed to avoid dependency upgrades that break other packages
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^6.0.0
-  intl: ^0.20.2
-  flutter_localizations:
-    sdk: flutter
-  integration_test:
-    sdk: flutter
+  flutter_lints: ^5.0.0
+  # integration_test removed temporarily to avoid version-solving issues
+  # Add it back when your Flutter SDK supports the desired version.
 
 flutter:
   uses-material-design: true
+  # image_cropper used for avatar cropping on CompleteProfileScreen
