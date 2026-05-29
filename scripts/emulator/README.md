@@ -53,3 +53,14 @@ node scripts/inspect_emulator_users.js <uid>           # show a single user doc
 Notes:
 - The script initializes `firebase-admin` with only `projectId` so it connects to the emulator when `FIRESTORE_EMULATOR_HOST` is set.
 - If you run into permission errors, ensure you started the emulators with the same `--project` id and that the `FIRESTORE_EMULATOR_HOST` environment variable is present in the shell you're using to run the script.
+
+Automated runner (emulator + integration test)
+
+To run the emulators and execute the integration test automatically, use the helper script:
+
+```powershell
+.
+./scripts/run_emulator_integration_test.ps1 -ProjectId auto
+```
+
+This will invoke `firebase emulators:exec` and run `flutter test integration_test/demo_migration_test.dart` with `USE_FIREBASE_EMULATOR=1` set in the test process.
