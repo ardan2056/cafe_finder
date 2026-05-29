@@ -47,14 +47,36 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String? webName;
   String? webPhoto;
   String? webEmail;
+  bool? _simpleProfileOverride;
 
   @override
   void initState() {
     super.initState();
+    _loadSimpleOverride();
     if (kIsWeb) {
       _loadWebPreferences();
       _loadWebProfile();
     }
+  }
+
+  Future<void> _loadSimpleOverride() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      if (prefs.containsKey('simple_profile_mode_override')) {
+        _simpleProfileOverride = prefs.getBool('simple_profile_mode_override');
+      }
+    } catch (_) {}
+  }
+
+  bool get _isSimpleProfile => _simpleProfileOverride ?? Config.simpleProfileMode;
+
+  Future<void> _setSimpleOverride(bool value) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('simple_profile_mode_override', value);
+      _simpleProfileOverride = value;
+      if (mounted) setState(() {});
+    } catch (_) {}
   }
 
   Future<void> _loadWebProfile() async {
@@ -456,6 +478,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
               fontWeight: FontWeight.bold,
             ),
           ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              const Spacer(),
+              const Text('Mode Sederhana', style: TextStyle(color: AppTheme.lightGray)),
+              const SizedBox(width: 8),
+              Switch.adaptive(
+                value: _isSimpleProfile,
+                onChanged: (v) async {
+                  await _setSimpleOverride(v);
+                },
+              ),
+            ],
+          ),
           const SizedBox(height: 24),
           _profileCard(
             name: webName ?? demoName,
@@ -614,6 +650,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
               fontWeight: FontWeight.bold,
             ),
           ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              const Spacer(),
+              const Text('Mode Sederhana', style: TextStyle(color: AppTheme.lightGray)),
+              const SizedBox(width: 8),
+              Switch.adaptive(
+                value: _isSimpleProfile,
+                onChanged: (v) async {
+                  await _setSimpleOverride(v);
+                },
+              ),
+            ],
+          ),
           const SizedBox(height: 24),
           _profileCard(
             name: webName ?? demoName,
@@ -743,6 +793,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       fontSize: 30,
                       fontWeight: FontWeight.bold,
                     ),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      const Spacer(),
+                      const Text('Mode Sederhana', style: TextStyle(color: AppTheme.lightGray)),
+                      const SizedBox(width: 8),
+                      Switch.adaptive(
+                        value: _isSimpleProfile,
+                        onChanged: (v) async {
+                          await _setSimpleOverride(v);
+                        },
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 24),
                   _profileCard(
