@@ -148,6 +148,20 @@ class _LoginScreenState extends State<LoginScreen> {
     } catch (_) {}
   }
 
+  Future<void> _toggleForceDemo() async {
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final cur = prefs.getBool('demo_mode') ?? false;
+      await prefs.setBool('demo_mode', !cur);
+      if (mounted) setState(() {});
+      messenger.showSnackBar(SnackBar(
+          content: Text(!cur ? 'Demo mode diaktifkan' : 'Demo mode dinonaktifkan')));
+    } catch (e) {
+      messenger.showSnackBar(SnackBar(content: Text('Gagal toggle demo mode: $e')));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -274,6 +288,15 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
               const SizedBox(height: 18),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  TextButton(
+                    onPressed: _toggleForceDemo,
+                    child: const Text('Force Demo Mode'),
+                  ),
+                ],
+              ),
               TextButton(
                 onPressed: () {
                   Navigator.pushNamed(context, AppRoutes.register);
