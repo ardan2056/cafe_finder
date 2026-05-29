@@ -7,6 +7,8 @@ import '../../core/firebase_status.dart' as fb_status;
 import 'complete_profile_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:developer' as developer;
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -110,6 +112,40 @@ class _RegisterScreenState extends State<RegisterScreen> {
       final user = FirebaseAuth.instance.currentUser;
       final uid = user?.uid ?? '';
       developer.log('Registered user uid: $uid (before: $before)');
+      // If demo_mode was active, migrate local demo data into Firestore
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        final isDemo = prefs.getBool('demo_mode') ?? false;
+        if (isDemo && uid.isNotEmpty) {
+          final nameVal = prefs.getString('demo_name') ?? name;
+          final phoneVal = prefs.getString('demo_phone') ?? phone;
+          final photoVal = prefs.getString('demo_photo') ?? '';
+          final demoPrefs = prefs.getStringList('demo_preferences') ?? [];
+
+          await FirebaseFirestore.instance.collection('users').doc(uid).set({
+            'uid': uid,
+            'name': nameVal,
+            'email': email,
+            'phone': phoneVal,
+            'photoUrl': photoVal,
+            'preferences': demoPrefs,
+            'role': 'user',
+            'createdAt': FieldValue.serverTimestamp(),
+            'updatedAt': FieldValue.serverTimestamp(),
+          }, SetOptions(merge: true));
+
+          // clear demo keys
+          await prefs.remove('demo_mode');
+          await prefs.remove('demo_name');
+          await prefs.remove('demo_email');
+          await prefs.remove('demo_phone');
+          await prefs.remove('demo_role');
+          await prefs.remove('demo_photo');
+          await prefs.remove('demo_preferences');
+        }
+      } catch (e) {
+        developer.log('Failed migrating demo data: $e');
+      }
       if (mounted) {
         messenger.showSnackBar(SnackBar(
             content: Text(uid.isNotEmpty
