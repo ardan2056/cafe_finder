@@ -37,3 +37,19 @@ Running tests against emulators:
 - Then run the app or integration tests while `USE_FIREBASE_EMULATOR` is set in the environment.
 
 Security: Always ensure you are not pointing an emulator to production credentials. Emulators are local-only and safe for development.
+
+Inspecting emulator data from Node.js
+
+You can use a small Node script to inspect the `users` collection in the Firestore emulator. Example script added at `scripts/inspect_emulator_users.js`.
+
+Run the script while the emulators are running (make sure `FIRESTORE_EMULATOR_HOST` is set by the emulator process):
+
+```powershell
+# From project root, with emulators started in another terminal
+node scripts/inspect_emulator_users.js                 # list up to 50 user docs
+node scripts/inspect_emulator_users.js <uid>           # show a single user doc
+```
+
+Notes:
+- The script initializes `firebase-admin` with only `projectId` so it connects to the emulator when `FIRESTORE_EMULATOR_HOST` is set.
+- If you run into permission errors, ensure you started the emulators with the same `--project` id and that the `FIRESTORE_EMULATOR_HOST` environment variable is present in the shell you're using to run the script.
