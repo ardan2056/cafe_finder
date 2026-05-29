@@ -141,3 +141,19 @@ When Anonymous sign-in is disabled for the Firebase project, the app now provide
 - Notes:
 	- Demo mode stores data locally only; it is intended for development and demos. For production, prefer enabling Anonymous sign-in in Firebase and using real Firestore documents.
 	- The migration attempts to copy name, phone, photo URL, and preferences into the Firestore document for the new user and marks role as `user`.
+
+### Firestore provisioning & Anonymous sign-in (recommended)
+
+Untuk agar aplikasi dapat menulis dokumen pengguna nyata dan mendukung masuk sebagai tamu (anonymous), silakan provisioning Cloud Firestore dan aktifkan Anonymous sign-in di project Firebase Anda:
+
+1. Buka Firebase Console untuk project Anda.
+2. Pilih **Build → Firestore Database** lalu klik **Create database**. Untuk pengembangan pilih **Start in test mode** lalu batasi rules nanti sesuai kebutuhan.
+3. Pilih **Build → Authentication → Sign-in method** dan aktifkan **Anonymous**. Simpan perubahan.
+
+Setelah langkah ini, restart aplikasi dan gunakan tombol "Masuk sebagai Tamu" — aplikasi akan membuat user Firebase Auth anonymous nyata dan Anda dapat melihat dokumen `users/{uid}` di Firestore saat pengguna mendaftar.
+
+Jika Anda tidak bisa provisioning Firestore atau mengaktifkan anonymous sign-in (mis. project terbatas), gunakan tombol **Force Demo Mode** di layar login untuk melanjutkan pengembangan lokal; data demo akan disimpan di `SharedPreferences` dan akan dimigrasi ke Firestore setelah pendaftaran jika Firestore tersedia.
+
+Troubleshooting:
+- Jika masuk tamu gagal dengan error `This operation is restricted to administrators only`, periksa bahwa Anonymous sign-in sudah diaktifkan di Firebase Console dan Firestore sudah dibuat.
+- Jika Firestore menampilkan `database (default) does not exist`, buat database di Firebase Console sesuai instruksi di atas.
