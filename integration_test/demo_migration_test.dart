@@ -1,4 +1,4 @@
-// ignore_for_file: uri_does_not_exist, undefined_identifier
+// ignore_for_file: uri_does_not_exist, undefined_identifier, depend_on_referenced_packages
 // Runs only when USE_FIREBASE_EMULATOR=1 is set in the environment.
 import 'dart:io';
 import 'package:integration_test/integration_test.dart';
