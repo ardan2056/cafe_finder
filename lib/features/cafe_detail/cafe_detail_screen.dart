@@ -292,6 +292,14 @@ class _CafeDetailScreenState extends State<CafeDetailScreen> {
                             return;
                           }
 
+                          // Refresh dari server supaya foto baru langsung muncul.
+                          await FirebaseFirestore.instance
+                              .collection('cafes')
+                              .doc(cafe.id)
+                              .get(GetOptions(source: Source.server));
+
+                          if (!mounted) return;
+
                           Navigator.pop(context);
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
