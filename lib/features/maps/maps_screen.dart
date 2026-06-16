@@ -587,47 +587,101 @@ class MapsScreenState extends State<MapsScreen> {
 
   void _onCafeTap(BuildContext context, CafeModel c) {
     _mapController.move(LatLng(c.latitude, c.longitude), 15);
+    final heroImage = c.images.isNotEmpty ? c.images.first : null;
+
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
       builder: (_) => Container(
-        decoration: BoxDecoration(
-            color: AppTheme.navy,
-            borderRadius:
-                const BorderRadius.vertical(top: Radius.circular(20))),
+        decoration: const BoxDecoration(
+          color: AppTheme.navy,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
         padding: const EdgeInsets.all(16),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(c.name,
-                style:
-                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
-            Text(c.address, style: const TextStyle(color: AppTheme.lightGray)),
-            const SizedBox(height: 12),
-            Row(children: [
-              ElevatedButton(
-                onPressed: () => Navigator.pushNamed(
-                    context, AppRoutes.cafeDetail,
-                    arguments: c),
-                style: ElevatedButton.styleFrom(
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Container(
+                    width: 76,
+                    height: 76,
+                    color: Colors.white.withValues(alpha: 0.06),
+                    child: heroImage != null && heroImage.isNotEmpty
+                        ? Image.network(
+                            heroImage,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => const Icon(
+                              Icons.local_cafe_rounded,
+                              color: Colors.white54,
+                            ),
+                          )
+                        : const Icon(
+                            Icons.local_cafe_rounded,
+                            color: Colors.white54,
+                          ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        c.name,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        c.address,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(color: AppTheme.lightGray),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
+            Row(
+              children: [
+                ElevatedButton(
+                  onPressed: () => Navigator.pushNamed(
+                    context,
+                    AppRoutes.cafeDetail,
+                    arguments: c,
+                  ),
+                  style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.gold,
-                    foregroundColor: Colors.black),
-                child: const Text('Buka detail'),
-              ),
-              const SizedBox(width: 12),
-              ElevatedButton(
-                onPressed: () async {
-                  final uri = Uri.parse(
-                      'https://www.google.com/maps/search/?api=1&query=${c.latitude},${c.longitude}');
-                  if (await canLaunchUrl(uri)) await launchUrl(uri);
-                },
-                style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white.withValues(alpha: 0.06)),
-                child: const Icon(Icons.directions),
-              ),
-            ])
+                    foregroundColor: Colors.black,
+                  ),
+                  child: const Text('Buka detail'),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      final uri = Uri.parse(
+                        'https://www.google.com/maps/search/?api=1&query=${c.latitude},${c.longitude}',
+                      );
+                      if (await canLaunchUrl(uri)) await launchUrl(uri);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white.withValues(alpha: 0.06),
+                    ),
+                    child: const Icon(Icons.directions),
+                  ),
+                ),
+              ],
+            )
           ],
         ),
       ),
