@@ -1,6 +1,8 @@
-# TODO - Fix "app tidak bisa di run"
+# TODO
 
-- [ ] Jalankan `flutter run --device-id=windows` untuk verifikasi build berhasil.
-- [ ] Kalau masih gagal, cek kembali konflik dependency `google_sign_in` dan opsi alternatif.
+## AdminCafeManagerScreen fixes
+- [ ] Optimize distance sorting by caching distances per build.
+- [ ] Make "Kategori teratas" reflect the currently displayed cafes (`ordered`), not all cafes.
+- [x] Run `flutter analyze` to verify compilation.
 
 

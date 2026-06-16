@@ -471,6 +471,17 @@ class _AdminCafeManagerScreenState extends State<AdminCafeManagerScreen> {
     );
   }
 
+  double _distanceToCafeCached(
+    CafeModel cafe, {
+    required Map<String, double> distanceCache,
+  }) {
+    final cached = distanceCache[cafe.id];
+    if (cached != null) return cached;
+    final distance = _distanceToCafe(cafe);
+    distanceCache[cafe.id] = distance;
+    return distance;
+  }
+
   Widget _metricCard(String label, String value, IconData icon, Color accent) {
     return Container(
       padding: const EdgeInsets.all(14),
@@ -616,13 +627,17 @@ class _AdminCafeManagerScreenState extends State<AdminCafeManagerScreen> {
     final sorted = List<CafeModel>.from(cafes);
     switch (_sortFilter) {
       case 'distance':
+        final distanceCache = <String, double>{};
         sorted.sort((a, b) {
           final distanceCompare =
-              _distanceToCafe(a).compareTo(_distanceToCafe(b));
+              _distanceToCafeCached(a, distanceCache: distanceCache).compareTo(
+            _distanceToCafeCached(b, distanceCache: distanceCache),
+          );
           if (distanceCompare != 0) return distanceCompare;
           return a.name.toLowerCase().compareTo(b.name.toLowerCase());
         });
         break;
+
       case 'name':
         sorted.sort(
             (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
@@ -733,12 +748,13 @@ class _AdminCafeManagerScreenState extends State<AdminCafeManagerScreen> {
               _selectedIds.where(visibleIds.contains).length;
           final allVisibleSelected =
               ordered.isNotEmpty && selectedVisibleCount == ordered.length;
-          final topCategories = _topCategories(cafes);
+          final topCategories = _topCategories(ordered);
 
           final activeCount = cafes.where((c) => c.isActive).length;
+
           final inactiveCount = cafes.length - activeCount;
 
-          return Padding(
+          return SingleChildScrollView(
             padding: const EdgeInsets.all(16),
             child: Column(
               children: [
@@ -943,36 +959,36 @@ class _AdminCafeManagerScreenState extends State<AdminCafeManagerScreen> {
                   ),
                   const SizedBox(height: 12),
                 ],
-                Expanded(
-                  child: snapshot.connectionState == ConnectionState.waiting &&
-                          cafes.isEmpty
-                      ? const Center(child: CircularProgressIndicator())
-                      : ordered.isEmpty
-                          ? _emptyState(cafes.isEmpty)
-                          : ListView.separated(
-                              itemCount: ordered.length,
-                              separatorBuilder: (_, __) =>
-                                  const SizedBox(height: 12),
-                              itemBuilder: (context, index) {
-                                final cafe = ordered[index];
-                                final isBusy = _busyIds.contains(cafe.id);
-                                final isSelected =
-                                    _selectedIds.contains(cafe.id);
-                                return _CafeAdminCard(
-                                  cafe: cafe,
-                                  isBusy: isBusy,
-                                  isSelected: isSelected,
-                                  onSelectionChanged: (value) =>
-                                      _toggleSelected(cafe.id, value ?? false),
-                                  onEdit: () => _openEditor(cafe),
-                                  onDuplicate: () => _duplicateCafe(cafe),
-                                  onToggleActive: () =>
-                                      _setActive(cafe, !cafe.isActive),
-                                  onDelete: () => _deleteCafe(cafe),
-                                );
-                              },
-                            ),
-                ),
+                // List cafe dibuat non-scroll agar scroll utama berasal dari SingleChildScrollView
+                if (snapshot.connectionState == ConnectionState.waiting &&
+                    cafes.isEmpty)
+                  const Center(child: CircularProgressIndicator())
+                else if (ordered.isEmpty)
+                  _emptyState(cafes.isEmpty)
+                else
+                  ListView.separated(
+                    itemCount: ordered.length,
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    separatorBuilder: (_, __) => const SizedBox(height: 12),
+                    itemBuilder: (context, index) {
+                      final cafe = ordered[index];
+                      final isBusy = _busyIds.contains(cafe.id);
+                      final isSelected = _selectedIds.contains(cafe.id);
+                      return _CafeAdminCard(
+                        cafe: cafe,
+                        isBusy: isBusy,
+                        isSelected: isSelected,
+                        onSelectionChanged: (value) =>
+                            _toggleSelected(cafe.id, value ?? false),
+                        onEdit: () => _openEditor(cafe),
+                        onDuplicate: () => _duplicateCafe(cafe),
+                        onToggleActive: () => _setActive(cafe, !cafe.isActive),
+                        onDelete: () => _deleteCafe(cafe),
+                      );
+                    },
+                  ),
+                const SizedBox(height: 24),
               ],
             ),
           );
@@ -1096,6 +1112,20 @@ class _CafeAdminCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // subtle highlight based on active/inactive
+          Container(
+            height: 4,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: statusColor.withValues(alpha: 0.35),
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(12),
+                topRight: Radius.circular(12),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
