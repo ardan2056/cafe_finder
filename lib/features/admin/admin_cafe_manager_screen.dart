@@ -738,7 +738,7 @@ class _AdminCafeManagerScreenState extends State<AdminCafeManagerScreen> {
           final activeCount = cafes.where((c) => c.isActive).length;
           final inactiveCount = cafes.length - activeCount;
 
-          return Padding(
+          return SingleChildScrollView(
             padding: const EdgeInsets.all(16),
             child: Column(
               children: [
@@ -943,36 +943,36 @@ class _AdminCafeManagerScreenState extends State<AdminCafeManagerScreen> {
                   ),
                   const SizedBox(height: 12),
                 ],
-                Expanded(
-                  child: snapshot.connectionState == ConnectionState.waiting &&
-                          cafes.isEmpty
-                      ? const Center(child: CircularProgressIndicator())
-                      : ordered.isEmpty
-                          ? _emptyState(cafes.isEmpty)
-                          : ListView.separated(
-                              itemCount: ordered.length,
-                              separatorBuilder: (_, __) =>
-                                  const SizedBox(height: 12),
-                              itemBuilder: (context, index) {
-                                final cafe = ordered[index];
-                                final isBusy = _busyIds.contains(cafe.id);
-                                final isSelected =
-                                    _selectedIds.contains(cafe.id);
-                                return _CafeAdminCard(
-                                  cafe: cafe,
-                                  isBusy: isBusy,
-                                  isSelected: isSelected,
-                                  onSelectionChanged: (value) =>
-                                      _toggleSelected(cafe.id, value ?? false),
-                                  onEdit: () => _openEditor(cafe),
-                                  onDuplicate: () => _duplicateCafe(cafe),
-                                  onToggleActive: () =>
-                                      _setActive(cafe, !cafe.isActive),
-                                  onDelete: () => _deleteCafe(cafe),
-                                );
-                              },
-                            ),
-                ),
+                // List cafe dibuat non-scroll agar scroll utama berasal dari SingleChildScrollView
+                if (snapshot.connectionState == ConnectionState.waiting &&
+                    cafes.isEmpty)
+                  const Center(child: CircularProgressIndicator())
+                else if (ordered.isEmpty)
+                  _emptyState(cafes.isEmpty)
+                else
+                  ListView.separated(
+                    itemCount: ordered.length,
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    separatorBuilder: (_, __) => const SizedBox(height: 12),
+                    itemBuilder: (context, index) {
+                      final cafe = ordered[index];
+                      final isBusy = _busyIds.contains(cafe.id);
+                      final isSelected = _selectedIds.contains(cafe.id);
+                      return _CafeAdminCard(
+                        cafe: cafe,
+                        isBusy: isBusy,
+                        isSelected: isSelected,
+                        onSelectionChanged: (value) =>
+                            _toggleSelected(cafe.id, value ?? false),
+                        onEdit: () => _openEditor(cafe),
+                        onDuplicate: () => _duplicateCafe(cafe),
+                        onToggleActive: () => _setActive(cafe, !cafe.isActive),
+                        onDelete: () => _deleteCafe(cafe),
+                      );
+                    },
+                  ),
+                const SizedBox(height: 24),
               ],
             ),
           );
