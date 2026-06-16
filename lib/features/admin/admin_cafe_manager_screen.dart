@@ -751,6 +751,7 @@ class _AdminCafeManagerScreenState extends State<AdminCafeManagerScreen> {
           final topCategories = _topCategories(ordered);
 
           final activeCount = cafes.where((c) => c.isActive).length;
+
           final inactiveCount = cafes.length - activeCount;
 
           return SingleChildScrollView(
