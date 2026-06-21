@@ -7,4 +7,7 @@ class AppRoutes {
   static const cafeDetail = '/cafe-detail';
   static const map = '/map';
   static const adminLogin = '/admin-login';
+  static const stitchExplorer = '/stitch-explorer';
+  static const communityDetail = '/community-detail';
+  static const groupChat = '/group-chat';
 }

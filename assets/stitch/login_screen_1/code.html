@@ -1,0 +1,242 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>BrewQuest - Login</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="assets/css2-3a3ccbf546ba9d5ad975df84384ac861" rel="stylesheet">
+<link href="assets/css2-a39f5c6fcbb87b419667ec984d2e579a" rel="stylesheet">
+<link href="assets/css2-9df0d028785caf8570e26419767bb9cb" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-fixed": "#291800",
+                        "surface-bright": "#faf9f8",
+                        "surface-tint": "#79573f",
+                        "surface-container-high": "#e9e8e7",
+                        "tertiary-fixed-dim": "#e7c08e",
+                        "on-error-container": "#93000a",
+                        "on-secondary": "#ffffff",
+                        "inverse-primary": "#eabda0",
+                        "primary-fixed": "#ffdcc6",
+                        "error": "#ba1a1a",
+                        "surface-variant": "#e3e2e1",
+                        "secondary-fixed-dim": "#e3c19f",
+                        "on-tertiary-container": "#ebc491",
+                        "on-tertiary": "#ffffff",
+                        "background": "#faf9f8",
+                        "secondary-fixed": "#ffddbb",
+                        "on-primary": "#ffffff",
+                        "tertiary-container": "#6c5028",
+                        "surface-container": "#eeeeed",
+                        "on-secondary-container": "#785e42",
+                        "error-container": "#ffdad6",
+                        "secondary": "#735a3e",
+                        "primary": "#553722",
+                        "primary-container": "#6f4e37",
+                        "outline": "#82746d",
+                        "on-primary-fixed-variant": "#5f402a",
+                        "on-background": "#1a1c1c",
+                        "surface-dim": "#dadad9",
+                        "on-primary-container": "#eec1a4",
+                        "surface-container-lowest": "#ffffff",
+                        "inverse-on-surface": "#f1f0f0",
+                        "on-tertiary-fixed-variant": "#5c421b",
+                        "tertiary-fixed": "#ffddb4",
+                        "secondary-container": "#fdd9b7",
+                        "on-surface": "#1a1c1c",
+                        "surface-container-highest": "#e3e2e1",
+                        "on-error": "#ffffff",
+                        "on-surface-variant": "#50453e",
+                        "primary-fixed-dim": "#eabda0",
+                        "surface-container-low": "#f4f3f2",
+                        "on-secondary-fixed-variant": "#5a4229",
+                        "inverse-surface": "#2f3130",
+                        "on-secondary-fixed": "#291803",
+                        "on-primary-fixed": "#2d1604",
+                        "surface": "#faf9f8",
+                        "tertiary": "#533913",
+                        "outline-variant": "#d4c3ba"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "sheet-peek-height": "240px",
+                        "margin-mobile": "16px",
+                        "base": "8px",
+                        "bottom-nav-height": "80px",
+                        "margin-tablet": "24px",
+                        "gutter": "16px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Inter"],
+                        "label-lg": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "title-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "headline-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "label-lg": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
+                        "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "title-lg": ["18px", {"lineHeight": "24px", "fontWeight": "600"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: #faf9f8;
+            font-family: 'Inter', sans-serif;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="flex flex-col min-h-screen text-on-surface">
+<!-- Hero Background Animation Section -->
+<div class="fixed inset-0 z-0">
+
+<div class="absolute inset-0 bg-gradient-to-br from-surface/50 via-transparent to-primary/10"></div>
+</div>
+<!-- Main Content -->
+<main class="relative z-10 flex-grow flex items-center justify-center p-margin-mobile md:p-margin-tablet">
+<!-- Login Container -->
+<div class="w-full max-w-md">
+<!-- Branding -->
+<div class="flex flex-col items-center mb-10 text-center">
+<div class="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mb-4 shadow-lg active:scale-95 transition-transform duration-150">
+<span class="material-symbols-outlined text-on-primary text-4xl" data-icon="coffee">coffee</span>
+</div>
+<h1 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-primary mb-2">BrewQuest</h1>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-[280px]">Your daily journey to the perfect cup begins here.</p>
+</div>
+<!-- Login Card -->
+<div class="glass-panel border border-surface-variant/30 rounded-[24px] p-8 shadow-xl shadow-primary/5">
+<!-- Form -->
+<form class="space-y-6" id="loginForm" onsubmit="event.preventDefault();">
+<!-- Email Field -->
+<div class="space-y-2">
+<label class="font-label-lg text-label-lg text-on-surface-variant px-1" for="email">Email Address</label>
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors" data-icon="mail">mail</span>
+<input class="w-full h-[56px] pl-12 pr-4 bg-surface-container-low border-none rounded-xl focus:ring-2 focus:ring-primary/20 text-on-surface placeholder:text-outline/60 transition-all" id="email" placeholder="hello@example.com" type="email">
+</div>
+</div>
+<!-- Password Field -->
+<div class="space-y-2">
+<div class="flex justify-between items-center px-1">
+<label class="font-label-lg text-label-lg text-on-surface-variant" for="password">Password</label>
+<a class="font-label-lg text-label-lg text-primary hover:underline" href="#">Forgot Password?</a>
+</div>
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors" data-icon="lock">lock</span>
+<input class="w-full h-[56px] pl-12 pr-12 bg-surface-container-low border-none rounded-xl focus:ring-2 focus:ring-primary/20 text-on-surface placeholder:text-outline/60 transition-all" id="password" placeholder="••••••••" type="password">
+<button class="absolute right-4 top-1/2 -translate-y-1/2 text-outline hover:text-primary" type="button">
+<span class="material-symbols-outlined" data-icon="visibility">visibility</span>
+</button>
+</div>
+</div>
+<!-- Action Buttons -->
+<div class="space-y-4 pt-2">
+<button class="w-full h-[56px] bg-primary text-on-primary rounded-xl font-title-lg text-title-lg shadow-md hover:bg-primary-container hover:text-on-primary-container active:scale-[0.98] transition-all duration-150">
+                            Login
+                        </button>
+<div class="relative flex items-center py-2">
+<div class="flex-grow border-t border-outline-variant"></div>
+<span class="flex-shrink mx-4 font-label-lg text-label-lg text-outline">or continue with</span>
+<div class="flex-grow border-t border-outline-variant"></div>
+</div>
+<!-- Google Login -->
+<button class="w-full h-[56px] bg-white border border-outline-variant text-on-surface rounded-xl font-title-lg text-title-lg flex items-center justify-center gap-3 hover:bg-surface-container-low active:scale-[0.98] transition-all duration-150">
+<svg class="w-6 h-6" viewBox="0 0 24 24">
+<path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"></path>
+<path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"></path>
+<path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"></path>
+<path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"></path>
+</svg>
+                            Google Login
+                        </button>
+</div>
+</form>
+<!-- Footer Links -->
+<div class="mt-8 text-center">
+<p class="font-body-md text-body-md text-on-surface-variant">
+                        Don't have an account? 
+                        <a class="text-primary font-semibold hover:underline" href="#">Register</a>
+</p>
+</div>
+</div>
+<!-- Bottom Aesthetic Details -->
+<div class="mt-8 flex justify-center gap-6 overflow-hidden">
+<div class="w-12 h-12 rounded-full overflow-hidden border-2 border-white shadow-sm flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="A macro close-up of a perfectly crafted latte with intricate heart-shaped foam art on top. The espresso has a rich golden crema, and the cup sits on a rustic wooden table in a sun-drenched coffee house. The image conveys a warm, cozy atmosphere with soft morning light filtering through a nearby window, utilizing a palette of deep browns and creamy beiges." src="assets/AB6AXuDwsojzeRQjJ4S5ChKoezn_v_JygdA1e70hC2xYncvS0s9hGavvitYcR0-NLl43dUf_fiuEytzHHMPxnABOgVLEcgfhf1cm-4b84234f4357debb13fbc7eb7d739fbd">
+</div>
+<div class="w-12 h-12 rounded-full overflow-hidden border-2 border-white shadow-sm flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="A collection of specialty coffee beans scattered artistically on a dark slate surface. Some beans are raw green while others are expertly roasted to a deep, oily brown. The lighting is focused and dramatic, highlighting the texture of each bean and creating a professional, artisanal mood aligned with a premium coffee exploration brand using dark wood and earth tones." src="assets/AB6AXuDCkfNs2nCeFYvV1CAzl_PhQXv_qj5l7WJQdXMGH8BdrCay6x3XPV22YxLRTL3dADqEFiaPHx7OiAgJGQTguCLZLZyRNJBd-06c14c50deaf4d19ad3f00ffe14c018e">
+</div>
+<div class="w-12 h-12 rounded-full overflow-hidden border-2 border-white shadow-sm flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="A modern minimalist café interior with clean white walls and light oak furniture. Large industrial windows let in soft natural light that illuminates a quiet workspace where a professional laptop sits next to a steaming cup of coffee. The overall aesthetic is serene and productive, featuring a sophisticated color scheme of soft lattes and warm whites." src="assets/AB6AXuCmSOaWfXt0joLIOcAFKFxd_U3AwLVDMO7ijUMOFYG896ReJvnaFTzxkkmeWa1kQ7mYR7JgSdg4Cr9gCxfIPre1ZWsQ0tWy-73cc3e4826467769cea53d9c7bc1343e">
+</div>
+</div>
+</div>
+</main>
+<!-- Footer Decoration -->
+<footer class="relative z-10 p-6 flex flex-col items-center">
+<div class="flex gap-4 mb-4">
+<span class="font-label-lg text-label-lg text-outline">Privacy Policy</span>
+<span class="font-label-lg text-label-lg text-outline">•</span>
+<span class="font-label-lg text-label-lg text-outline">Terms of Service</span>
+</div>
+<p class="font-label-lg text-label-lg text-outline/50">© 2024 BrewQuest Coffee Exploration</p>
+</footer>
+<script>
+        // Simple Interaction logic
+        const togglePassword = document.querySelector('button[type="button"]');
+        const passwordInput = document.getElementById('password');
+        const passwordIcon = togglePassword.querySelector('.material-symbols-outlined');
+
+        togglePassword.addEventListener('click', () => {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            passwordIcon.innerText = type === 'password' ? 'visibility' : 'visibility_off';
+        });
+
+        // Atmospheric mouse track effect
+        document.addEventListener('mousemove', (e) => {
+            const x = e.clientX / window.innerWidth;
+            const y = e.clientY / window.innerHeight;
+            
+            const shaderContainer = document.querySelector('webgl-shader');
+            if(shaderContainer) {
+                // Subtle adjustment to shader opacity or transformation based on mouse
+                shaderContainer.style.opacity = 0.2 + (x * 0.1);
+            }
+        });
+    </script>
+</body></html>

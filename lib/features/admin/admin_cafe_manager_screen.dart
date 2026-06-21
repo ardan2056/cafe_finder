@@ -4,7 +4,7 @@ import 'package:geolocator/geolocator.dart';
 import '../../core/theme/app_theme.dart';
 import '../../models/cafe_model.dart';
 import '../../services/admin_cafe_service.dart';
-import '../../services/cafe_service_web.dart';
+import '../../services/cafe_service.dart';
 import 'add_cafe_screen.dart';
 
 class AdminCafeManagerScreen extends StatefulWidget {

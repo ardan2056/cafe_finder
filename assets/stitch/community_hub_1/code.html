@@ -1,0 +1,346 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>BrewQuest - Community Hub</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="assets/css2-5e3775eec025c6c6d938a1a1496afc9c" rel="stylesheet">
+<link href="assets/css2-a39f5c6fcbb87b419667ec984d2e579a" rel="stylesheet">
+<link href="assets/css2-a39f5c6fcbb87b419667ec984d2e579a" rel="stylesheet">
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #faf9f8; /* background from config */
+            -webkit-tap-highlight-color: transparent;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-effect {
+            backdrop-filter: blur(10px);
+            background: rgba(250, 249, 248, 0.9);
+        }
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+        }
+        /* Custom scrollbar for horizontal scrolling segments */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-tertiary-fixed": "#291800",
+                    "surface-bright": "#faf9f8",
+                    "surface-tint": "#79573f",
+                    "surface-container-high": "#e9e8e7",
+                    "tertiary-fixed-dim": "#e7c08e",
+                    "on-error-container": "#93000a",
+                    "on-secondary": "#ffffff",
+                    "inverse-primary": "#eabda0",
+                    "primary-fixed": "#ffdcc6",
+                    "error": "#ba1a1a",
+                    "surface-variant": "#e3e2e1",
+                    "secondary-fixed-dim": "#e3c19f",
+                    "on-tertiary-container": "#ebc491",
+                    "on-tertiary": "#ffffff",
+                    "background": "#faf9f8",
+                    "secondary-fixed": "#ffddbb",
+                    "on-primary": "#ffffff",
+                    "tertiary-container": "#6c5028",
+                    "surface-container": "#eeeeed",
+                    "on-secondary-container": "#785e42",
+                    "error-container": "#ffdad6",
+                    "secondary": "#735a3e",
+                    "primary": "#553722",
+                    "primary-container": "#6f4e37",
+                    "outline": "#82746d",
+                    "on-primary-fixed-variant": "#5f402a",
+                    "on-background": "#1a1c1c",
+                    "surface-dim": "#dadad9",
+                    "on-primary-container": "#eec1a4",
+                    "surface-container-lowest": "#ffffff",
+                    "inverse-on-surface": "#f1f0f0",
+                    "on-tertiary-fixed-variant": "#5c421b",
+                    "tertiary-fixed": "#ffddb4",
+                    "secondary-container": "#fdd9b7",
+                    "on-surface": "#1a1c1c",
+                    "surface-container-highest": "#e3e2e1",
+                    "on-error": "#ffffff",
+                    "on-surface-variant": "#50453e",
+                    "primary-fixed-dim": "#eabda0",
+                    "surface-container-low": "#f4f3f2",
+                    "on-secondary-fixed-variant": "#5a4229",
+                    "inverse-surface": "#2f3130",
+                    "on-secondary-fixed": "#291803",
+                    "on-primary-fixed": "#2d1604",
+                    "surface": "#faf9f8",
+                    "tertiary": "#533913",
+                    "outline-variant": "#d4c3ba"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "sheet-peek-height": "240px",
+                    "margin-mobile": "16px",
+                    "base": "8px",
+                    "bottom-nav-height": "80px",
+                    "margin-tablet": "24px",
+                    "gutter": "16px"
+            },
+            "fontFamily": {
+                    "headline-lg": ["Inter"],
+                    "label-lg": ["Inter"],
+                    "headline-lg-mobile": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "body-md": ["Inter"],
+                    "title-lg": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "headline-sm": ["Inter"]
+            },
+            "fontSize": {
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "label-lg": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
+                    "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "title-lg": ["18px", {"lineHeight": "24px", "fontWeight": "600"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="text-on-background">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 backdrop-blur-md bg-surface/90 flex justify-between items-center px-4 h-16 shadow-sm">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-2xl">coffee</span>
+<h1 class="font-headline-md text-headline-md font-bold text-primary">BrewQuest</h1>
+</div>
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary-container active:scale-95 duration-150 transition-colors hover:bg-surface-container cursor-pointer">
+<img alt="User profile avatar" class="w-full h-full object-cover" data-alt="A professional headshot of a smiling young adult with warm, natural lighting. The background is a softly blurred modern office interior with warm wood accents, consistent with a high-end UI design aesthetic. The portrait emphasizes a friendly, community-oriented persona with a refined and modern professional look." src="assets/AB6AXuDM7YGUV6vtbBZysnL8NktJekPDj-MoMX6x6FjYNQP81g2Ehq_wXRRm7_8YcC9IShqYXkm4P9zccxC9MktNdeUfzGOmVWvJ-6535bff20f9ba66f8d0205dc5392ca8a">
+</div>
+</header>
+<main class="pt-20 pb-32 px-4 max-w-5xl mx-auto">
+<!-- Hero Section / Animated Background Placeholder (Optional Atmospheric) -->
+<section class="mb-8 relative overflow-hidden rounded-3xl p-6 bg-primary text-on-primary">
+<div class="relative z-10">
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile mb-2">Connect &amp; Brew</h2>
+<p class="font-body-md opacity-90 max-w-xs">Find your niche in the city's most vibrant coffee-fueled communities.</p>
+</div>
+<!-- Subtly shaded background element -->
+<div class="absolute -right-10 -bottom-10 w-40 h-40 bg-secondary rounded-full blur-3xl opacity-50"></div>
+</section>
+<!-- Active Communities Section -->
+<section class="mb-10">
+<div class="flex justify-between items-end mb-4">
+<h3 class="font-title-lg text-title-lg text-on-surface">Active Communities</h3>
+<button class="text-primary font-label-lg text-label-lg hover:underline transition-all">View All</button>
+</div>
+<div class="flex gap-4 overflow-x-auto no-scrollbar pb-4 -mx-4 px-4">
+<!-- Programmer Community -->
+<div class="flex-shrink-0 w-72 rounded-[24px] bg-surface-container-low p-5 shadow-sm border border-outline-variant/30 hover:shadow-md transition-all group">
+<div class="w-12 h-12 rounded-xl bg-primary-container flex items-center justify-center mb-4 text-on-primary-container">
+<span class="material-symbols-outlined">terminal</span>
+</div>
+<h4 class="font-title-lg text-title-lg mb-1 group-hover:text-primary transition-colors">Programmers</h4>
+<p class="font-body-md text-on-surface-variant mb-4">1.2k members • 3 live meetups</p>
+<div class="flex -space-x-2">
+<img alt="Member" class="w-8 h-8 rounded-full border-2 border-surface" data-alt="Close up portrait of a young professional woman with a bright smile, natural outdoor lighting, warm autumn tones, high resolution photography." src="assets/AB6AXuAoqKf01mBnJlOjRaYL0udCv9Rt04qJZYDOOOaeA2ehVHdsa9mKmtc0LUUvojXZa4XDSLMzxXMTCev8nOTc9FF5xk9Cx-b_-a7b89714efd602e228446081e5982afc">
+<img alt="Member" class="w-8 h-8 rounded-full border-2 border-surface" data-alt="Portrait of a young man with glasses, looking thoughtful, soft studio lighting, minimalist background, neutral earth tones." src="assets/AB6AXuAngCF6ivN41FN0nSHr3NcBuYg0eiAl1CrwfHBjK-O8i_h_t2OAZ3GV1O0vtKHU4KqrGa3oMpnEnJ4WYkf0f9QZRCutazUj-9bc6c2903af2a4686dc785754edf29e5">
+<div class="w-8 h-8 rounded-full border-2 border-surface bg-secondary-container flex items-center justify-center text-[10px] font-bold text-on-secondary-container">+1k</div>
+</div>
+</div>
+<!-- UI/UX Community -->
+<div class="flex-shrink-0 w-72 rounded-[24px] bg-surface-container-low p-5 shadow-sm border border-outline-variant/30 hover:shadow-md transition-all group">
+<div class="w-12 h-12 rounded-xl bg-tertiary-container flex items-center justify-center mb-4 text-on-tertiary-container">
+<span class="material-symbols-outlined">polyline</span>
+</div>
+<h4 class="font-title-lg text-title-lg mb-1 group-hover:text-tertiary transition-colors">UI/UX Designers</h4>
+<p class="font-body-md text-on-surface-variant mb-4">840 members • 1 live meetup</p>
+<div class="flex -space-x-2">
+<img alt="Member" class="w-8 h-8 rounded-full border-2 border-surface" data-alt="High-fashion style portrait of a young woman in a modern urban setting, cool lighting, professional grade photography." src="assets/AB6AXuAnX_G2A7ezIOTow7YSHfU14SOy4nUlhsSbtafKnIqAcA-fBbz7fiYbVk6v5LJoIBEgkYOiLABlFdUAUkIVWHF5h9UYOx7j-23f454d92b7ed35139fe2955437af37d">
+<img alt="Member" class="w-8 h-8 rounded-full border-2 border-surface" data-alt="Candid portrait of a young man laughing, natural sunlight, warm golden hour tones, high detail skin textures." src="assets/AB6AXuA8ujkJTm0z5K1aXNneu3qGU4R6NYDRBedPQb_XCpOSI7pUv5TWFvMC2wTMi8q7d5V255Y0lTixYPoG6zUBHW-ok-iWfhDf-af97376490e3b16517c7c75b09c1198d">
+<div class="w-8 h-8 rounded-full border-2 border-surface bg-secondary-container flex items-center justify-center text-[10px] font-bold text-on-secondary-container">+800</div>
+</div>
+</div>
+<!-- Writers (Generic Filler) -->
+<div class="flex-shrink-0 w-72 rounded-[24px] bg-surface-container-low p-5 shadow-sm border border-outline-variant/30 hover:shadow-md transition-all group opacity-75">
+<div class="w-12 h-12 rounded-xl bg-secondary flex items-center justify-center mb-4 text-on-secondary">
+<span class="material-symbols-outlined">edit_note</span>
+</div>
+<h4 class="font-title-lg text-title-lg mb-1">Urban Writers</h4>
+<p class="font-body-md text-on-surface-variant mb-4">420 members • Next week</p>
+</div>
+</div>
+</section>
+<!-- Upcoming Events Section -->
+<section>
+<div class="flex justify-between items-end mb-6">
+<h3 class="font-title-lg text-title-lg text-on-surface">Upcoming Events</h3>
+<div class="flex gap-2">
+<button class="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container-high hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant">tune</span>
+</button>
+</div>
+</div>
+<div class="space-y-4">
+<!-- Event Card 1 -->
+<div class="bg-white rounded-[24px] p-4 flex flex-col sm:flex-row gap-4 shadow-sm hover:shadow-md transition-shadow border border-surface-container-high overflow-hidden group">
+<div class="w-full sm:w-32 h-32 rounded-2xl overflow-hidden flex-shrink-0 relative">
+<img alt="Cafe" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="Interior of a warm, cozy specialty coffee shop with rustic wooden tables, hanging Edison bulbs, and baristas working in the background. The mood is welcoming and professional, with a rich color palette of browns, creams, and golden light, embodying the modern coffee house aesthetic." src="assets/AB6AXuA-DYa9HtMUwfpk37TdOaaE9CgfoDr41hOA4lti1zvUhQOpgaVjny2OmfiFUvlN4JQl_K0v2q6GjPLMMVwQt1hhbI97OxSs-2f81c275a6c2767db555c7c9a0717057">
+<div class="absolute top-2 left-2 bg-primary text-on-primary px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">SPECIALTY</div>
+</div>
+<div class="flex-grow flex flex-col justify-between py-1">
+<div>
+<div class="flex justify-between items-start mb-1">
+<h5 class="font-title-lg text-title-lg text-primary">JavaScript &amp; Java Coffee Run</h5>
+<span class="bg-secondary-container text-on-secondary-container px-2 py-0.5 rounded-lg text-[10px] font-bold">LIVE</span>
+</div>
+<p class="font-body-md text-on-surface-variant flex items-center gap-2 mb-3">
+<span class="material-symbols-outlined text-[18px]">location_on</span> The Roasted Bean, Downtown
+                            </p>
+</div>
+<div class="flex flex-wrap items-center gap-4 pt-3 border-t border-surface-container">
+<div class="flex items-center gap-1.5 font-label-lg text-label-lg text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">calendar_today</span> Oct 24
+                            </div>
+<div class="flex items-center gap-1.5 font-label-lg text-label-lg text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">schedule</span> 10:00 AM
+                            </div>
+<button class="ml-auto bg-primary-container text-on-primary-container font-label-lg text-label-lg px-6 py-2 rounded-full hover:brightness-110 active:scale-95 transition-all">RSVP</button>
+</div>
+</div>
+</div>
+<!-- Event Card 2 -->
+<div class="bg-white rounded-[24px] p-4 flex flex-col sm:flex-row gap-4 shadow-sm hover:shadow-md transition-shadow border border-surface-container-high overflow-hidden group">
+<div class="w-full sm:w-32 h-32 rounded-2xl overflow-hidden flex-shrink-0 relative">
+<img alt="Cafe" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="A brightly lit, modern cafe with minimalist furniture, large windows showing a glimpse of an urban street, and clean architectural lines. The lighting is soft and airy, creating a high-key light mode atmosphere. A professional and serene setting perfect for design networking and focus." src="assets/AB6AXuCQdj-FU5t0LqSYrGlSbVTLqfuy3Kt1wTPBKEwSrXAGNK6-e-0igCFUTMfWDc_s-HxiTHu6Bm427rOuR3BXByVJEadhuUCj-a5c11cfff40995c7aa3678e2b698bcb5">
+</div>
+<div class="flex-grow flex flex-col justify-between py-1">
+<div>
+<h5 class="font-title-lg text-title-lg text-primary mb-1">Design Critique &amp; Espresso</h5>
+<p class="font-body-md text-on-surface-variant flex items-center gap-2 mb-3">
+<span class="material-symbols-outlined text-[18px]">location_on</span> Canvas Brews, Westside
+                            </p>
+</div>
+<div class="flex flex-wrap items-center gap-4 pt-3 border-t border-surface-container">
+<div class="flex items-center gap-1.5 font-label-lg text-label-lg text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">calendar_today</span> Oct 26
+                            </div>
+<div class="flex items-center gap-1.5 font-label-lg text-label-lg text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">schedule</span> 03:30 PM
+                            </div>
+<button class="ml-auto border border-primary text-primary font-label-lg text-label-lg px-6 py-2 rounded-full hover:bg-surface-container transition-all">RSVP</button>
+</div>
+</div>
+</div>
+<!-- Event Card 3 -->
+<div class="bg-white rounded-[24px] p-4 flex flex-col sm:flex-row gap-4 shadow-sm hover:shadow-md transition-shadow border border-surface-container-high overflow-hidden group">
+<div class="w-full sm:w-32 h-32 rounded-2xl overflow-hidden flex-shrink-0 relative">
+<img alt="Cafe" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="A close-up shot of a perfectly poured latte with intricate latte art on a wooden table. Beside it lies a notebook and a sleek silver pen, implying a session of creative writing or study. The mood is intimate and focused, with warm tactile textures and soft morning light." src="assets/AB6AXuDuKtHV2H6Ak9AXv2rzqdJFq5EqUG60hN7aKDmUoz7I5oJniQGCCUQMfolCzsStVLbAWm_AbC_GKq6l4uwT1VCLY5-7cDPP-49d55d35466089d55017bb7ae6452d3b">
+</div>
+<div class="flex-grow flex flex-col justify-between py-1">
+<div>
+<h5 class="font-title-lg text-title-lg text-primary mb-1">Silent Writing Hour</h5>
+<p class="font-body-md text-on-surface-variant flex items-center gap-2 mb-3">
+<span class="material-symbols-outlined text-[18px]">location_on</span> Library Lane Cafe
+                            </p>
+</div>
+<div class="flex flex-wrap items-center gap-4 pt-3 border-t border-surface-container">
+<div class="flex items-center gap-1.5 font-label-lg text-label-lg text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">calendar_today</span> Oct 27
+                            </div>
+<div class="flex items-center gap-1.5 font-label-lg text-label-lg text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">schedule</span> 09:00 AM
+                            </div>
+<button class="ml-auto border border-primary text-primary font-label-lg text-label-lg px-6 py-2 rounded-full hover:bg-surface-container transition-all">RSVP</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Create Event FAB -->
+<button class="fixed bottom-24 right-6 w-14 h-14 bg-primary text-on-primary rounded-2xl shadow-xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-40 group">
+<span class="material-symbols-outlined text-3xl">add</span>
+<span class="absolute right-full mr-4 bg-primary text-on-primary px-3 py-1.5 rounded-lg text-sm font-bold opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-lg pointer-events-none">Create Event</span>
+</button>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-margin-mobile pb-safe bg-surface h-bottom-nav-height shadow-lg">
+<!-- Explore -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-5 py-1 hover:bg-surface-container-high transition-all active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">explore</span>
+<span class="font-label-lg text-label-lg">Explore</span>
+</a>
+<!-- Map -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-5 py-1 hover:bg-surface-container-high transition-all active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">map</span>
+<span class="font-label-lg text-label-lg">Map</span>
+</a>
+<!-- Events (ACTIVE) -->
+<a class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-full px-5 py-1 transition-all active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">group</span>
+<span class="font-label-lg text-label-lg">Events</span>
+</a>
+<!-- Profile -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-5 py-1 hover:bg-surface-container-high transition-all active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-lg text-label-lg">Profile</span>
+</a>
+</nav>
+<script>
+        // Micro-interaction for cards
+        document.querySelectorAll('.group').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                // Potential for lighter atmosphere effects
+            });
+        });
+
+        // Simple smooth scroll logic for the active community rail
+        const rail = document.querySelector('.no-scrollbar');
+        let isDown = false;
+        let startX;
+        let scrollLeft;
+
+        rail.addEventListener('mousedown', (e) => {
+            isDown = true;
+            startX = e.pageX - rail.offsetLeft;
+            scrollLeft = rail.scrollLeft;
+        });
+        rail.addEventListener('mouseleave', () => {
+            isDown = false;
+        });
+        rail.addEventListener('mouseup', () => {
+            isDown = false;
+        });
+        rail.addEventListener('mousemove', (e) => {
+            if(!isDown) return;
+            e.preventDefault();
+            const x = e.pageX - rail.offsetLeft;
+            const walk = (x - startX) * 2;
+            rail.scrollLeft = scrollLeft - walk;
+        });
+    </script>
+</body></html>

@@ -11,17 +11,17 @@ dependencies:
     sdk: flutter
   cupertino_icons: ^1.0.8
   provider: ^6.1.2
-  firebase_core: ^3.4.0
-  firebase_auth: ^5.2.0
-  cloud_firestore: ^5.4.0
-  firebase_storage: ^12.3.0
+  firebase_core: ^4.10.0
+  firebase_auth: ^6.5.2
+  cloud_firestore: ^6.5.0
+  firebase_storage: ^13.4.2
   url_launcher: ^6.2.0
   google_maps_flutter: ^2.6.1
-  permission_handler: ^10.4.0
-  geolocator: ^9.0.2
+  permission_handler: ^12.0.3
+  geolocator: ^14.0.2
   shared_preferences: ^2.3.2
-  shimmer: ^2.0.0
-  image_picker: ^0.8.7+6
+  shimmer: ^3.0.0
+  image_picker: ^1.2.2
   file_picker: ^11.0.2
   http: ^1.6.0
   flutter_map: ^8.3.0
@@ -29,19 +29,61 @@ dependencies:
   flutter_map_marker_cluster: ^8.2.2
   flutter_map_marker_popup: ^8.1.1
   firebase_data_connect: any
-  google_sign_in: any
+  google_sign_in: ^6.2.1
   image: any
-  firebase_crashlytics: ^4.3.10
+  firebase_crashlytics: ^5.2.3
   pool: ^1.5.1
+  webview_flutter: ^4.8.0
   # image_cropper removed to avoid dependency upgrades that break other packages
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^5.0.0
+  flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.3
   # integration_test removed temporarily to avoid version-solving issues
   # Add it back when your Flutter SDK supports the desired version.
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/logo.png
+    - assets/stitch/
+    - assets/stitch/map_explorer/
+    - assets/stitch/map_explorer/assets/
+    - assets/stitch/cafe_detail/
+    - assets/stitch/cafe_detail/assets/
+    - assets/stitch/splash_screen/
+    - assets/stitch/splash_screen/assets/
+    - assets/stitch/community_hub/
+    - assets/stitch/community_hub/assets/
+    - assets/stitch/registration_screen/
+    - assets/stitch/registration_screen/assets/
+    - assets/stitch/cafe_detail_1/
+    - assets/stitch/cafe_detail_1/assets/
+    - assets/stitch/profile_history/
+    - assets/stitch/profile_history/assets/
+    - assets/stitch/community_hub_1/
+    - assets/stitch/community_hub_1/assets/
+    - assets/stitch/alur_pengguna_detil/
+    - assets/stitch/alur_pengguna_detil/assets/
+    - assets/stitch/splash_screen_1/
+    - assets/stitch/splash_screen_1/assets/
+    - assets/stitch/login_screen/
+    - assets/stitch/login_screen/assets/
+    - assets/stitch/map_explorer_1/
+    - assets/stitch/map_explorer_1/assets/
+    - assets/stitch/login_screen_1/
+    - assets/stitch/login_screen_1/assets/
+    - assets/stitch/map_explorer_2/
+    - assets/stitch/map_explorer_2/assets/
+    - assets/stitch/smart_recommendation/
+    - assets/stitch/smart_recommendation/assets/
+    - assets/stitch/smart_recommendation_home/
+    - assets/stitch/smart_recommendation_home/assets/
   # image_cropper used for avatar cropping on CompleteProfileScreen
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/logo.png"

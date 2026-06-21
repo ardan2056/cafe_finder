@@ -8,6 +8,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../firebase_options.dart';
+import 'cafe_seed_data.dart';
 
 Future<void> initializeFirebase() async {
   try {
@@ -25,18 +26,25 @@ Future<void> initializeFirebase() async {
   // to local emulators. Set `USE_FIREBASE_EMULATOR=1` in the environment
   // before running the app to enable this (see scripts/start_firebase_emulator.ps1).
   try {
-    final useEmu = Platform.environment['USE_FIREBASE_EMULATOR'] == '1';
+    final useEmu = Platform.environment['USE_FIREBASE_EMULATOR'] == '1' ||
+        const String.fromEnvironment('USE_FIREBASE_EMULATOR') == '1' ||
+        const bool.fromEnvironment('USE_FIREBASE_EMULATOR');
     if (useEmu) {
-      FirebaseFirestore.instance.useFirestoreEmulator('localhost', 8080);
-      FirebaseAuth.instance.useAuthEmulator('localhost', 9099);
+      final host = Platform.isAndroid ? '10.0.2.2' : 'localhost';
+      FirebaseFirestore.instance.useFirestoreEmulator(host, 8080);
+      FirebaseAuth.instance.useAuthEmulator(host, 9099);
       developer.log(
-          'Connected to Firebase emulators (Auth:9099 Firestore:8080)',
+          'Connected to Firebase emulators (Auth:9099 Firestore:8080 on $host)',
           name: 'firebase_bootstrap');
     }
   } catch (e, st) {
     developer.log('Failed to configure Firebase emulators: $e',
         name: 'firebase_bootstrap', stackTrace: st);
   }
+
+  // Auto-seed cafes if the database is empty (both on emulator and production Firestore)
+  unawaited(seedCafesIfEmpty());
+  unawaited(seedCommunitiesAndEventsIfEmpty());
 
   // Run a quick Firestore availability check and log the result.
   try {

@@ -1,0 +1,293 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Profile - BrewQuest</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="assets/css2-63fb282f7f0d49234fc287e532901a09" rel="stylesheet">
+<link href="assets/css2-a39f5c6fcbb87b419667ec984d2e579a" rel="stylesheet">
+<link href="assets/css2-9df0d028785caf8570e26419767bb9cb" rel="stylesheet">
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-card {
+            backdrop-filter: blur(10px);
+            background: rgba(250, 249, 248, 0.8);
+        }
+        body {
+            background-color: #faf9f8;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #82746d;
+            border-radius: 10px;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-fixed": "#291800",
+                        "surface-bright": "#faf9f8",
+                        "surface-tint": "#79573f",
+                        "surface-container-high": "#e9e8e7",
+                        "tertiary-fixed-dim": "#e7c08e",
+                        "on-error-container": "#93000a",
+                        "on-secondary": "#ffffff",
+                        "inverse-primary": "#eabda0",
+                        "primary-fixed": "#ffdcc6",
+                        "error": "#ba1a1a",
+                        "surface-variant": "#e3e2e1",
+                        "secondary-fixed-dim": "#e3c19f",
+                        "on-tertiary-container": "#ebc491",
+                        "on-tertiary": "#ffffff",
+                        "background": "#faf9f8",
+                        "secondary-fixed": "#ffddbb",
+                        "on-primary": "#ffffff",
+                        "tertiary-container": "#6c5028",
+                        "surface-container": "#eeeeed",
+                        "on-secondary-container": "#785e42",
+                        "error-container": "#ffdad6",
+                        "secondary": "#735a3e",
+                        "primary": "#553722",
+                        "primary-container": "#6f4e37",
+                        "outline": "#82746d",
+                        "on-primary-fixed-variant": "#5f402a",
+                        "on-background": "#1a1c1c",
+                        "surface-dim": "#dadad9",
+                        "on-primary-container": "#eec1a4",
+                        "surface-container-lowest": "#ffffff",
+                        "inverse-on-surface": "#f1f0f0",
+                        "on-tertiary-fixed-variant": "#5c421b",
+                        "tertiary-fixed": "#ffddb4",
+                        "secondary-container": "#fdd9b7",
+                        "on-surface": "#1a1c1c",
+                        "surface-container-highest": "#e3e2e1",
+                        "on-error": "#ffffff",
+                        "on-surface-variant": "#50453e",
+                        "primary-fixed-dim": "#eabda0",
+                        "surface-container-low": "#f4f3f2",
+                        "on-secondary-fixed-variant": "#5a4229",
+                        "inverse-surface": "#2f3130",
+                        "on-secondary-fixed": "#291803",
+                        "on-primary-fixed": "#2d1604",
+                        "surface": "#faf9f8",
+                        "tertiary": "#533913",
+                        "outline-variant": "#d4c3ba"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "sheet-peek-height": "240px",
+                        "margin-mobile": "16px",
+                        "base": "8px",
+                        "bottom-nav-height": "80px",
+                        "margin-tablet": "24px",
+                        "gutter": "16px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Inter"],
+                        "label-lg": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "title-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "headline-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "label-lg": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
+                        "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "title-lg": ["18px", {"lineHeight": "24px", "fontWeight": "600"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-body-md text-on-surface">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 backdrop-blur-md bg-surface/90 shadow-sm flex justify-between items-center px-4 h-16 w-full">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary" data-icon="coffee">coffee</span>
+<h1 class="font-headline-md text-headline-md font-bold text-primary">BrewQuest</h1>
+</div>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container transition-colors p-2 rounded-full active:scale-95 duration-150" data-icon="settings">settings</button>
+<div class="w-10 h-10 rounded-full border-2 border-primary-container overflow-hidden">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="A professional headshot of a stylish young adult man with a warm smile, captured in a sun-drenched modern cafe environment. The lighting is soft and golden, emphasizing a clean and approachable persona. He is wearing high-quality urban casual wear, fitting the BrewQuest brand aesthetic of sophisticated exploration and high-end coffee culture." src="assets/AB6AXuAvhY_6HXZdeeEntlqrALXr9Kn2BKC49-CXiyx-TtZzGDURrHbMBi1af8X6eyoNJM_JqQzaO20E169UItSgEu-bLZ11iELg-f827f0d540c496821d0a9e7148ad62c3">
+</div>
+</div>
+</header>
+<main class="pt-20 pb-24 px-4 max-w-2xl mx-auto space-y-6">
+<!-- Profile Header & Badge Section -->
+<section class="flex flex-col items-center text-center space-y-3">
+<div class="relative">
+<div class="w-32 h-32 rounded-full p-1 bg-gradient-to-tr from-primary to-secondary shadow-lg">
+<img alt="Profile Large" class="w-full h-full object-cover rounded-full border-4 border-surface" data-alt="A close-up portrait of a charismatic urban explorer in a modern light-filled studio. The individual has a confident yet friendly expression, reflecting a passion for discovering hidden city gems. The color palette features warm latte tones and deep espresso browns, consistent with a high-end coffee house identity. Soft-focus background hints at a contemporary cafe interior." src="assets/AB6AXuDyRqMWRxunUE2XlrzFbR0Zy_4mJZOrIkWiOPN37q4azJNkpL_3rtI8sz8SinVbSvA8CgN1xngLXuuCERWRO8a5thM0BEcL-5b536805e25c085ae4b6fe5901e92ca2">
+</div>
+<div class="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-secondary text-on-secondary px-4 py-1 rounded-full shadow-md flex items-center gap-1.5 whitespace-nowrap border-2 border-surface">
+<span class="material-symbols-outlined text-[16px]" data-icon="workspace_premium" style="font-variation-settings: 'FILL' 1;">workspace_premium</span>
+<span class="font-label-lg text-label-lg uppercase tracking-wider">Urban Explorer</span>
+</div>
+</div>
+<div class="pt-4">
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Julian Aris</h2>
+<p class="font-body-md text-on-surface-variant">Exploring the world one bean at a time.</p>
+</div>
+</section>
+<!-- Stats Bento Grid -->
+<section class="grid grid-cols-2 gap-4">
+<div class="bg-surface-container-low rounded-xl p-5 flex flex-col items-center justify-center space-y-1 shadow-sm border border-outline-variant/30">
+<span class="font-headline-lg-mobile text-headline-lg-mobile text-primary">24</span>
+<span class="font-label-lg text-label-lg text-on-surface-variant uppercase tracking-widest">Total Kunjungan</span>
+</div>
+<div class="bg-surface-container-low rounded-xl p-5 flex flex-col items-center justify-center space-y-1 shadow-sm border border-outline-variant/30">
+<span class="font-headline-lg-mobile text-headline-lg-mobile text-primary">12</span>
+<span class="font-label-lg text-label-lg text-on-surface-variant uppercase tracking-widest">Total Review</span>
+</div>
+</section>
+<!-- Visit History List -->
+<section class="space-y-4">
+<div class="flex items-center justify-between">
+<h3 class="font-title-lg text-title-lg text-on-surface">Visit History</h3>
+<button class="text-primary font-label-lg text-label-lg hover:underline active:opacity-70 transition-opacity">View All</button>
+</div>
+<div class="space-y-3">
+<!-- History Item 1 -->
+<div class="bg-surface-container-lowest rounded-xl p-4 flex items-center gap-4 shadow-sm hover:shadow-md transition-shadow active:scale-[0.98] duration-150 cursor-pointer border border-outline-variant/20">
+<div class="w-14 h-14 rounded-lg overflow-hidden flex-shrink-0">
+<img alt="Cafe 1" class="w-full h-full object-cover" data-alt="An atmospheric wide shot of a modern specialty coffee shop interior with minimalist wooden furniture and large windows letting in natural light. The space is bustling with a sophisticated urban crowd, creating a warm and vibrant community feel. The color palette is dominated by neutral beiges and rich mahogany tones, aligning with a premium coffee culture experience." src="assets/AB6AXuCS_4nqOuFoukBGS0uzruGKhJWUFyCUP5KzZybjyP3Zf3lVQe0wkxguQTRY5eLwz7EIlcWxLAwDCdgxFsYvcTjelJfEcoCw-ce714bcdb4d439a6eecdff1fb66b7272">
+</div>
+<div class="flex-grow">
+<h4 class="font-title-lg text-body-lg font-semibold text-on-surface">The Roasted Bean</h4>
+<p class="font-body-md text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]" data-icon="calendar_today">calendar_today</span>
+                            Oct 24, 2023
+                        </p>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="chevron_right">chevron_right</span>
+</div>
+<!-- History Item 2 -->
+<div class="bg-surface-container-lowest rounded-xl p-4 flex items-center gap-4 shadow-sm hover:shadow-md transition-shadow active:scale-[0.98] duration-150 cursor-pointer border border-outline-variant/20">
+<div class="w-14 h-14 rounded-lg overflow-hidden flex-shrink-0">
+<img alt="Cafe 2" class="w-full h-full object-cover" data-alt="A cozy corner of a high-end cafe featuring leather armchairs and artisanal coffee equipment. The scene is illuminated by soft, warm light from vintage filament bulbs, creating an intimate and relaxing atmosphere. The textures of wood, leather, and polished chrome reflect a commitment to quality and craftsmanship, perfect for a dedicated coffee enthusiast." src="assets/AB6AXuC8DLiAzmAXwrixTudb_TD8Ka8MoiD1EPNf9KMzdB_8bzaMnq9f0TiOsnoYGMv-skN6mZSllwhxrjXACZL2rwAcJrtQVsWP-d59d37de30bb1e82b9a19ebe5fc56f29">
+</div>
+<div class="flex-grow">
+<h4 class="font-title-lg text-body-lg font-semibold text-on-surface">Minimalist Espresso</h4>
+<p class="font-body-md text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]" data-icon="calendar_today">calendar_today</span>
+                            Oct 21, 2023
+                        </p>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="chevron_right">chevron_right</span>
+</div>
+<!-- History Item 3 -->
+<div class="bg-surface-container-lowest rounded-xl p-4 flex items-center gap-4 shadow-sm hover:shadow-md transition-shadow active:scale-[0.98] duration-150 cursor-pointer border border-outline-variant/20">
+<div class="w-14 h-14 rounded-lg overflow-hidden flex-shrink-0">
+<img alt="Cafe 3" class="w-full h-full object-cover" data-alt="Close-up of a perfectly poured latte with intricate foam art on a rustic wooden table. Beside the cup is a small journal and a fountain pen, suggesting a moment of quiet reflection or productive work in a serene coffee shop environment. The lighting is diffused and natural, highlighting the creamy textures of the latte and the rich grain of the wood." src="assets/AB6AXuDj8qbwUaKQjGymEsSaZcPZqEdvBa3cpU-n2TEIfSae-1K1xgKJmOsHkWeFbyxiOYKIFKP9LfYqv9dpS-utQ4CRtN6ubQbg-c7cfc07022a0ac00cd8f459645651d52">
+</div>
+<div class="flex-grow">
+<h4 class="font-title-lg text-body-lg font-semibold text-on-surface">Urban Brew Labs</h4>
+<p class="font-body-md text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]" data-icon="calendar_today">calendar_today</span>
+                            Oct 18, 2023
+                        </p>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="chevron_right">chevron_right</span>
+</div>
+<!-- History Item 4 -->
+<div class="bg-surface-container-lowest rounded-xl p-4 flex items-center gap-4 shadow-sm hover:shadow-md transition-shadow active:scale-[0.98] duration-150 cursor-pointer border border-outline-variant/20">
+<div class="w-14 h-14 rounded-lg overflow-hidden flex-shrink-0">
+<img alt="Cafe 4" class="w-full h-full object-cover" data-alt="A modern industrial-style cafe facade with clean glass windows and matte black steel frames. A chalkboard outside displays the 'Daily Roast' in elegant hand-lettering. The setting is a quiet city street at golden hour, with the sun's low angle creating long shadows and a warm glow on the building's exterior. The vibe is premium, curated, and inviting." src="assets/AB6AXuBom_b2AsuLB0Jso22F_BsRpEMJjSWvm6-gA06tIscaM3WjQ9a2xbPlNnPL4gw0bYCYRGp1xpGGt_q13ZfS0zt1b0Cb3pX3-f1a050db251083e47619abc78d34dcf2">
+</div>
+<div class="flex-grow">
+<h4 class="font-title-lg text-body-lg font-semibold text-on-surface">Velvet Sips</h4>
+<p class="font-body-md text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]" data-icon="calendar_today">calendar_today</span>
+                            Oct 12, 2023
+                        </p>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="chevron_right">chevron_right</span>
+</div>
+</div>
+</section>
+<!-- Achievements Preview -->
+<section class="bg-tertiary-container/10 border border-tertiary/20 rounded-2xl p-6">
+<div class="flex items-center gap-4">
+<div class="bg-tertiary/20 p-3 rounded-full">
+<span class="material-symbols-outlined text-tertiary" data-icon="military_tech">military_tech</span>
+</div>
+<div>
+<h4 class="font-title-lg text-title-lg text-tertiary">Next Milestone</h4>
+<p class="font-body-md text-on-tertiary-fixed-variant">3 more visits to reach 'Connoisseur' status</p>
+</div>
+</div>
+<div class="mt-4 w-full bg-outline-variant/30 h-2 rounded-full overflow-hidden">
+<div class="bg-tertiary h-full w-[70%] rounded-full"></div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-margin-mobile pb-safe bg-surface shadow-lg h-bottom-nav-height border-t border-outline-variant/10">
+<!-- Explore -->
+<div class="flex flex-col items-center justify-center text-on-surface-variant px-5 py-1 hover:bg-surface-container-high transition-all active:scale-90 duration-200 cursor-pointer">
+<span class="material-symbols-outlined" data-icon="explore">explore</span>
+<span class="font-label-lg text-label-lg">Explore</span>
+</div>
+<!-- Map -->
+<div class="flex flex-col items-center justify-center text-on-surface-variant px-5 py-1 hover:bg-surface-container-high transition-all active:scale-90 duration-200 cursor-pointer">
+<span class="material-symbols-outlined" data-icon="map">map</span>
+<span class="font-label-lg text-label-lg">Map</span>
+</div>
+<!-- Events -->
+<div class="flex flex-col items-center justify-center text-on-surface-variant px-5 py-1 hover:bg-surface-container-high transition-all active:scale-90 duration-200 cursor-pointer">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="font-label-lg text-label-lg">Events</span>
+</div>
+<!-- Profile (ACTIVE) -->
+<div class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-full px-5 py-1 transition-all active:scale-90 duration-200 cursor-pointer">
+<span class="material-symbols-outlined" data-icon="person" style="font-variation-settings: 'FILL' 1;">person</span>
+<span class="font-label-lg text-label-lg">Profile</span>
+</div>
+</nav>
+<script>
+        // Simple ripple effect or micro-interaction
+        document.querySelectorAll('.active\\:scale-90').forEach(button => {
+            button.addEventListener('click', () => {
+                // Future interaction logic
+            });
+        });
+
+        // Dynamic Header Scroll Shadow
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('header');
+            if (window.scrollY > 10) {
+                header.classList.add('shadow-md');
+                header.classList.remove('shadow-sm');
+            } else {
+                header.classList.add('shadow-sm');
+                header.classList.remove('shadow-md');
+            }
+        });
+    </script>
+</body></html>

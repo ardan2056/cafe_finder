@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cafe Finder Smart Mapping - Screen Explorer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-color: #0b0c10;
+      --card-bg: rgba(255, 255, 255, 0.03);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --text-color: #c5c6c7;
+      --text-header: #ffffff;
+      --accent-color: #4f46e5;
+      --accent-hover: #6366f1;
+      --accent-gradient: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      min-height: 100vh;
+      padding: 2rem;
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.05) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(79, 70, 229, 0.05) 0%, transparent 40%);
+      background-attachment: fixed;
+    }
+
+    header {
+      max-width: 1400px;
+      margin: 0 auto 3rem auto;
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: 3rem;
+      font-weight: 800;
+      color: var(--text-header);
+      margin-bottom: 0.5rem;
+      background: linear-gradient(to right, #ffffff, #a5b4fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.05em;
+    }
+
+    header p {
+      font-size: 1.1rem;
+      color: #94a3b8;
+      font-weight: 300;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 2rem;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      backdrop-filter: blur(10px);
+    }
+
+    .card:hover {
+      transform: translateY(-8px);
+      border-color: rgba(99, 102, 241, 0.4);
+      box-shadow: 0 20px 40px -15px rgba(79, 70, 229, 0.2);
+    }
+
+    .thumbnail-container {
+      width: 100%;
+      height: 220px;
+      overflow: hidden;
+      background: #1e1e24;
+      position: relative;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .thumbnail {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top;
+      transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .card:hover .thumbnail {
+      transform: scale(1.08);
+    }
+
+    .card-info {
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+    }
+
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--text-header);
+      margin-bottom: 0.25rem;
+    }
+
+    .card-id {
+      font-size: 0.8rem;
+      font-family: monospace;
+      color: #64748b;
+      margin-bottom: 1.5rem;
+    }
+
+    .actions {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: auto;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.75rem 1.25rem;
+      border-radius: 12px;
+      font-weight: 600;
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background: var(--accent-gradient);
+      color: white;
+      flex-grow: 1;
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+    }
+
+    .btn-primary:hover {
+      box-shadow: 0 6px 16px rgba(79, 70, 229, 0.4);
+      filter: brightness(1.1);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-header);
+      border: 1px solid var(--card-border);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(5px);
+    }
+
+    .modal-content {
+      max-width: 90%;
+      max-height: 90%;
+      position: relative;
+    }
+
+    .modal-image {
+      max-width: 100%;
+      max-height: 85vh;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .close-modal {
+      position: absolute;
+      top: -40px;
+      right: 0;
+      color: white;
+      font-size: 2rem;
+      cursor: pointer;
+    }
+
+    .design-system-card {
+      grid-column: 1 / -1;
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(79, 70, 229, 0.05) 100%);
+      border-color: rgba(99, 102, 241, 0.2);
+      padding: 2rem;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+
+    .ds-info h2 {
+      color: var(--text-header);
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .ds-info p {
+      color: #94a3b8;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Cafe Finder Smart Mapping</h1>
+    <p>Explore generated high-fidelity UI screens, code templates, and screenshots</p>
+  </header>
+
+  <main style="max-width: 1400px; margin: 0 auto;">
+    <div class="design-system-card">
+      <div class="ds-info">
+        <h2>Design DNA System</h2>
+        <p>Explore Typography, Spacing, Color Tokens, and Components guidelines.</p>
+      </div>
+      <a href="cafe_finder_smart_mapping/DESIGN.md" class="btn btn-primary" style="flex-grow: 0;" target="_blank">View DESIGN.md</a>
+    </div>
+
+    <div class="grid">
+      <!-- Screen 1 -->
+      <div class="card">
+        <div class="thumbnail-container">
+          <img class="thumbnail" src="smart_recommendation_home/screen.png" alt="Smart Recommendation Home">
+        </div>
+        <div class="card-info">
+          <div class="card-title">Smart Recommendation Home</div>
+          <div class="card-id">c2ab05a2f3854a01960490f27b6e18a8</div>
+          <div class="actions">
+            <a href="smart_recommendation_home/code.html" target="_blank" class="btn btn-primary">Run Screen</a>
+            <button onclick="openModal('smart_recommendation_home/screen.png')" class="btn btn-secondary">Screenshot</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Screen 2 -->
+      <div class="card">
+        <div class="thumbnail-container">
+          <img class="thumbnail" src="map_explorer/screen.png" alt="Map Explorer">
+        </div>
+        <div class="card-info">
+          <div class="card-title">Map Explorer</div>
+          <div class="card-id">66929154fab2434bb57c5fcb92a1620c</div>
+          <div class="actions">
+            <a href="map_explorer/code.html" target="_blank" class="btn btn-primary">Run Screen</a>
+            <button onclick="openModal('map_explorer/screen.png')" class="btn btn-secondary">Screenshot</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Screen 3 -->
+      <div class="card">
+        <div class="thumbnail-container">
+          <img class="thumbnail" src="cafe_detail/screen.png" alt="Cafe Detail">
+        </div>
+        <div class="card-info">
+          <div class="card-title">Cafe Detail</div>
+          <div class="card-id">4d974b79446346fd9e57dca09a7463a5</div>
+          <div class="actions">
+            <a href="cafe_detail/code.html" target="_blank" class="btn btn-primary">Run Screen</a>
+            <button onclick="openModal('cafe_detail/screen.png')" class="btn btn-secondary">Screenshot</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Screen 4 -->
+      <div class="card">
+        <div class="thumbnail-container">
+          <img class="thumbnail" src="registration_screen/screen.png" alt="Registration Screen">
+        </div>
+        <div class="card-info">
+          <div class="card-title">Registration Screen</div>
+          <div class="card-id">ca48385112c344728690a781fd5308f2</div>
+          <div class="actions">
+            <a href="registration_screen/code.html" target="_blank" class="btn btn-primary">Run Screen</a>
+            <button onclick="openModal('registration_screen/screen.png')" class="btn btn-secondary">Screenshot</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Screen 5 -->
+      <div class="card">
+        <div class="thumbnail-container">
+          <img class="thumbnail" src="login_screen/screen.png" alt="Login Screen">
+        </div>
+        <div class="card-info">
+          <div class="card-title">Login Screen</div>
+          <div class="card-id">68cbb80147034ac09e21f06d2f8e9a91</div>
+          <div class="actions">
+            <a href="login_screen/code.html" target="_blank" class="btn btn-primary">Run Screen</a>
+            <button onclick="openModal('login_screen/screen.png')" class="btn btn-secondary">Screenshot</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Screen 6 -->
+      <div class="card">
+        <div class="thumbnail-container">
+          <img class="thumbnail" src="splash_screen/screen.png" alt="Splash Screen">
+        </div>
+        <div class="card-info">
+          <div class="card-title">Splash Screen</div>
+          <div class="card-id">5702e1bbb14e437890c6d87ce55a82aa</div>
+          <div class="actions">
+            <a href="splash_screen/code.html" target="_blank" class="btn btn-primary">Run Screen</a>
+            <button onclick="openModal('splash_screen/screen.png')" class="btn btn-secondary">Screenshot</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Screen 7 -->
+      <div class="card">
+        <div class="thumbnail-container">
+          <img class="thumbnail" src="profile_history/screen.png" alt="Profile & History">
+        </div>
+        <div class="card-info">
+          <div class="card-title">Profile & History</div>
+          <div class="card-id">ee924969d6f2401db9f5a0dcc4b1bb0f</div>
+          <div class="actions">
+            <a href="profile_history/code.html" target="_blank" class="btn btn-primary">Run Screen</a>
+            <button onclick="openModal('profile_history/screen.png')" class="btn btn-secondary">Screenshot</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Screen 8 -->
+      <div class="card">
+        <div class="thumbnail-container">
+          <img class="thumbnail" src="community_hub/screen.png" alt="Community Hub">
+        </div>
+        <div class="card-info">
+          <div class="card-title">Community Hub</div>
+          <div class="card-id">4fb985dee3f049e8b41a39ac4f11f9c1</div>
+          <div class="actions">
+            <a href="community_hub/code.html" target="_blank" class="btn btn-primary">Run Screen</a>
+            <button onclick="openModal('community_hub/screen.png')" class="btn btn-secondary">Screenshot</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Screen 9 -->
+      <div class="card">
+        <div class="thumbnail-container">
+          <img class="thumbnail" src="splash_screen_1/screen.png" alt="Splash Screen 2">
+        </div>
+        <div class="card-info">
+          <div class="card-title">Splash Screen (Alternate)</div>
+          <div class="card-id">648aa590cd9c427894e852a53078a22e</div>
+          <div class="actions">
+            <a href="splash_screen_1/code.html" target="_blank" class="btn btn-primary">Run Screen</a>
+            <button onclick="openModal('splash_screen_1/screen.png')" class="btn btn-secondary">Screenshot</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Screen 10 -->
+      <div class="card">
+        <div class="thumbnail-container">
+          <img class="thumbnail" src="login_screen_1/screen.png" alt="Login Screen 2">
+        </div>
+        <div class="card-info">
+          <div class="card-title">Login Screen (Alternate)</div>
+          <div class="card-id">5d7f3cf02a574f8eab3ab02c7369c37e</div>
+          <div class="actions">
+            <a href="login_screen_1/code.html" target="_blank" class="btn btn-primary">Run Screen</a>
+            <button onclick="openModal('login_screen_1/screen.png')" class="btn btn-secondary">Screenshot</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <div id="imageModal" class="modal" onclick="closeModal()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <span class="close-modal" onclick="closeModal()">&times;</span>
+      <img id="modalImg" class="modal-image" src="" alt="Preview">
+    </div>
+  </div>
+
+  <script>
+    function openModal(src) {
+      document.getElementById('modalImg').src = src;
+      document.getElementById('imageModal').style.display = 'flex';
+    }
+
+    function closeModal() {
+      document.getElementById('imageModal').style.display = 'none';
+    }
+  </script>
+</body>
+</html>

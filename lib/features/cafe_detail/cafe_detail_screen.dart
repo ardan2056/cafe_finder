@@ -3,6 +3,8 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../core/theme/app_theme.dart';
 import '../../core/firebase_status.dart' as fb_status;
@@ -28,6 +30,66 @@ class _CafeDetailScreenState extends State<CafeDetailScreen> {
     final uri = Uri.parse(url);
     await launchUrl(uri, mode: LaunchMode.externalApplication);
   }
+
+  Future<void> _checkIn(CafeModel cafe) async {
+    try {
+      final isDemo = !fb_status.isFirebaseReady ||
+          FirebaseAuth.instance.currentUser == null ||
+          FirebaseAuth.instance.currentUser!.isAnonymous;
+
+      if (isDemo) {
+        final prefs = await SharedPreferences.getInstance();
+        var localVisitsStr = prefs.getStringList('local_visits');
+        List<String> visitsList = [];
+        if (localVisitsStr == null) {
+          final defaultVisits = [
+            '{"cafeId":"c1","cafeName":"The Roasted Bean","cafeImage":"https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=150&auto=format&fit=crop&q=80","createdAt":"2023-10-24T12:00:00Z"}',
+            '{"cafeId":"c2","cafeName":"Minimalist Espresso","cafeImage":"https://images.unsplash.com/photo-1498804103079-a6351b050096?w=150&auto=format&fit=crop&q=80","createdAt":"2023-10-21T12:00:00Z"}',
+            '{"cafeId":"c3","cafeName":"Urban Brew Labs","cafeImage":"https://images.unsplash.com/photo-1445116572660-236099ec97a0?w=150&auto=format&fit=crop&q=80","createdAt":"2023-10-18T12:00:00Z"}',
+            '{"cafeId":"c4","cafeName":"Velvet Sips","cafeImage":"https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=150&auto=format&fit=crop&q=80","createdAt":"2023-10-12T12:00:00Z"}',
+          ];
+          for (int i = 5; i <= 24; i++) {
+            defaultVisits.add('{"cafeId":"mock_$i","cafeName":"Mock Cafe $i","cafeImage":"","createdAt":"2023-10-01T12:00:00Z"}');
+          }
+          visitsList = defaultVisits;
+        } else {
+          visitsList = List<String>.from(localVisitsStr);
+        }
+
+        final checkInTime = DateTime.now().toIso8601String();
+        final newVisitJson = '{"cafeId":"${cafe.id}","cafeName":"${cafe.name}","cafeImage":"${cafe.images.isNotEmpty ? cafe.images.first : ''}","createdAt":"$checkInTime"}';
+        visitsList.add(newVisitJson);
+        await prefs.setStringList('local_visits', visitsList);
+      } else {
+        await FirebaseFirestore.instance.collection('visits').add({
+          'userId': FirebaseAuth.instance.currentUser!.uid,
+          'cafeId': cafe.id,
+          'cafeName': cafe.name,
+          'cafeImage': cafe.images.isNotEmpty ? cafe.images.first : '',
+          'createdAt': FieldValue.serverTimestamp(),
+        });
+      }
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Berhasil check-in di ${cafe.name}!'),
+            backgroundColor: AppTheme.primary,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Gagal check-in: $e'),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
+      }
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -58,22 +120,38 @@ class _CafeDetailScreenState extends State<CafeDetailScreen> {
                   const SizedBox(height: 16),
                   Container(
                     height: 220,
+                    width: double.infinity,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(28),
-                      gradient: LinearGradient(
-                        colors: [
-                          AppTheme.gold.withValues(alpha: 0.75),
-                          AppTheme.blue.withValues(alpha: 0.75),
-                        ],
-                      ),
+                      gradient: cafe.images.isEmpty
+                          ? LinearGradient(
+                              colors: [
+                                AppTheme.gold.withValues(alpha: 0.75),
+                                AppTheme.blue.withValues(alpha: 0.75),
+                              ],
+                            )
+                          : null,
                     ),
-                    child: const Center(
-                      child: Icon(
-                        Icons.local_cafe_rounded,
-                        size: 80,
-                        color: Colors.white,
-                      ),
-                    ),
+                    clipBehavior: Clip.hardEdge,
+                    child: cafe.images.isNotEmpty
+                        ? Image.network(
+                            cafe.images.first,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => const Center(
+                              child: Icon(
+                                Icons.local_cafe_rounded,
+                                size: 80,
+                                color: Colors.white,
+                              ),
+                            ),
+                          )
+                        : const Center(
+                            child: Icon(
+                              Icons.local_cafe_rounded,
+                              size: 80,
+                              color: Colors.white,
+                            ),
+                          ),
                   ),
                   const SizedBox(height: 24),
                   Text(
@@ -151,6 +229,23 @@ class _CafeDetailScreenState extends State<CafeDetailScreen> {
                       style: OutlinedButton.styleFrom(
                         foregroundColor: AppTheme.gold,
                         side: const BorderSide(color: AppTheme.gold),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(22)),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 56,
+                    child: ElevatedButton.icon(
+                      onPressed: () async {
+                        await _checkIn(cafe);
+                      },
+                      icon: const Icon(Icons.check_circle_outline_rounded, color: Colors.white),
+                      label: const Text('Check-in Kunjungan', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.primary,
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(22)),
                       ),

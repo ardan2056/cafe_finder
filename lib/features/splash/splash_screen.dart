@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../core/routes/app_routes.dart';
 import '../../core/theme/app_theme.dart';
-import '../../core/firebase_status.dart' as fb_status;
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -39,22 +38,7 @@ class _SplashScreenState extends State<SplashScreen>
 
     Timer(const Duration(seconds: 3), () {
       if (mounted) {
-        // If Firebase failed to initialize, show a prominent SnackBar on the onboarding route.
-        if (fb_status.firebaseInitError != null) {
-          // pass along by navigating and showing a banner
-          Navigator.pushReplacementNamed(context, AppRoutes.onboarding);
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            final ctx = context;
-            ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(
-              content:
-                  Text('Firebase init error: ${fb_status.firebaseInitError}'),
-              backgroundColor: Colors.redAccent,
-              duration: const Duration(seconds: 6),
-            ));
-          });
-        } else {
-          Navigator.pushReplacementNamed(context, AppRoutes.onboarding);
-        }
+        Navigator.pushReplacementNamed(context, AppRoutes.onboarding);
       }
     });
   }
@@ -68,7 +52,7 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.navy,
+      backgroundColor: AppTheme.primary,
       body: Stack(
         children: [
           Positioned.fill(
@@ -85,32 +69,34 @@ class _SplashScreenState extends State<SplashScreen>
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Container(
-                      width: 105,
-                      height: 105,
+                      width: 110,
+                      height: 110,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: AppTheme.gold.withValues(alpha: 0.15),
+                        color: AppTheme.tertiaryContainer.withValues(alpha: 0.15),
                         boxShadow: [
                           BoxShadow(
-                            color: AppTheme.gold.withValues(alpha: 0.45),
-                            blurRadius: 45,
-                            spreadRadius: 10,
+                            color: AppTheme.tertiaryContainer.withValues(alpha: 0.3),
+                            blurRadius: 40,
+                            spreadRadius: 8,
                           ),
                         ],
                       ),
-                      child: const Icon(
-                        Icons.local_cafe_rounded,
-                        color: AppTheme.gold,
-                        size: 54,
+                      child: ClipOval(
+                        child: Image.asset(
+                          'assets/logo.png',
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     ),
-                    const SizedBox(height: 26),
+                    const SizedBox(height: 28),
                     const Text(
-                      'Cafe Finder',
+                      'BrewQuest',
                       style: TextStyle(
-                        fontSize: 34,
+                        fontSize: 36,
                         fontWeight: FontWeight.bold,
-                        letterSpacing: 1.2,
+                        letterSpacing: 1.5,
+                        color: Colors.white,
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -118,16 +104,16 @@ class _SplashScreenState extends State<SplashScreen>
                       'Find Your Perfect Space',
                       style: TextStyle(
                         fontSize: 15,
-                        color: AppTheme.lightGray,
+                        color: Color(0xFFD4C3BA),
                       ),
                     ),
-                    const SizedBox(height: 36),
+                    const SizedBox(height: 40),
                     const SizedBox(
                       width: 160,
                       child: LinearProgressIndicator(
                         minHeight: 4,
-                        color: AppTheme.gold,
-                        backgroundColor: Color(0xFF334155),
+                        color: AppTheme.tertiaryContainer,
+                        backgroundColor: Color(0xFF6F4E37),
                       ),
                     ),
                   ],

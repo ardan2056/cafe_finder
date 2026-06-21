@@ -189,29 +189,45 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.navy,
+      backgroundColor: AppTheme.background,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(28),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 36),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              const SizedBox(height: 20),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppTheme.primary.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.person_add_rounded,
+                  color: AppTheme.primary,
+                  size: 64,
+                ),
+              ),
+              const SizedBox(height: 24),
               const Text(
                 'Buat Akun',
                 style: TextStyle(
                   fontSize: 30,
                   fontWeight: FontWeight.bold,
+                  color: AppTheme.primary,
                 ),
               ),
               const SizedBox(height: 8),
               const Text(
                 'Daftar untuk mulai mencari kafe favoritmu',
                 textAlign: TextAlign.center,
-                style: TextStyle(color: AppTheme.lightGray),
+                style: TextStyle(color: AppTheme.textLight),
               ),
               const SizedBox(height: 36),
               TextField(
                 controller: nameController,
+                style: TextStyle(color: AppTheme.text),
                 decoration: inputDecoration(
                   label: 'Nama',
                   icon: Icons.person_rounded,
@@ -221,6 +237,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               TextField(
                 controller: phoneController,
                 keyboardType: TextInputType.phone,
+                style: TextStyle(color: AppTheme.text),
                 decoration: inputDecoration(
                   label: 'No. Telepon',
                   icon: Icons.phone_rounded,
@@ -230,6 +247,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               TextField(
                 controller: emailController,
                 keyboardType: TextInputType.emailAddress,
+                style: TextStyle(color: AppTheme.text),
                 decoration: inputDecoration(
                   label: 'Email',
                   icon: Icons.email_rounded,
@@ -239,6 +257,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               TextField(
                 controller: passwordController,
                 obscureText: hidePassword,
+                style: TextStyle(color: AppTheme.text),
                 decoration: inputDecoration(
                   label: 'Password',
                   icon: Icons.lock_rounded,
@@ -248,6 +267,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       hidePassword
                           ? Icons.visibility_off_rounded
                           : Icons.visibility_rounded,
+                      color: AppTheme.primary,
                     ),
                     onPressed: () {
                       setState(() => hidePassword = !hidePassword);
@@ -262,14 +282,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 child: ElevatedButton(
                   onPressed: isLoading ? null : registerUser,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.gold,
-                    foregroundColor: Colors.black,
+                    backgroundColor: AppTheme.primary,
+                    foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(22),
                     ),
                   ),
                   child: isLoading
-                      ? const CircularProgressIndicator(color: Colors.black)
+                      ? const CircularProgressIndicator(color: Colors.white)
                       : const Text(
                           'Daftar',
                           style: TextStyle(
@@ -286,7 +306,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 },
                 child: const Text(
                   'Sudah punya akun? Masuk',
-                  style: TextStyle(color: AppTheme.gold),
+                  style: TextStyle(color: AppTheme.primary, fontWeight: FontWeight.bold),
                 ),
               ),
             ],
@@ -302,9 +322,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }) {
     return InputDecoration(
       labelText: label,
-      prefixIcon: Icon(icon),
+      labelStyle: const TextStyle(color: AppTheme.textLight),
+      prefixIcon: Icon(icon, color: AppTheme.textLight),
       filled: true,
-      fillColor: Colors.white.withValues(alpha: 0.08),
+      fillColor: const Color(0xFFEEEEED),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(22),
         borderSide: BorderSide.none,

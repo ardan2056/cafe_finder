@@ -1,0 +1,339 @@
+<!DOCTYPE html><html lang="id"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>BrewQuest - Cafe Discovery</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="assets/css2-9363b656ec7689273ed6808dda352bad" rel="stylesheet">
+<link href="assets/css2-a39f5c6fcbb87b419667ec984d2e579a" rel="stylesheet">
+<link href="assets/css2-a39f5c6fcbb87b419667ec984d2e579a" rel="stylesheet">
+<!-- Tailwind Configuration -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "background": "#faf9f8",
+                    "inverse-on-surface": "#f1f0f0",
+                    "secondary-fixed-dim": "#e3c19f",
+                    "on-tertiary": "#ffffff",
+                    "surface-tint": "#79573f",
+                    "on-error": "#ffffff",
+                    "error": "#ba1a1a",
+                    "surface-container-low": "#f4f3f2",
+                    "on-secondary-fixed": "#291803",
+                    "surface-container": "#eeeeed",
+                    "on-tertiary-container": "#ebc491",
+                    "on-background": "#1a1c1c",
+                    "primary-container": "#6f4e37",
+                    "tertiary-fixed-dim": "#e7c08e",
+                    "on-surface-variant": "#50453e",
+                    "secondary": "#735a3e",
+                    "primary-fixed-dim": "#eabda0",
+                    "inverse-primary": "#eabda0",
+                    "on-secondary": "#ffffff",
+                    "tertiary-container": "#6c5028",
+                    "on-primary-fixed-variant": "#5f402a",
+                    "error-container": "#ffdad6",
+                    "surface-dim": "#dadad9",
+                    "on-primary-container": "#eec1a4",
+                    "surface-container-highest": "#e3e2e1",
+                    "surface-container-lowest": "#ffffff",
+                    "primary": "#553722",
+                    "inverse-surface": "#2f3130",
+                    "on-primary-fixed": "#2d1604",
+                    "on-tertiary-fixed": "#291800",
+                    "surface-bright": "#faf9f8",
+                    "surface-variant": "#e3e2e1",
+                    "primary-fixed": "#ffdcc6",
+                    "on-secondary-container": "#785e42",
+                    "on-primary": "#ffffff",
+                    "surface-container-high": "#e9e8e7",
+                    "tertiary": "#533913",
+                    "secondary-container": "#fdd9b7",
+                    "on-error-container": "#93000a",
+                    "outline-variant": "#d4c3ba",
+                    "tertiary-fixed": "#ffddb4",
+                    "on-surface": "#1a1c1c",
+                    "on-secondary-fixed-variant": "#5a4229",
+                    "outline": "#82746d",
+                    "secondary-fixed": "#ffddbb",
+                    "on-tertiary-fixed-variant": "#5c421b",
+                    "surface": "#faf9f8"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "base": "8px",
+                    "sheet-peek-height": "240px",
+                    "bottom-nav-height": "80px",
+                    "margin-mobile": "16px",
+                    "gutter": "16px",
+                    "margin-tablet": "24px"
+            },
+            "fontFamily": {
+                    "headline-lg-mobile": ["Inter"],
+                    "title-lg": ["Inter"],
+                    "headline-sm": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "label-lg": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "body-md": ["Inter"],
+                    "headline-lg": ["Inter"]
+            },
+            "fontSize": {
+                    "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
+                    "title-lg": ["18px", {"lineHeight": "24px", "fontWeight": "600"}],
+                    "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "label-lg": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            user-select: none;
+        }
+        .sheet-transition {
+            transition: transform 0.4s cubic-bezier(0.33, 1, 0.68, 1);
+        }
+        .map-gradient-overlay {
+            background: linear-gradient(to bottom, rgba(26,28,28,0.1) 0%, rgba(26,28,28,0) 20%, rgba(26,28,28,0) 80%, rgba(26,28,28,0.05) 100%);
+        }
+        .tap-highlight-transparent {
+            -webkit-tap-highlight-color: transparent;
+        }
+        ::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-md text-body-md overflow-hidden h-screen w-screen">
+<!-- Fullscreen Map Background -->
+<div class="fixed inset-0 z-0 bg-surface-variant overflow-hidden">
+<img class="w-full h-full object-cover opacity-90 scale-105" data-alt="A detailed, high-resolution overhead digital map view of a modern urban neighborhood with soft, warm lighting. The map features clean streets, lush green parks, and building footprints in a muted, sophisticated color palette of creams, light browns, and soft greys, echoing a high-end cafe aesthetic. Subtle coffee-themed UI markers are scattered across the landscape, indicating various points of interest in a calm, professional mapping interface." data-location="Jakarta" src="assets/AB6AXuDqrtWNXExRw6_8XbzotAk3FNkjDF4C4CBK6huwfbuLolBEQwPMTzvS5OW2HwS8S3TkBYeACuxkrXYexoUhFLyVNA9D-drr-5396c8e7ae08ced627b4f97353d3740b">
+<div class="absolute inset-0 map-gradient-overlay pointer-events-none"></div>
+<!-- Custom Cafe Markers -->
+<!-- Marker 1 (Active) -->
+<button aria-label="Brew &amp; Bloom Marker" class="absolute top-[45%] left-[55%] -translate-x-1/2 -translate-y-1/2 group transition-transform active:scale-90">
+<div class="relative flex flex-col items-center">
+<div class="bg-primary text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg border-4 border-white transform hover:scale-110 transition-all duration-300">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">coffee</span>
+</div>
+<div class="w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-t-[10px] border-t-white -mt-1"></div>
+</div>
+</button>
+<!-- Marker 2 -->
+<button aria-label="Other Cafe" class="absolute top-[30%] left-[35%] -translate-x-1/2 -translate-y-1/2 opacity-80 active:scale-90">
+<div class="relative flex flex-col items-center">
+<div class="bg-secondary text-white w-8 h-8 rounded-full flex items-center justify-center shadow-md border-2 border-white">
+<span class="material-symbols-outlined text-sm">local_cafe</span>
+</div>
+</div>
+</button>
+<!-- Marker 3 -->
+<button aria-label="Other Cafe" class="absolute top-[60%] left-[20%] -translate-x-1/2 -translate-y-1/2 opacity-80 active:scale-90">
+<div class="relative flex flex-col items-center">
+<div class="bg-secondary text-white w-8 h-8 rounded-full flex items-center justify-center shadow-md border-2 border-white">
+<span class="material-symbols-outlined text-sm">local_cafe</span>
+</div>
+</div>
+</button>
+</div>
+<!-- Top App Bar / Search Overlay -->
+<header class="fixed top-0 left-0 w-full z-40 px-margin-mobile pt-margin-mobile">
+<div class="bg-background/90 backdrop-blur-md rounded-full shadow-sm flex items-center h-14 px-4 w-full max-w-2xl mx-auto border border-outline-variant/30">
+<button class="p-2 text-on-surface-variant active:scale-90 transition-transform">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<div class="flex-1 px-3">
+<input class="bg-transparent border-none focus:ring-0 w-full font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant/60" placeholder="Cari kopi di sekitar..." type="text">
+</div>
+<div class="flex items-center gap-2">
+<button class="p-2 text-on-surface-variant active:scale-90 transition-transform">
+<span class="material-symbols-outlined">mic</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center overflow-hidden active:scale-90 transition-transform">
+<img class="w-full h-full object-cover" data-alt="Professional portrait of a young adult explorer with a friendly expression, set against a warm, neutrally lit studio background that fits the Modern Coffee House aesthetic. The person wears a stylish, minimalist outfit in earthy tones of cream and dark brown, reflecting the premium brand identity of BrewQuest." src="assets/AB6AXuDxVINWxw_4yGFC2etwAytcBAbXHt077SXQKAdyQXTrHJFDs8z-MPSq2diQ_2afR_87AEjAKGtmrrX1ik0eEWdd7ZN3CNKW-3669208e83187de2608103c455e278b2">
+</div>
+</div>
+</div>
+<!-- Filter Chips Overlay -->
+<div class="flex gap-2 mt-4 overflow-x-auto no-scrollbar pb-2 px-1 max-w-2xl mx-auto">
+<button class="flex items-center gap-1.5 px-4 py-2 bg-primary text-white rounded-full shadow-sm font-label-lg text-label-lg whitespace-nowrap active:scale-95 transition-all">
+<span class="material-symbols-outlined text-sm">wifi</span>
+                Free Wi-Fi
+            </button>
+<button class="flex items-center gap-1.5 px-4 py-2 bg-background/95 text-on-surface-variant border border-outline-variant/30 rounded-full shadow-sm font-label-lg text-label-lg whitespace-nowrap active:scale-95 transition-all">
+<span class="material-symbols-outlined text-sm">event_seat</span>
+                Quiet Space
+            </button>
+<button class="flex items-center gap-1.5 px-4 py-2 bg-background/95 text-on-surface-variant border border-outline-variant/30 rounded-full shadow-sm font-label-lg text-label-lg whitespace-nowrap active:scale-95 transition-all">
+<span class="material-symbols-outlined text-sm">coffee_maker</span>
+                Specialty Brew
+            </button>
+</div>
+</header>
+<!-- Floating Action Buttons -->
+<div class="fixed right-4 bottom-[calc(theme(spacing.sheet-peek-height)+20px)] z-30 flex flex-col gap-3">
+<button class="w-12 h-12 bg-background/95 text-primary rounded-full shadow-lg flex items-center justify-center active:scale-90 transition-all border border-outline-variant/20">
+<span class="material-symbols-outlined">my_location</span>
+</button>
+<button class="w-12 h-12 bg-primary text-white rounded-full shadow-lg flex items-center justify-center active:scale-90 transition-all">
+<span class="material-symbols-outlined">layers</span>
+</button>
+</div>
+<!-- Bottom Discovery Sheet -->
+<div class="fixed bottom-0 left-0 w-full z-50 sheet-transition bg-surface shadow-[0_-8px_30px_rgba(0,0,0,0.12)] rounded-t-[32px] md:max-w-md md:left-6 md:bottom-24 md:rounded-3xl translate-y-[0%]" id="bottomSheet" style="height: auto;">
+<!-- Handle -->
+<div class="w-full flex justify-center pt-3 pb-2 md:hidden cursor-grab active:cursor-grabbing" id="sheetHandle">
+<div class="w-12 h-1.5 bg-outline-variant rounded-full opacity-50"></div>
+</div>
+<div class="px-6 pb-8 md:pt-6">
+<div class="flex justify-between items-start mb-4">
+<div class="flex-1">
+<div class="flex items-center gap-2 mb-1">
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Brew &amp; Bloom</h2>
+<div class="flex items-center gap-0.5 bg-secondary-container px-2 py-0.5 rounded-full text-on-secondary-container font-label-lg text-label-lg">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">star</span>
+                            4.8
+                        </div>
+</div>
+<p class="text-on-surface-variant font-body-md text-body-md flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">near_me</span>
+                        800m - 5 min
+                    </p>
+</div>
+<button class="w-10 h-10 rounded-full flex items-center justify-center text-primary hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined">favorite</span>
+</button>
+</div>
+<div class="flex items-center gap-3 mb-6">
+<div class="flex items-center gap-1.5 px-3 py-1.5 bg-tertiary-fixed text-on-tertiary-fixed rounded-lg font-label-lg text-label-lg">
+<span class="material-symbols-outlined text-sm">work</span>
+                    Cocok untuk: Bekerja
+                </div>
+<div class="flex items-center gap-1.5 px-3 py-1.5 bg-surface-container-high text-on-surface-variant rounded-lg font-label-lg text-label-lg">
+<span class="material-symbols-outlined text-sm">bolt</span>
+                    Populer Sekarang
+                </div>
+</div>
+<!-- Action Buttons -->
+<div class="flex gap-3">
+<button class="flex-1 h-14 bg-primary text-white rounded-2xl flex items-center justify-center gap-2 font-title-lg text-title-lg active:scale-95 transition-all shadow-md shadow-primary/20">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">navigation</span>
+                    Navigasi
+                </button>
+<button class="flex-1 h-14 border-2 border-primary text-primary rounded-2xl flex items-center justify-center gap-2 font-title-lg text-title-lg active:scale-95 transition-all">
+                    Detail
+                </button>
+</div>
+<!-- Additional Quick Info (Visible on swipe up or implied) -->
+<div class="mt-6 pt-6 border-t border-outline-variant/30 grid grid-cols-2 gap-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">schedule</span>
+</div>
+<div>
+<p class="font-label-lg text-label-lg text-on-surface-variant">Buka</p>
+<p class="font-body-md text-body-md text-on-surface">Sampai 21:00</p>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">attach_money</span>
+</div>
+<div>
+<p class="font-label-lg text-label-lg text-on-surface-variant">Harga</p>
+<p class="font-body-md text-body-md text-on-surface">Rp 30k - 80k</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Navigation Bar (Persistent Map Context) -->
+<nav class="fixed bottom-0 left-0 w-full h-[80px] bg-surface dark:bg-surface-container-lowest flex justify-around items-center px-4 pb-safe z-[60] shadow-[0_-4px_12px_rgba(0,0,0,0.08)] rounded-t-xl md:hidden">
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline p-2 hover:bg-surface-variant/50 transition-all tap-highlight-transparent active:scale-90" href="#">
+<span class="material-symbols-outlined">explore</span>
+<span class="font-label-lg text-label-lg">Explore</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-secondary-container dark:bg-secondary text-on-secondary-container dark:text-on-secondary rounded-full px-5 py-1 transition-all tap-highlight-transparent active:scale-90" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">map</span>
+<span class="font-label-lg text-label-lg">Map</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline p-2 hover:bg-surface-variant/50 transition-all tap-highlight-transparent active:scale-90" href="#">
+<span class="material-symbols-outlined">groups</span>
+<span class="font-label-lg text-label-lg">Events</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline p-2 hover:bg-surface-variant/50 transition-all tap-highlight-transparent active:scale-90" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-lg text-label-lg">Profile</span>
+</a>
+</nav>
+<!-- Side Rail (Desktop Tablet Only) -->
+<aside class="hidden md:flex fixed left-6 top-32 bottom-24 w-16 bg-background/90 backdrop-blur-md rounded-full shadow-lg border border-outline-variant/30 flex-col items-center py-6 gap-6 z-40">
+<button class="w-12 h-12 bg-secondary-container text-on-secondary-container rounded-full flex items-center justify-center active:scale-90 transition-all">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">map</span>
+</button>
+<button class="w-10 h-10 text-on-surface-variant hover:bg-surface-container rounded-full flex items-center justify-center active:scale-90 transition-all">
+<span class="material-symbols-outlined">explore</span>
+</button>
+<button class="w-10 h-10 text-on-surface-variant hover:bg-surface-container rounded-full flex items-center justify-center active:scale-90 transition-all">
+<span class="material-symbols-outlined">favorite</span>
+</button>
+<div class="mt-auto">
+<button class="w-10 h-10 text-on-surface-variant hover:bg-surface-container rounded-full flex items-center justify-center active:scale-90 transition-all">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+</aside>
+<script>
+        // Simple Interaction Logic
+        const sheet = document.getElementById('bottomSheet');
+        const handle = document.getElementById('sheetHandle');
+        let isExpanded = false;
+
+        if (handle) {
+            handle.addEventListener('click', () => {
+                isExpanded = !isExpanded;
+                if (isExpanded) {
+                    sheet.style.transform = 'translateY(-80px)'; // Elevate to show more info
+                } else {
+                    sheet.style.transform = 'translateY(0%)';
+                }
+            });
+        }
+
+        // Handle micro-interactions for marker clicking
+        document.querySelectorAll('button[aria-label="Other Cafe"]').forEach(marker => {
+            marker.addEventListener('click', (e) => {
+                const markerIcon = marker.querySelector('.material-symbols-outlined');
+                // Simulate focus
+                marker.classList.toggle('opacity-80');
+                marker.classList.toggle('scale-110');
+            });
+        });
+
+        // Prevention of default scrolling on map view
+        document.addEventListener('touchmove', function (e) {
+            if (e.target.closest('#bottomSheet')) return;
+            e.preventDefault();
+        }, { passive: false });
+    </script>
+</body></html>

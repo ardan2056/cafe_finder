@@ -1,0 +1,273 @@
+<!DOCTYPE html><html lang="id"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Daftar BrewQuest - Jelajahi Kopi Terbaik</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="assets/css2-5e3775eec025c6c6d938a1a1496afc9c" rel="stylesheet">
+<link href="assets/css2-a39f5c6fcbb87b419667ec984d2e579a" rel="stylesheet">
+<link href="assets/css2-a39f5c6fcbb87b419667ec984d2e579a" rel="stylesheet">
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-primary-fixed-variant": "#5f402a",
+                    "primary-fixed-dim": "#eabda0",
+                    "on-tertiary-fixed": "#291800",
+                    "primary": "#553722",
+                    "on-secondary-fixed-variant": "#5a4229",
+                    "surface-container-low": "#f4f3f2",
+                    "error": "#ba1a1a",
+                    "on-primary-container": "#eec1a4",
+                    "on-error": "#ffffff",
+                    "surface-dim": "#dadad9",
+                    "on-error-container": "#93000a",
+                    "outline-variant": "#d4c3ba",
+                    "inverse-primary": "#eabda0",
+                    "surface-tint": "#79573f",
+                    "tertiary-fixed-dim": "#e7c08e",
+                    "on-surface-variant": "#50453e",
+                    "surface-variant": "#e3e2e1",
+                    "surface-container-highest": "#e3e2e1",
+                    "on-primary-fixed": "#2d1604",
+                    "on-tertiary-fixed-variant": "#5c421b",
+                    "inverse-on-surface": "#f1f0f0",
+                    "secondary": "#735a3e",
+                    "secondary-fixed-dim": "#e3c19f",
+                    "error-container": "#ffdad6",
+                    "outline": "#82746d",
+                    "on-tertiary": "#ffffff",
+                    "on-secondary": "#ffffff",
+                    "inverse-surface": "#2f3130",
+                    "secondary-fixed": "#ffddbb",
+                    "surface-container": "#eeeeed",
+                    "primary-container": "#6f4e37",
+                    "surface-container-high": "#e9e8e7",
+                    "on-surface": "#1a1c1c",
+                    "on-background": "#1a1c1c",
+                    "tertiary-fixed": "#ffddb4",
+                    "secondary-container": "#fdd9b7",
+                    "tertiary-container": "#6c5028",
+                    "surface-container-lowest": "#ffffff",
+                    "surface": "#faf9f8",
+                    "on-tertiary-container": "#ebc491",
+                    "primary-fixed": "#ffdcc6",
+                    "background": "#faf9f8",
+                    "tertiary": "#533913",
+                    "on-secondary-fixed": "#291803",
+                    "surface-bright": "#faf9f8",
+                    "on-secondary-container": "#785e42",
+                    "on-primary": "#ffffff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "base": "8px",
+                    "sheet-peek-height": "240px",
+                    "gutter": "16px",
+                    "bottom-nav-height": "80px",
+                    "margin-mobile": "16px",
+                    "margin-tablet": "24px"
+            },
+            "fontFamily": {
+                    "label-lg": ["Inter"],
+                    "headline-lg": ["Inter"],
+                    "headline-sm": ["Inter"],
+                    "headline-lg-mobile": ["Inter"],
+                    "title-lg": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "body-md": ["Inter"],
+                    "body-lg": ["Inter"]
+            },
+            "fontSize": {
+                    "label-lg": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
+                    "title-lg": ["18px", {"lineHeight": "24px", "fontWeight": "600"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #faf9f8;
+            color: #1a1c1c;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-card {
+            background: rgba(250, 249, 248, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .input-focus-ring:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px #6f4e37;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="min-h-screen flex items-center justify-center p-4">
+<!-- Background Decorative Elements -->
+<div class="fixed inset-0 -z-10 overflow-hidden">
+<div class="absolute -top-[10%] -left-[5%] w-[40%] h-[40%] rounded-full bg-secondary-container/30 blur-[100px]"></div>
+<div class="absolute -bottom-[10%] -right-[5%] w-[40%] h-[40%] rounded-full bg-primary-fixed/20 blur-[100px]"></div>
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full opacity-[0.03] pointer-events-none" style="background-image: url('https://www.transparenttextures.com/patterns/pinstriped-suit.png');"></div>
+</div>
+<!-- Registration Container -->
+<main class="w-full max-w-md">
+<!-- Header / Logo Area -->
+<div class="flex flex-col items-center mb-8">
+<div class="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center shadow-lg mb-4 transform rotate-3">
+<span class="material-symbols-outlined text-white text-4xl" data-icon="coffee">coffee</span>
+</div>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-primary tracking-tight">BrewQuest</h1>
+<p class="font-body-md text-body-md text-on-surface-variant mt-2">Mulai perjalanan kopi Anda hari ini</p>
+</div>
+<!-- Registration Card -->
+<div class="glass-card border border-outline-variant/30 rounded-[32px] p-8 shadow-xl">
+<h2 class="font-headline-sm text-headline-sm text-on-surface mb-6">Buat Akun Baru</h2>
+<form class="space-y-5" id="registrationForm">
+<!-- Nama Lengkap -->
+<div class="space-y-2">
+<label class="block font-label-lg text-label-lg text-on-surface-variant ml-1" for="fullName">Nama Lengkap</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline" data-icon="person">person</span>
+<input class="w-full h-14 pl-12 pr-4 rounded-2xl bg-surface-container border-none text-on-surface placeholder:text-outline/60 font-body-md text-body-md input-focus-ring transition-all" id="fullName" name="fullName" placeholder="Masukkan nama lengkap" required="" type="text">
+</div>
+</div>
+<!-- Email -->
+<div class="space-y-2">
+<label class="block font-label-lg text-label-lg text-on-surface-variant ml-1" for="email">Email</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline" data-icon="mail">mail</span>
+<input class="w-full h-14 pl-12 pr-4 rounded-2xl bg-surface-container border-none text-on-surface placeholder:text-outline/60 font-body-md text-body-md input-focus-ring transition-all" id="email" name="email" placeholder="nama@email.com" required="" type="email">
+</div>
+</div>
+<!-- Password -->
+<div class="space-y-2">
+<label class="block font-label-lg text-label-lg text-on-surface-variant ml-1" for="password">Password</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline" data-icon="lock">lock</span>
+<input class="w-full h-14 pl-12 pr-12 rounded-2xl bg-surface-container border-none text-on-surface placeholder:text-outline/60 font-body-md text-body-md input-focus-ring transition-all" id="password" name="password" placeholder="Min. 8 karakter" required="" type="password">
+<button class="absolute right-4 top-1/2 -translate-y-1/2 text-outline hover:text-primary transition-colors" onclick="togglePassword('password')" type="button">
+<span class="material-symbols-outlined" data-icon="visibility" id="eye-icon-password">visibility</span>
+</button>
+</div>
+</div>
+<!-- Konfirmasi Password -->
+<div class="space-y-2">
+<label class="block font-label-lg text-label-lg text-on-surface-variant ml-1" for="confirmPassword">Konfirmasi Password</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline" data-icon="lock_reset">lock_reset</span>
+<input class="w-full h-14 pl-12 pr-12 rounded-2xl bg-surface-container border-none text-on-surface placeholder:text-outline/60 font-body-md text-body-md input-focus-ring transition-all" id="confirmPassword" name="confirmPassword" placeholder="Ulangi password" required="" type="password">
+<button class="absolute right-4 top-1/2 -translate-y-1/2 text-outline hover:text-primary transition-colors" onclick="togglePassword('confirmPassword')" type="button">
+<span class="material-symbols-outlined" data-icon="visibility" id="eye-icon-confirmPassword">visibility</span>
+</button>
+</div>
+</div>
+<!-- Terms -->
+<div class="flex items-start gap-3 py-2">
+<div class="flex items-center h-5">
+<input class="w-5 h-5 rounded border-outline-variant text-primary focus:ring-primary-container bg-surface-container-lowest" id="terms" required="" type="checkbox">
+</div>
+<label class="font-body-md text-body-md text-on-surface-variant" for="terms">
+                        Saya menyetujui <a class="text-primary font-semibold hover:underline" href="#">Syarat &amp; Ketentuan</a> serta Kebijakan Privasi BrewQuest.
+                    </label>
+</div>
+<!-- Submit Button -->
+<button class="w-full h-14 bg-primary text-white rounded-2xl font-title-lg text-title-lg shadow-lg shadow-primary/20 hover:bg-primary-container hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 mt-4" type="submit">
+                    Daftar
+                </button>
+</form>
+<!-- Social Register (Optional Polish) -->
+<div class="mt-8 flex items-center gap-4">
+<div class="h-[1px] flex-grow bg-outline-variant/50"></div>
+<span class="font-label-lg text-label-lg text-outline">Atau daftar dengan</span>
+<div class="h-[1px] flex-grow bg-outline-variant/50"></div>
+</div>
+<div class="mt-6 grid grid-cols-2 gap-4">
+<button class="h-12 flex items-center justify-center gap-2 rounded-xl border border-outline-variant/50 bg-white hover:bg-surface-container-low transition-colors active:scale-95">
+<img alt="Google" class="w-5 h-5" src="assets/AB6AXuBwEoBzI7sdnzNuDkF-PrtZIIuJnAIhOSHG21bA2DArghCxpm5q42uiP4nM5hF9JtcuYgNrk4qtMZZ86gVCGWZ7-P-3PLok-0cfde5bb7cd139f23533a19970ee6d7f">
+<span class="font-label-lg text-label-lg">Google</span>
+</button>
+<button class="h-12 flex items-center justify-center gap-2 rounded-xl border border-outline-variant/50 bg-[#1877F2] text-white hover:opacity-90 transition-colors active:scale-95">
+<span class="material-symbols-outlined text-sm" data-icon="facebook" style="font-variation-settings: 'FILL' 1;">face_nod</span>
+<span class="font-label-lg text-label-lg">Facebook</span>
+</button>
+</div>
+</div>
+<!-- Footer Link -->
+<p class="text-center mt-8 font-body-md text-body-md text-on-surface-variant">
+            Sudah punya akun? 
+            <a class="text-primary font-bold hover:underline ml-1" href="login.html">Masuk</a>
+</p>
+</main>
+<!-- Visual Accents (Coffee Beans) -->
+<div class="fixed top-[20%] right-[10%] opacity-10 rotate-45 hidden lg:block pointer-events-none">
+<span class="material-symbols-outlined text-[120px] text-primary" data-icon="coffee_bean">coffee</span>
+</div>
+<div class="fixed bottom-[15%] left-[5%] opacity-10 -rotate-12 hidden lg:block pointer-events-none">
+<span class="material-symbols-outlined text-[100px] text-primary" data-icon="restaurant">restaurant</span>
+</div>
+<script>
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById('eye-icon-' + inputId);
+            
+            if (input.type === "password") {
+                input.type = "text";
+                icon.innerText = "visibility_off";
+            } else {
+                input.type = "password";
+                icon.innerText = "visibility";
+            }
+        }
+
+        document.getElementById('registrationForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const pass = document.getElementById('password').value;
+            const confirm = document.getElementById('confirmPassword').value;
+
+            if (pass !== confirm) {
+                alert("Password dan Konfirmasi Password tidak cocok.");
+                return;
+            }
+
+            // Simple micro-interaction for successful feedback simulation
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalText = btn.innerText;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="material-symbols-outlined animate-spin" data-icon="progress_activity">progress_activity</span>';
+            
+            setTimeout(() => {
+                btn.innerHTML = '<span class="material-symbols-outlined" data-icon="check_circle">check_circle</span> Berhasil';
+                btn.classList.replace('bg-primary', 'bg-tertiary-container');
+                btn.classList.replace('text-white', 'text-on-tertiary-container');
+                
+                setTimeout(() => {
+                    // Redirect simulation
+                    console.log("Redirecting to verification...");
+                }, 1500);
+            }, 1200);
+        });
+    </script>
+</body></html>

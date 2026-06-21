@@ -1,0 +1,32 @@
+<html><head></head><body># Alur Pengguna Cafe Finder Smart Mapping
+
+## 1. Alur Onboarding &amp; Autentikasi
+*   **Splash Screen:** Menampilkan branding dan tagline "Temukan Kafe Terbaik Sesuai Aktivitasmu".
+*   **Login/Register:** Pengguna masuk menggunakan email atau Google Auth. Data disimpan di Firebase Authentication.
+*   **Initial Setup:** Pengguna baru diminta mengisi profil singkat (minat/aktivitas favorit).
+
+## 2. Alur Pencarian Cerdas (Smart Recommendation)
+*   **Trigger:** Pengguna membuka aplikasi atau menekan tab Explore.
+*   **Input Aktivitas:** Layar "Apa tujuan kunjungan Anda hari ini?" muncul.
+*   **Filtering:** Sistem menghitung "Smart Score" berdasarkan lokasi, fasilitas yang mendukung aktivitas (misal: WiFi kencang untuk 'Bekerja'), dan rating.
+*   **Display:** Hasil ditampilkan dalam bentuk kartu rekomendasi atau langsung di Map Explorer.
+
+## 3. Alur Eksplorasi Peta (Map Explorer)
+*   **Discovery:** Marker kafe muncul di Google Maps dengan warna kategori.
+*   **Quick View:** Menekan marker memunculkan Bottom Sheet dengan info ringkas (Jarak, Rating, Status Keramaian).
+*   **Navigation:** Tombol "Navigasi" membuka Google Maps eksternal untuk petunjuk arah.
+
+## 4. Alur Detail Kafe &amp; Interaksi
+*   **Detailed Info:** Pengguna melihat fasilitas lengkap, menu populer, dan prediksi keramaian.
+*   **Interaksi:** Pengguna bisa melakukan Check-in (menyumbang data keramaian real-time) atau memberikan Review (rating + foto).
+*   **Favorites:** Menyimpan kafe ke daftar favorit yang tersinkronisasi di profil.
+
+## 5. Alur Community &amp; Event
+*   **Discovery Hub:** Pengguna mencari komunitas (Programmer, UI/UX, dll).
+*   **Event Join:** Pengguna melihat event yang diadakan di kafe tertentu dan menekan "Gabung".
+*   **Event Creation:** Cafe Owner atau Admin bisa membuat event baru untuk menarik pengunjung.
+
+## 6. Alur Profil &amp; Riwayat
+*   **Stats:** Menampilkan total kafe yang dikunjungi dan review yang diberikan.
+*   **History:** Daftar kronologis kunjungan pengguna.
+*   **Settings:** Pengaturan akun dan preferensi mode (Light/Dark).</body></html>

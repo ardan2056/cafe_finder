@@ -1,21 +1,37 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../core/firebase_status.dart' as fb_status;
 
 class FavoriteService {
   FirebaseFirestore? _firestore;
-  FirebaseFirestore get _instance => _firestore ??= FirebaseFirestore.instance;
+  FirebaseFirestore? get _instance {
+    if (!fb_status.isFirebaseReady) return null;
+    try {
+      return _firestore ??= FirebaseFirestore.instance;
+    } catch (_) {
+      return null;
+    }
+  }
 
   FirebaseAuth? _auth;
-  FirebaseAuth get _authInstance => _auth ??= FirebaseAuth.instance;
+  FirebaseAuth? get _authInstance {
+    if (!fb_status.isFirebaseReady) return null;
+    try {
+      return _auth ??= FirebaseAuth.instance;
+    } catch (_) {
+      return null;
+    }
+  }
 
-  String get userId => _authInstance.currentUser?.uid ?? '';
+  String get userId => _authInstance?.currentUser?.uid ?? '';
 
   Future<void> addFavorite(String cafeId) async {
-    if (userId.isEmpty) {
+    final db = _instance;
+    if (userId.isEmpty || db == null) {
       return;
     }
 
-    await _instance.collection('favorites').add({
+    await db.collection('favorites').add({
       'userId': userId,
       'cafeId': cafeId,
       'createdAt': FieldValue.serverTimestamp(),
@@ -23,11 +39,12 @@ class FavoriteService {
   }
 
   Future<void> removeFavorite(String cafeId) async {
-    if (userId.isEmpty) {
+    final db = _instance;
+    if (userId.isEmpty || db == null) {
       return;
     }
 
-    final snapshot = await _instance
+    final snapshot = await db
         .collection('favorites')
         .where('userId', isEqualTo: userId)
         .where('cafeId', isEqualTo: cafeId)
@@ -39,11 +56,12 @@ class FavoriteService {
   }
 
   Stream<bool> isFavorite(String cafeId) {
-    if (userId.isEmpty) {
+    final db = _instance;
+    if (userId.isEmpty || db == null) {
       return Stream<bool>.value(false);
     }
 
-    return _instance
+    return db
         .collection('favorites')
         .where('userId', isEqualTo: userId)
         .where('cafeId', isEqualTo: cafeId)
@@ -52,11 +70,12 @@ class FavoriteService {
   }
 
   Stream<List<String>> favoriteIds() {
-    if (userId.isEmpty) {
+    final db = _instance;
+    if (userId.isEmpty || db == null) {
       return Stream<List<String>>.value(<String>[]);
     }
 
-    return _instance
+    return db
         .collection('favorites')
         .where('userId', isEqualTo: userId)
         .snapshots()

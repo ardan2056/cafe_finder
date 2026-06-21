@@ -5,6 +5,7 @@ import 'dart:html' as html;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../core/firebase_status.dart' as fb_status;
 
 /// Web user service: prefer writing real Firestore user documents when
 /// Firebase Auth is available (even for anonymous users). If Firebase is
@@ -12,7 +13,25 @@ import 'package:firebase_auth/firebase_auth.dart';
 /// storage in SharedPreferences / localStorage.
 
 class UserService {
-  String get uid => FirebaseAuth.instance.currentUser?.uid ?? 'demo';
+  User? get _currentUser {
+    if (!fb_status.isFirebaseReady) return null;
+    try {
+      return FirebaseAuth.instance.currentUser;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  FirebaseFirestore? get _firestoreInstance {
+    if (!fb_status.isFirebaseReady) return null;
+    try {
+      return FirebaseFirestore.instance;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  String get uid => _currentUser?.uid ?? 'demo';
 
   Future<void> createUserData({
     required String name,
@@ -20,12 +39,12 @@ class UserService {
     String? phone,
     String role = 'user',
   }) async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
+    final user = _currentUser;
+    final db = _firestoreInstance;
+    if (user != null && db != null) {
       // Write to Firestore for real users (including anonymous users with uid)
       try {
-        final doc =
-            FirebaseFirestore.instance.collection('users').doc(user.uid);
+        final doc = db.collection('users').doc(user.uid);
         await doc.set({
           'uid': user.uid,
           'name': name,
@@ -58,11 +77,11 @@ class UserService {
 
   /// Web: store role locally in SharedPreferences
   Future<void> setRole(String role) async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
+    final user = _currentUser;
+    final db = _firestoreInstance;
+    if (user != null && db != null) {
       try {
-        final doc =
-            FirebaseFirestore.instance.collection('users').doc(user.uid);
+        final doc = db.collection('users').doc(user.uid);
         await doc.set({'role': role, 'updatedAt': FieldValue.serverTimestamp()},
             SetOptions(merge: true));
         return;
@@ -78,13 +97,11 @@ class UserService {
   }
 
   Future<String> getRole() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
+    final user = _currentUser;
+    final db = _firestoreInstance;
+    if (user != null && db != null) {
       try {
-        final doc = await FirebaseFirestore.instance
-            .collection('users')
-            .doc(user.uid)
-            .get();
+        final doc = await db.collection('users').doc(user.uid).get();
         return (doc.data()?['role'] as String?) ?? 'user';
       } catch (_) {}
     }
@@ -99,21 +116,20 @@ class UserService {
 
   /// Provide an empty DocumentSnapshot stream for web (used by profile UI).
   Stream<DocumentSnapshot> getUserData() {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      return FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.uid)
-          .snapshots();
+    final user = _currentUser;
+    final db = _firestoreInstance;
+    if (user != null && db != null) {
+      return db.collection('users').doc(user.uid).snapshots();
     }
     return Stream<DocumentSnapshot>.empty();
   }
 
   Future<void> updateName(String name) async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
+    final user = _currentUser;
+    final db = _firestoreInstance;
+    if (user != null && db != null) {
       try {
-        await FirebaseFirestore.instance.collection('users').doc(user.uid).set(
+        await db.collection('users').doc(user.uid).set(
             {'name': name, 'updatedAt': FieldValue.serverTimestamp()},
             SetOptions(merge: true));
         return;
@@ -129,10 +145,11 @@ class UserService {
   }
 
   Future<void> updatePhone(String phone) async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
+    final user = _currentUser;
+    final db = _firestoreInstance;
+    if (user != null && db != null) {
       try {
-        await FirebaseFirestore.instance.collection('users').doc(user.uid).set(
+        await db.collection('users').doc(user.uid).set(
             {'phone': phone, 'updatedAt': FieldValue.serverTimestamp()},
             SetOptions(merge: true));
         return;
@@ -157,13 +174,11 @@ class UserService {
   }
 
   Future<String?> getPhoto() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
+    final user = _currentUser;
+    final db = _firestoreInstance;
+    if (user != null && db != null) {
       try {
-        final doc = await FirebaseFirestore.instance
-            .collection('users')
-            .doc(user.uid)
-            .get();
+        final doc = await db.collection('users').doc(user.uid).get();
         return doc.data()?['photoUrl'] as String?;
       } catch (_) {}
     }
@@ -181,10 +196,11 @@ class UserService {
   }
 
   Future<void> updatePhoto(String photoUrl) async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
+    final user = _currentUser;
+    final db = _firestoreInstance;
+    if (user != null && db != null) {
       try {
-        await FirebaseFirestore.instance.collection('users').doc(user.uid).set(
+        await db.collection('users').doc(user.uid).set(
             {'photoUrl': photoUrl, 'updatedAt': FieldValue.serverTimestamp()},
             SetOptions(merge: true));
         return;
@@ -200,10 +216,11 @@ class UserService {
   }
 
   Future<void> updatePreferences(List<String> preferences) async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
+    final user = _currentUser;
+    final db = _firestoreInstance;
+    if (user != null && db != null) {
       try {
-        await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+        await db.collection('users').doc(user.uid).set({
           'preferences': preferences,
           'updatedAt': FieldValue.serverTimestamp()
         }, SetOptions(merge: true));

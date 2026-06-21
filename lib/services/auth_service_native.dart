@@ -1,18 +1,33 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+import '../core/firebase_status.dart' as fb_status;
+// NOTE: google_sign_in tidak compatible untuk Windows di repo ini.
+// Untuk Android/iOS, plugin harus ditambahkan & dikonfigurasi.
+// Agar build tetap jalan, Google login di Windows dibuat fallback.
+// import 'package:google_sign_in/google_sign_in.dart';
 
 import 'auth_identity.dart';
 
 class AuthService {
   FirebaseAuth? _auth;
 
-  FirebaseAuth get _instance => _auth ??= FirebaseAuth.instance;
+  FirebaseAuth? get _instance {
+    if (!fb_status.isFirebaseReady) return null;
+    try {
+      return _auth ??= FirebaseAuth.instance;
+    } catch (_) {
+      return null;
+    }
+  }
 
   Future<void> login({
     required String email,
     required String password,
   }) async {
-    await _instance.signInWithEmailAndPassword(
+    final auth = _instance;
+    if (auth == null) {
+      throw Exception('Firebase belum siap / tidak terhubung.');
+    }
+    await auth.signInWithEmailAndPassword(
       email: email.trim(),
       password: password.trim(),
     );
@@ -22,59 +37,42 @@ class AuthService {
     required String email,
     required String password,
   }) async {
-    await _instance.createUserWithEmailAndPassword(
+    final auth = _instance;
+    if (auth == null) {
+      throw Exception('Firebase belum siap / tidak terhubung.');
+    }
+    await auth.createUserWithEmailAndPassword(
       email: email.trim(),
       password: password.trim(),
     );
   }
 
   Future<void> logout() async {
-    final googleSignIn = GoogleSignIn();
-    // Sign out from Firebase and Google sign-in.
-    // Some platforms (e.g. Windows) may not have GoogleSignIn plugin available
-    // and could throw. Handle errors per-call so logout never throws unexpectedly.
-    try {
-      await _instance.signOut();
-    } catch (e) {
-      // ignore firebase signOut errors but log if needed
-    }
-
-    try {
-      await googleSignIn.signOut();
-    } catch (e) {
-      // ignore google sign out errors (plugin not available on platform)
+    final auth = _instance;
+    if (auth != null) {
+      await auth.signOut();
     }
   }
 
-  User? get currentUser => _instance.currentUser;
+  User? get currentUser {
+    final auth = _instance;
+    return auth?.currentUser;
+  }
 
   Future<AuthIdentity> loginWithGoogle() async {
-    final googleUser = await GoogleSignIn().signIn();
-    if (googleUser == null) {
-      throw Exception('Login Google dibatalkan');
-    }
-
-    final googleAuth = await googleUser.authentication;
-    final credential = GoogleAuthProvider.credential(
-      accessToken: googleAuth.accessToken,
-      idToken: googleAuth.idToken,
-    );
-
-    final result = await _instance.signInWithCredential(credential);
-    final user = result.user;
-    if (user == null) {
-      throw Exception('Gagal masuk dengan Google');
-    }
-
-    return AuthIdentity(
-      email: user.email ?? googleUser.email,
-      name: user.displayName ?? googleUser.displayName ?? 'Pengguna',
-      photoUrl: user.photoURL ?? googleUser.photoUrl,
-    );
+    // Untuk saat ini, login Google di Windows belum bisa karena plugin
+    // google_sign_in tidak terkonfigurasi / tidak kompatibel di build ini.
+    // Supaya app bisa jalan, tampilkan error yang jelas.
+    throw Exception(
+        'Login Google belum tersedia di platform ini. Gunakan Android/iOS.');
   }
 
   Future<void> signInAnonymously() async {
-    await _instance.signInAnonymously();
+    final auth = _instance;
+    if (auth == null) {
+      throw Exception('Firebase belum siap / tidak terhubung.');
+    }
+    await auth.signInAnonymously();
   }
 
   /// If current user is anonymous, link the anonymous account to an email/password
@@ -83,7 +81,11 @@ class AuthService {
     required String email,
     required String password,
   }) async {
-    final user = _instance.currentUser;
+    final auth = _instance;
+    if (auth == null) {
+      throw Exception('Firebase belum siap / tidak terhubung.');
+    }
+    final user = auth.currentUser;
     final cred = EmailAuthProvider.credential(
       email: email.trim(),
       password: password.trim(),
@@ -105,7 +107,11 @@ class AuthService {
 
   Future<void> createUserWithEmail(
       {required String email, required String password}) async {
-    await _instance.createUserWithEmailAndPassword(
+    final auth = _instance;
+    if (auth == null) {
+      throw Exception('Firebase belum siap / tidak terhubung.');
+    }
+    await auth.createUserWithEmailAndPassword(
       email: email.trim(),
       password: password.trim(),
     );

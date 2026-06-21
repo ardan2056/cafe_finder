@@ -1,12 +1,27 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../core/firebase_status.dart' as fb_status;
 
 class ReviewService {
   FirebaseFirestore? _firestore;
-  FirebaseFirestore get _instance => _firestore ??= FirebaseFirestore.instance;
+  FirebaseFirestore? get _instance {
+    if (!fb_status.isFirebaseReady) return null;
+    try {
+      return _firestore ??= FirebaseFirestore.instance;
+    } catch (_) {
+      return null;
+    }
+  }
 
   FirebaseAuth? _auth;
-  FirebaseAuth get _authInstance => _auth ??= FirebaseAuth.instance;
+  FirebaseAuth? get _authInstance {
+    if (!fb_status.isFirebaseReady) return null;
+    try {
+      return _auth ??= FirebaseAuth.instance;
+    } catch (_) {
+      return null;
+    }
+  }
 
   Future<void> addReview({
     required String cafeId,
@@ -14,13 +29,15 @@ class ReviewService {
     required String comment,
     required List<String> tags,
   }) async {
-    final user = _authInstance.currentUser;
+    final auth = _authInstance;
+    final db = _instance;
+    final user = auth?.currentUser;
 
-    if (user == null) {
-      throw Exception('User belum login');
+    if (user == null || db == null) {
+      throw Exception('User belum login atau Firebase belum siap');
     }
 
-    await _instance.collection('reviews').add({
+    await db.collection('reviews').add({
       'cafeId': cafeId,
       'userId': user.uid,
       'userName': user.displayName ?? 'Pengguna',
@@ -32,7 +49,11 @@ class ReviewService {
   }
 
   Stream<QuerySnapshot> getReviews(String cafeId) {
-    return _instance
+    final db = _instance;
+    if (db == null) {
+      return Stream<QuerySnapshot>.empty();
+    }
+    return db
         .collection('reviews')
         .where('cafeId', isEqualTo: cafeId)
         .orderBy('createdAt', descending: true)

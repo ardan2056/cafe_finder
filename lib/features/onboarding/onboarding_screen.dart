@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/routes/app_routes.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/firebase_status.dart' as fb_status;
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -12,6 +13,22 @@ class OnboardingScreen extends StatefulWidget {
 class _OnboardingScreenState extends State<OnboardingScreen> {
   final PageController pageController = PageController();
   int currentIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    if (fb_status.firebaseInitError != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text('Firebase init error: ${fb_status.firebaseInitError}'),
+            backgroundColor: Colors.redAccent,
+            duration: const Duration(seconds: 6),
+          ));
+        }
+      });
+    }
+  }
 
   final List<Map<String, dynamic>> pages = [
     {
@@ -140,7 +157,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     width: isActive ? 28 : 9,
                     height: 9,
                     decoration: BoxDecoration(
-                      color: isActive ? AppTheme.gold : const Color(0xFF334155),
+                      color: isActive ? AppTheme.primary : const Color(0xFFD4C3BA),
                       borderRadius: BorderRadius.circular(20),
                     ),
                   );
@@ -156,8 +173,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 child: ElevatedButton(
                   onPressed: nextPage,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.gold,
-                    foregroundColor: Colors.black,
+                    backgroundColor: AppTheme.primary,
+                    foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(22),
                     ),

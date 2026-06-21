@@ -1,0 +1,275 @@
+<!DOCTYPE html><html class="light" lang="id"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>BrewQuest - Splash Screen</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="assets/css2-a39f5c6fcbb87b419667ec984d2e579a" rel="stylesheet">
+<link href="assets/css2-5e3775eec025c6c6d938a1a1496afc9c" rel="stylesheet">
+<link href="assets/css2-a39f5c6fcbb87b419667ec984d2e579a" rel="stylesheet">
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-tertiary-fixed": "#291800",
+                    "surface-bright": "#faf9f8",
+                    "surface-tint": "#79573f",
+                    "surface-container-high": "#e9e8e7",
+                    "tertiary-fixed-dim": "#e7c08e",
+                    "on-error-container": "#93000a",
+                    "on-secondary": "#ffffff",
+                    "inverse-primary": "#eabda0",
+                    "primary-fixed": "#ffdcc6",
+                    "error": "#ba1a1a",
+                    "surface-variant": "#e3e2e1",
+                    "secondary-fixed-dim": "#e3c19f",
+                    "on-tertiary-container": "#ebc491",
+                    "on-tertiary": "#ffffff",
+                    "background": "#faf9f8",
+                    "secondary-fixed": "#ffddbb",
+                    "on-primary": "#ffffff",
+                    "tertiary-container": "#6c5028",
+                    "surface-container": "#eeeeed",
+                    "on-secondary-container": "#785e42",
+                    "error-container": "#ffdad6",
+                    "secondary": "#735a3e",
+                    "primary": "#553722",
+                    "primary-container": "#6f4e37",
+                    "outline": "#82746d",
+                    "on-primary-fixed-variant": "#5f402a",
+                    "on-background": "#1a1c1c",
+                    "surface-dim": "#dadad9",
+                    "on-primary-container": "#eec1a4",
+                    "surface-container-lowest": "#ffffff",
+                    "inverse-on-surface": "#f1f0f0",
+                    "on-tertiary-fixed-variant": "#5c421b",
+                    "tertiary-fixed": "#ffddb4",
+                    "secondary-container": "#fdd9b7",
+                    "on-surface": "#1a1c1c",
+                    "surface-container-highest": "#e3e2e1",
+                    "on-error": "#ffffff",
+                    "on-surface-variant": "#50453e",
+                    "primary-fixed-dim": "#eabda0",
+                    "surface-container-low": "#f4f3f2",
+                    "on-secondary-fixed-variant": "#5a4229",
+                    "inverse-surface": "#2f3130",
+                    "on-secondary-fixed": "#291803",
+                    "on-primary-fixed": "#2d1604",
+                    "surface": "#faf9f8",
+                    "tertiary": "#533913",
+                    "outline-variant": "#d4c3ba"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "sheet-peek-height": "240px",
+                    "margin-mobile": "16px",
+                    "base": "8px",
+                    "bottom-nav-height": "80px",
+                    "margin-tablet": "24px",
+                    "gutter": "16px"
+            },
+            "fontFamily": {
+                    "headline-lg": ["Inter"],
+                    "label-lg": ["Inter"],
+                    "headline-lg-mobile": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "body-md": ["Inter"],
+                    "title-lg": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "headline-sm": ["Inter"]
+            },
+            "fontSize": {
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "label-lg": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
+                    "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "title-lg": ["18px", {"lineHeight": "24px", "fontWeight": "600"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        .float-animation {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .steam {
+            position: absolute;
+            height: 40px;
+            width: 2px;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 2px;
+            animation: steam-rise 2s infinite ease-out;
+            opacity: 0;
+        }
+
+        @keyframes steam-rise {
+            0% { transform: translateY(0) scaleX(1); opacity: 0; }
+            50% { transform: translateY(-20px) scaleX(1.5); opacity: 0.6; }
+            100% { transform: translateY(-40px) scaleX(2); opacity: 0; }
+        }
+
+        .shimmer-text {
+            background: linear-gradient(90deg, #553722 0%, #79573f 50%, #553722 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shimmer 3s linear infinite;
+        }
+
+        @keyframes shimmer {
+            to { background-position: 200% center; }
+        }
+
+        .scanning-bar {
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, transparent 0%, #6f4e37 50%, transparent 100%);
+            position: absolute;
+            top: 0;
+            animation: scan 2s ease-in-out infinite;
+        }
+
+        @keyframes scan {
+            0% { transform: translateY(0); opacity: 0; }
+            50% { transform: translateY(16px); opacity: 1; }
+            100% { transform: translateY(32px); opacity: 0; }
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen flex flex-col items-center justify-center overflow-hidden font-body-md text-body-md">
+<!-- Background Decorative Elements -->
+<div class="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+<div class="absolute -top-[10%] -left-[5%] w-[400px] h-[400px] rounded-full bg-primary-fixed/30 blur-[100px]"></div>
+<div class="absolute -bottom-[10%] -right-[5%] w-[500px] h-[500px] rounded-full bg-secondary-container/20 blur-[120px]"></div>
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full opacity-5 pointer-events-none" style="background-image: radial-gradient(#553722 0.5px, transparent 0.5px); background-size: 24px 24px;"></div>
+</div>
+<!-- Main Content Canvas -->
+<main class="relative z-10 flex flex-col items-center justify-center px-6 w-full max-w-md text-center">
+<!-- Brand Logo & Icon Container -->
+<div class="relative mb-12">
+<div class="w-32 h-32 md:w-40 md:h-40 bg-primary-container rounded-[40px] flex items-center justify-center shadow-2xl shadow-primary/20 float-animation relative overflow-hidden group">
+<!-- Inner Glow -->
+<div class="absolute inset-0 bg-gradient-to-tr from-primary/40 to-transparent opacity-60"></div>
+<!-- Coffee Icon (Literal from JSON TopAppBar reference: coffee) -->
+<span class="material-symbols-outlined text-surface-bright text-[64px] md:text-[80px] relative z-10 transition-transform duration-500 group-hover:scale-110" data-icon="coffee" style="font-variation-settings: 'FILL' 1;">
+                    coffee
+                </span>
+<!-- Steam Particles -->
+<div class="steam left-1/3" style="animation-delay: 0s;"></div>
+<div class="steam left-1/2" style="animation-delay: 0.5s;"></div>
+<div class="steam left-2/3" style="animation-delay: 1.2s;"></div>
+</div>
+<!-- Shadow Pulse -->
+<div class="absolute -bottom-6 left-1/2 -translate-x-1/2 w-24 h-4 bg-on-surface-variant/10 blur-md rounded-full"></div>
+</div>
+<!-- Identity Cluster -->
+<div class="space-y-4 mb-16">
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg shimmer-text tracking-tight">
+                BrewQuest
+            </h1>
+<p class="font-title-lg text-title-lg text-on-surface-variant max-w-[280px] mx-auto leading-relaxed">
+                Temukan Kafe Terbaik Sesuai Aktivitasmu
+            </p>
+</div>
+<!-- Animated Loading State: "Scanning for Aroma" -->
+<div class="w-full space-y-6 flex flex-col items-center">
+<div class="relative w-48 h-12 bg-surface-container-high rounded-full px-6 flex items-center justify-center overflow-hidden border border-outline-variant/30">
+<!-- Scanning Effect -->
+<div class="scanning-bar"></div>
+<div class="flex items-center gap-3 relative z-10">
+<span class="material-symbols-outlined text-primary text-sm animate-pulse" data-icon="search">search</span>
+<span class="font-label-lg text-label-lg text-primary uppercase tracking-widest" id="status-text">Scanning for Aroma</span>
+</div>
+</div>
+<!-- Modern Progress Track -->
+<div class="w-64 h-[2px] bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary-container w-0 transition-all duration-300 ease-out" id="progress-bar"></div>
+</div>
+<!-- Activity Chips (Visual Hint of the app's capability) -->
+<div class="flex flex-wrap justify-center gap-2 opacity-0 translate-y-4 transition-all duration-700" id="chip-container">
+<div class="px-4 py-1.5 rounded-full bg-secondary-container/50 text-on-secondary-container font-label-lg text-[10px] border border-secondary/10">WFC</div>
+<div class="px-4 py-1.5 rounded-full bg-secondary-container/50 text-on-secondary-container font-label-lg text-[10px] border border-secondary/10">COFFEE DATE</div>
+<div class="px-4 py-1.5 rounded-full bg-secondary-container/50 text-on-secondary-container font-label-lg text-[10px] border border-secondary/10">QUITE SPACE</div>
+</div>
+</div>
+</main>
+<!-- Footer Identity -->
+<div class="fixed bottom-12 w-full text-center px-margin-mobile opacity-40">
+<p class="font-label-lg text-label-lg text-on-surface-variant uppercase tracking-[0.2em]">Crafted for Explorers</p>
+</div>
+<!-- Script for interactive loading simulation -->
+<script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const progressBar = document.getElementById('progress-bar');
+            const statusText = document.getElementById('status-text');
+            const chipContainer = document.getElementById('chip-container');
+            
+            const statuses = [
+                "Grinding beans...",
+                "Warming the portafilter...",
+                "Pouring over...",
+                "Aroma identified!"
+            ];
+
+            let progress = 0;
+            let statusIndex = 0;
+
+            const interval = setInterval(() => {
+                progress += Math.random() * 15;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(interval);
+                    statusText.textContent = "Welcome to BrewQuest";
+                    // Simulate completion
+                    setTimeout(() => {
+                        document.body.classList.add('opacity-0', 'transition-opacity', 'duration-1000');
+                    }, 1000);
+                }
+
+                progressBar.style.width = `${progress}%`;
+
+                // Update status text based on progress
+                const nextStatusIndex = Math.min(Math.floor((progress / 100) * statuses.length), statuses.length - 1);
+                if (nextStatusIndex !== statusIndex) {
+                    statusIndex = nextStatusIndex;
+                    statusText.classList.add('opacity-0');
+                    setTimeout(() => {
+                        statusText.textContent = statuses[statusIndex];
+                        statusText.classList.remove('opacity-0');
+                    }, 200);
+                }
+
+                // Show chips halfway
+                if (progress > 40) {
+                    chipContainer.classList.remove('opacity-0', 'translate-y-4');
+                }
+            }, 600);
+        });
+    </script>
+</body></html>

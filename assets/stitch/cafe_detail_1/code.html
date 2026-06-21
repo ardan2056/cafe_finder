@@ -1,0 +1,368 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>BrewQuest - Cafe Detail</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="assets/css2-a39f5c6fcbb87b419667ec984d2e579a" rel="stylesheet">
+<link href="assets/css2-5e3775eec025c6c6d938a1a1496afc9c" rel="stylesheet">
+<link href="assets/css2-a39f5c6fcbb87b419667ec984d2e579a" rel="stylesheet">
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .discovery-sheet {
+            border-radius: 32px 32px 0 0;
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.08);
+        }
+        .match-gradient {
+            background: linear-gradient(135deg, #6F4E37 0%, #553722 100%);
+        }
+        .crowd-bar {
+            transition: height 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-fixed": "#291800",
+                        "surface-bright": "#faf9f8",
+                        "surface-tint": "#79573f",
+                        "surface-container-high": "#e9e8e7",
+                        "tertiary-fixed-dim": "#e7c08e",
+                        "on-error-container": "#93000a",
+                        "on-secondary": "#ffffff",
+                        "inverse-primary": "#eabda0",
+                        "primary-fixed": "#ffdcc6",
+                        "error": "#ba1a1a",
+                        "surface-variant": "#e3e2e1",
+                        "secondary-fixed-dim": "#e3c19f",
+                        "on-tertiary-container": "#ebc491",
+                        "on-tertiary": "#ffffff",
+                        "background": "#faf9f8",
+                        "secondary-fixed": "#ffddbb",
+                        "on-primary": "#ffffff",
+                        "tertiary-container": "#6c5028",
+                        "surface-container": "#eeeeed",
+                        "on-secondary-container": "#785e42",
+                        "error-container": "#ffdad6",
+                        "secondary": "#735a3e",
+                        "primary": "#553722",
+                        "primary-container": "#6f4e37",
+                        "outline": "#82746d",
+                        "on-primary-fixed-variant": "#5f402a",
+                        "on-background": "#1a1c1c",
+                        "surface-dim": "#dadad9",
+                        "on-primary-container": "#eec1a4",
+                        "surface-container-lowest": "#ffffff",
+                        "inverse-on-surface": "#f1f0f0",
+                        "on-tertiary-fixed-variant": "#5c421b",
+                        "tertiary-fixed": "#ffddb4",
+                        "secondary-container": "#fdd9b7",
+                        "on-surface": "#1a1c1c",
+                        "surface-container-highest": "#e3e2e1",
+                        "on-error": "#ffffff",
+                        "on-surface-variant": "#50453e",
+                        "primary-fixed-dim": "#eabda0",
+                        "surface-container-low": "#f4f3f2",
+                        "on-secondary-fixed-variant": "#5a4229",
+                        "inverse-surface": "#2f3130",
+                        "on-secondary-fixed": "#291803",
+                        "on-primary-fixed": "#2d1604",
+                        "surface": "#faf9f8",
+                        "tertiary": "#533913",
+                        "outline-variant": "#d4c3ba"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "sheet-peek-height": "240px",
+                        "margin-mobile": "16px",
+                        "base": "8px",
+                        "bottom-nav-height": "80px",
+                        "margin-tablet": "24px",
+                        "gutter": "16px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Inter"],
+                        "label-lg": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "title-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "headline-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "label-lg": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
+                        "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "title-lg": ["18px", {"lineHeight": "24px", "fontWeight": "600"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface font-body-md text-on-surface selection:bg-primary-container selection:text-on-primary-container">
+<!-- Top App Bar -->
+<header class="fixed top-0 w-full z-50 backdrop-blur-md bg-surface/90 flex justify-between items-center px-4 h-16 w-full shadow-sm">
+<button class="p-2 rounded-full hover:bg-surface-container transition-colors active:scale-95 duration-150">
+<span class="material-symbols-outlined text-on-surface">arrow_back</span>
+</button>
+<span class="font-headline-md text-headline-md font-bold text-primary">BrewQuest</span>
+<div class="flex gap-2">
+<button class="p-2 rounded-full hover:bg-surface-container transition-colors active:scale-95 duration-150">
+<span class="material-symbols-outlined text-on-surface">share</span>
+</button>
+<button class="p-2 rounded-full hover:bg-surface-container transition-colors active:scale-95 duration-150">
+<span class="material-symbols-outlined text-on-surface">favorite</span>
+</button>
+</div>
+</header>
+<main class="pt-16 pb-32">
+<!-- Hero Slider (Conceptual representation) -->
+<section class="relative w-full h-[320px] overflow-hidden group">
+<div class="flex h-full w-full overflow-x-auto snap-x snap-mandatory hide-scrollbar">
+<div class="min-w-full h-full snap-start relative">
+<img alt="Cafe Interior" class="w-full h-full object-cover" data-alt="A professional, high-fidelity wide shot of a modern minimalist cafe interior. The space features warm wood textures, clean white walls, and large windows letting in soft, natural daylight. Deep coffee brown leather seating and marble tables create a sophisticated atmosphere. The lighting is bright and inviting, perfectly capturing the BrewQuest brand identity of refined urban coffee exploration." src="assets/AB6AXuDaGllaJ1AEpDN9hTkB2NATeHgFk9Jp_4bqU4S7X3c4r3wOAhQHEyJrxMeTfCfZwjjGqvnOQ-zz5xAowOycgU-jwJMJsMV0-13c5b8a1b958da104bddbc06d62c4864">
+<div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+</div>
+<div class="min-w-full h-full snap-start relative">
+<img alt="Specialty Coffee" class="w-full h-full object-cover" data-alt="A detailed close-up of a specialty latte with intricate latte art on a dark wood surface. The lighting is moody and focused, highlighting the rich texture of the coffee and the soft creaminess of the milk. Surrounding the cup are subtle urban cafe elements like a silver spoon and a small green plant, maintaining a cozy yet professional aesthetic for coffee enthusiasts." src="assets/AB6AXuBAxKiqlEPKwmglra8qutPyIVRzxDIPt7_zdrir5ESERWEeOL4egjRoHgLVL0orgZJ6duYCZ3jW8sE_TowYDePwJ45K2qQb-4ad3df2023a068e2b42e779ee799d6d5">
+</div>
+</div>
+<!-- Indicator Dots -->
+<div class="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-1.5">
+<div class="w-2 h-2 rounded-full bg-white"></div>
+<div class="w-2 h-2 rounded-full bg-white/40"></div>
+<div class="w-2 h-2 rounded-full bg-white/40"></div>
+</div>
+</section>
+<!-- Discovery Content -->
+<section class="discovery-sheet -mt-8 relative z-10 bg-surface px-margin-mobile pt-8 flex flex-col gap-8">
+<!-- Basic Info -->
+<div class="flex justify-between items-start">
+<div>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-primary">Kopi &amp; Kontemplasi</h1>
+<p class="text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[18px]">location_on</span>
+                        Jl. Senopati No. 42, Jakarta Selatan
+                    </p>
+</div>
+<!-- Smart Match Score -->
+<div class="match-gradient p-3 rounded-2xl flex flex-col items-center justify-center text-white shadow-lg">
+<span class="text-xs font-bold uppercase tracking-widest opacity-80">Match</span>
+<span class="text-2xl font-extrabold">85%</span>
+</div>
+</div>
+<!-- Bento Stats -->
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-surface-container p-4 rounded-3xl flex flex-col gap-2">
+<div class="flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined">filter_drama</span>
+<span class="font-bold">Atmosphere</span>
+</div>
+<span class="text-headline-sm font-headline-sm">Tenang</span>
+</div>
+<div class="bg-secondary-container p-4 rounded-3xl flex flex-col gap-2">
+<div class="flex items-center gap-2 text-on-secondary-container">
+<span class="material-symbols-outlined">star</span>
+<span class="font-bold">Rating</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="text-headline-sm font-headline-sm">4.8</span>
+<span class="text-sm opacity-60">(120 Reviews)</span>
+</div>
+</div>
+</div>
+<!-- Facilities -->
+<div class="flex flex-col gap-4">
+<h3 class="font-title-lg text-title-lg text-on-surface">Facilities</h3>
+<div class="flex flex-wrap gap-2">
+<div class="flex items-center gap-2 bg-surface-container-high px-4 py-2 rounded-full text-on-surface-variant">
+<span class="material-symbols-outlined text-[20px]">wifi</span>
+<span class="font-label-lg text-label-lg uppercase">Wifi</span>
+</div>
+<div class="flex items-center gap-2 bg-surface-container-high px-4 py-2 rounded-full text-on-surface-variant">
+<span class="material-symbols-outlined text-[20px]">ac_unit</span>
+<span class="font-label-lg text-label-lg uppercase">AC</span>
+</div>
+<div class="flex items-center gap-2 bg-surface-container-high px-4 py-2 rounded-full text-on-surface-variant">
+<span class="material-symbols-outlined text-[20px]">power</span>
+<span class="font-label-lg text-label-lg uppercase">Colokan</span>
+</div>
+<div class="flex items-center gap-2 bg-surface-container-high px-4 py-2 rounded-full text-on-surface-variant">
+<span class="material-symbols-outlined text-[20px]">local_parking</span>
+<span class="font-label-lg text-label-lg uppercase">Parkir</span>
+</div>
+</div>
+</div>
+<!-- Crowd Prediction -->
+<div class="flex flex-col gap-4">
+<div class="flex justify-between items-center">
+<h3 class="font-title-lg text-title-lg text-on-surface">Crowd Prediction</h3>
+<span class="text-sm text-primary font-bold">Today</span>
+</div>
+<div class="bg-surface-container p-6 rounded-3xl">
+<div class="flex items-end justify-between h-32 gap-2">
+<!-- Bar chart mockup -->
+<div class="flex-1 flex flex-col items-center gap-2">
+<div class="w-full bg-outline-variant/30 rounded-t-lg h-12 crowd-bar"></div>
+<span class="text-[10px] text-on-surface-variant font-bold">08:00</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-2">
+<div class="w-full bg-outline-variant/30 rounded-t-lg h-20 crowd-bar"></div>
+<span class="text-[10px] text-on-surface-variant font-bold">10:00</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-2">
+<div class="w-full bg-primary-container rounded-t-lg h-28 crowd-bar"></div>
+<span class="text-[10px] text-primary font-bold">12:00</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-2">
+<div class="w-full bg-primary rounded-t-lg h-32 crowd-bar"></div>
+<span class="text-[10px] text-primary font-bold">Now</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-2">
+<div class="w-full bg-outline-variant/30 rounded-t-lg h-16 crowd-bar"></div>
+<span class="text-[10px] text-on-surface-variant font-bold">16:00</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-2">
+<div class="w-full bg-outline-variant/30 rounded-t-lg h-10 crowd-bar"></div>
+<span class="text-[10px] text-on-surface-variant font-bold">18:00</span>
+</div>
+</div>
+<div class="mt-6 flex justify-between">
+<div class="flex items-center gap-1.5">
+<div class="w-2 h-2 rounded-full bg-outline-variant"></div>
+<span class="text-xs text-on-surface-variant">Sepi</span>
+</div>
+<div class="flex items-center gap-1.5">
+<div class="w-2 h-2 rounded-full bg-primary-container"></div>
+<span class="text-xs text-on-surface-variant">Sedang</span>
+</div>
+<div class="flex items-center gap-1.5">
+<div class="w-2 h-2 rounded-full bg-primary"></div>
+<span class="text-xs text-on-surface-variant">Ramai</span>
+</div>
+</div>
+</div>
+</div>
+<!-- User Reviews -->
+<div class="flex flex-col gap-6">
+<div class="flex justify-between items-center">
+<h3 class="font-title-lg text-title-lg text-on-surface">User Reviews</h3>
+<button class="text-primary font-bold text-sm">See All</button>
+</div>
+<!-- Review Card 1 -->
+<div class="bg-surface-container-low p-5 rounded-3xl flex flex-col gap-3">
+<div class="flex justify-between">
+<div class="flex items-center gap-3">
+<img alt="User Avatar" class="w-10 h-10 rounded-full object-cover" src="assets/AB6AXuCEzQhnkJSte-OvWQ7WWhIe0xdWYieFZudDnOxTSJz5KkiYmcicuz_UrShgi4_D83JFe_EvejqtD4rNm310q9DMFugDeDtC-c015455a7b00a9884a942cb755151956">
+<div>
+<h4 class="font-bold text-on-surface">Andra Wijaya</h4>
+<div class="flex text-primary text-[14px]">
+<span class="material-symbols-outlined fill text-[14px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined fill text-[14px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined fill text-[14px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined fill text-[14px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined fill text-[14px]" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+</div>
+</div>
+<span class="text-xs text-on-surface-variant">2 days ago</span>
+</div>
+<p class="text-on-surface-variant leading-relaxed">
+                        Tempatnya beneran tenang, cocok banget buat nugas atau remote work. Kopi susunya enak, gak terlalu manis. WiFi kenceng!
+                    </p>
+</div>
+<!-- Review Card 2 -->
+<div class="bg-surface-container-low p-5 rounded-3xl flex flex-col gap-3">
+<div class="flex justify-between">
+<div class="flex items-center gap-3">
+<img alt="User Avatar" class="w-10 h-10 rounded-full object-cover" src="assets/AB6AXuAAl83o-EAv0FIyIwpftreqElgRFVd2gbm6X0TVtKezy81IRDxKbzAqbSJZuaKSCac6cKnbyhIk6rKhHYQQYvK0McGv01Rh-a124a8286b157d12b5f92af5164cd9f4">
+<div>
+<h4 class="font-bold text-on-surface">Sisca Amalia</h4>
+<div class="flex text-primary text-[14px]">
+<span class="material-symbols-outlined fill text-[14px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined fill text-[14px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined fill text-[14px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined fill text-[14px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[14px]">star</span>
+</div>
+</div>
+</div>
+<span class="text-xs text-on-surface-variant">1 week ago</span>
+</div>
+<p class="text-on-surface-variant leading-relaxed">
+                        Interior cantik banget buat foto-foto. Tapi kalau sore rada rame, mending dateng pagian kalau mau cari spot deket colokan.
+                    </p>
+</div>
+</div>
+</section>
+</main>
+<!-- Floating Navigation Button -->
+<div class="fixed bottom-24 left-1/2 -translate-x-1/2 z-40">
+<button class="bg-primary text-on-primary flex items-center gap-3 px-8 py-4 rounded-full shadow-2xl hover:scale-105 active:scale-95 transition-all">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">near_me</span>
+<span class="font-bold tracking-wide uppercase text-sm">Navigasi</span>
+</button>
+</div>
+<!-- Bottom Navigation (Shell Only) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-margin-mobile pb-safe bg-surface h-bottom-nav-height shadow-lg">
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-5 py-1 transition-all active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">explore</span>
+<span class="font-label-lg text-label-lg">Explore</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-full px-5 py-1 transition-all active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">map</span>
+<span class="font-label-lg text-label-lg">Map</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-5 py-1 transition-all active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-label-lg text-label-lg">Events</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-5 py-1 transition-all active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-lg text-label-lg">Profile</span>
+</a>
+</nav>
+<script>
+        // Micro-interaction for the crowd bars on load
+        document.addEventListener('DOMContentLoaded', () => {
+            const bars = document.querySelectorAll('.crowd-bar');
+            bars.forEach((bar, index) => {
+                const targetHeight = bar.style.height || getComputedStyle(bar).height;
+                bar.style.height = '0px';
+                setTimeout(() => {
+                    bar.style.height = targetHeight;
+                }, 100 * index);
+            });
+        });
+
+        // Simple horizontal scroll snap behavior logic can be added here for the hero images if needed
+        // but modern browsers handle snap-x snap-mandatory natively.
+    </script>
+</body></html>

@@ -93,6 +93,249 @@ class MapsScreenState extends State<MapsScreen> {
     super.dispose();
   }
 
+  void _showRadiusPicker(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+          ),
+          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  margin: const EdgeInsets.only(bottom: 20),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFD4C3BA),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const Text(
+                'Pilih Jangkauan (Radius)',
+                style: TextStyle(
+                  color: AppTheme.primary,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
+              ),
+              const SizedBox(height: 12),
+              ..._radiusOptions.entries.map((entry) {
+                final isSelected = _selectedRadiusMeters == entry.key;
+                return ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(
+                    entry.value,
+                    style: TextStyle(
+                      color: isSelected ? AppTheme.primary : AppTheme.text,
+                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                    ),
+                  ),
+                  trailing: isSelected
+                      ? const Icon(Icons.check_circle_rounded, color: AppTheme.primary)
+                      : null,
+                  onTap: () {
+                    Navigator.pop(context);
+                    setState(() {
+                      _selectedRadiusMeters = entry.key;
+                    });
+                    _savePreferences();
+                  },
+                );
+              }),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showMapSettingsBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setModalState) {
+            return Container(
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+              ),
+              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      margin: const EdgeInsets.only(bottom: 20),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFD4C3BA),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                  const Text(
+                    'Pengaturan Tampilan Peta',
+                    style: TextStyle(
+                      color: AppTheme.primary,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  SwitchListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: Text(
+                      'Grup Marker (Clustering)',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.text,
+                        fontSize: 14,
+                      ),
+                    ),
+                    subtitle: const Text(
+                      'Mengelompokkan penanda kafe yang berdekatan agar terlihat rapi.',
+                      style: TextStyle(fontSize: 12),
+                    ),
+                    activeColor: AppTheme.primary,
+                    value: _useClustering,
+                    onChanged: (bool value) {
+                      setModalState(() {
+                        _useClustering = value;
+                      });
+                      setState(() {
+                        _useClustering = value;
+                      });
+                    },
+                  ),
+                  const Divider(color: Color(0xFFD4C3BA), height: 1),
+                  SwitchListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: Text(
+                      'Tampilkan Lingkaran Radius',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.text,
+                        fontSize: 14,
+                      ),
+                    ),
+                    subtitle: const Text(
+                      'Menampilkan area lingkaran jangkauan pencarian di peta.',
+                      style: TextStyle(fontSize: 12),
+                    ),
+                    activeColor: AppTheme.primary,
+                    value: _showCircle,
+                    onChanged: (bool value) {
+                      setModalState(() {
+                        _showCircle = value;
+                      });
+                      setState(() {
+                        _showCircle = value;
+                      });
+                      _savePreferences();
+                    },
+                  ),
+                  const Divider(color: Color(0xFFD4C3BA), height: 1),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Alat Diagnostik',
+                    style: TextStyle(
+                      color: AppTheme.textLight,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: OutlinedButton.icon(
+                      icon: const Icon(Icons.network_check_rounded, size: 18),
+                      label: const Text('Tes Koneksi Tile Peta'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppTheme.primary,
+                        side: const BorderSide(color: AppTheme.primary),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                      onPressed: () {
+                        Navigator.pop(context);
+                        _testTileFetch();
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildFilterChip({
+    required String label,
+    required IconData icon,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? AppTheme.primary : Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected ? AppTheme.primary : const Color(0xFFD4C3BA).withValues(alpha: 0.6),
+            width: 1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: AppTheme.primary.withValues(alpha: isSelected ? 0.12 : 0.04),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              label,
+              style: TextStyle(
+                color: isSelected ? Colors.white : AppTheme.text,
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(width: 4),
+            Icon(
+              icon,
+              color: isSelected ? Colors.white : AppTheme.primary,
+              size: 16,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+
   /// Public API: center the map on the current position if available.
   void centerOnUser() {
     if (_currentPosition != null) {
@@ -200,161 +443,192 @@ class MapsScreenState extends State<MapsScreen> {
             children: [
               // Search bar + map area
               Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                 child: Column(
                   children: [
                     Row(
                       children: [
                         Expanded(
-                          child: TextField(
-                            controller: _searchController,
-                            decoration: InputDecoration(
-                              hintText:
-                                  'Cari tempat atau alamat (contoh: "cafe near me")',
-                              filled: true,
-                              fillColor: Colors.white.withValues(alpha: 0.04),
-                              border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide.none),
-                              prefixIcon: const Icon(Icons.search),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(28),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppTheme.primary.withValues(alpha: 0.08),
+                                  blurRadius: 16,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                              border: Border.all(
+                                color: const Color(0xFFD4C3BA).withValues(alpha: 0.5),
+                                width: 1,
+                              ),
                             ),
-                            onChanged: (q) {
-                              _searchDebounce?.cancel();
-                              _searchDebounce = Timer(
-                                  const Duration(milliseconds: 350), () async {
-                                if (q.trim().isEmpty) {
-                                  if (!mounted) return;
-                                  setState(() => _searchSuggestions = []);
-                                  return;
-                                }
-                                try {
-                                  final res = await _places.search(q, limit: 6);
-                                  if (!mounted) return;
-                                  setState(() => _searchSuggestions = res);
-                                } catch (_) {
-                                  if (!mounted) return;
-                                  setState(() => _searchSuggestions = []);
-                                }
-                              });
-                            },
-                            onSubmitted: (q) => _searchPlace(q),
+                            child: TextField(
+                              controller: _searchController,
+                              style: TextStyle(
+                                color: AppTheme.text,
+                                fontSize: 14,
+                              ),
+                              decoration: InputDecoration(
+                                hintText: 'Cari tempat atau alamat...',
+                                hintStyle: const TextStyle(
+                                  color: AppTheme.textLight,
+                                  fontSize: 13,
+                                ),
+                                filled: true,
+                                fillColor: Colors.transparent,
+                                border: InputBorder.none,
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 14,
+                                ),
+                                prefixIcon: const Icon(
+                                  Icons.search_rounded,
+                                  color: AppTheme.primary,
+                                ),
+                                suffixIcon: _searchController.text.isNotEmpty
+                                    ? IconButton(
+                                        icon: const Icon(
+                                          Icons.clear_rounded,
+                                          color: AppTheme.textLight,
+                                        ),
+                                        onPressed: () {
+                                          _searchController.clear();
+                                          setState(() {
+                                            _searchSuggestions = [];
+                                          });
+                                        },
+                                      )
+                                    : null,
+                              ),
+                              onChanged: (q) {
+                                _searchDebounce?.cancel();
+                                _searchDebounce = Timer(
+                                    const Duration(milliseconds: 350), () async {
+                                  if (q.trim().isEmpty) {
+                                    if (!mounted) return;
+                                    setState(() => _searchSuggestions = []);
+                                    return;
+                                  }
+                                  try {
+                                    final res = await _places.search(q, limit: 6);
+                                    if (!mounted) return;
+                                    setState(() => _searchSuggestions = res);
+                                  } catch (_) {
+                                    if (!mounted) return;
+                                    setState(() => _searchSuggestions = []);
+                                  }
+                                });
+                              },
+                              onSubmitted: (q) => _searchPlace(q),
+                            ),
                           ),
                         ),
-                        const SizedBox(width: 8),
-                        ElevatedButton(
-                          onPressed: _testTileFetch,
-                          style: ElevatedButton.styleFrom(
-                              backgroundColor: AppTheme.gold,
-                              foregroundColor: Colors.black),
-                          child: const Text('Test Tile'),
+                        const SizedBox(width: 10),
+                        Container(
+                          height: 48,
+                          width: 48,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppTheme.primary.withValues(alpha: 0.08),
+                                blurRadius: 16,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                            border: Border.all(
+                              color: const Color(0xFFD4C3BA).withValues(alpha: 0.5),
+                              width: 1,
+                            ),
+                          ),
+                          child: IconButton(
+                            icon: const Icon(
+                              Icons.tune_rounded,
+                              color: AppTheme.primary,
+                            ),
+                            onPressed: () => _showMapSettingsBottomSheet(context),
+                          ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        DropdownButton<int>(
-                          value: _selectedRadiusMeters,
-                          dropdownColor: AppTheme.navy,
-                          items: _radiusOptions.entries
-                              .map((e) => DropdownMenuItem<int>(
-                                    value: e.key,
-                                    child: Text(e.value,
-                                        style: const TextStyle(
-                                            color: Colors.white)),
-                                  ))
-                              .toList(),
-                          onChanged: (v) {
-                            if (v == null) return;
-                            setState(() => _selectedRadiusMeters = v);
-                            _savePreferences();
-                          },
-                        ),
-                        const SizedBox(width: 12),
-                        const Text('Urutkan:',
-                            style: TextStyle(color: AppTheme.lightGray)),
-                        const SizedBox(width: 8),
-                        DropdownButton<String>(
-                          value: _sortBy,
-                          dropdownColor: AppTheme.navy,
-                          items: const [
-                            DropdownMenuItem(
-                                value: 'distance', child: Text('Jarak')),
-                            DropdownMenuItem(
-                                value: 'name', child: Text('Nama')),
+                    const SizedBox(height: 10),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      physics: const BouncingScrollPhysics(),
+                      child: Row(
+                        children: [
+                          _buildFilterChip(
+                            label: 'Jangkauan: ${_radiusOptions[_selectedRadiusMeters]}',
+                            icon: Icons.keyboard_arrow_down_rounded,
+                            isSelected: _selectedRadiusMeters > 0,
+                            onTap: () => _showRadiusPicker(context),
+                          ),
+                          const SizedBox(width: 8),
+                          _buildFilterChip(
+                            label: 'Urutan: ${_sortBy == 'distance' ? 'Jarak' : 'Nama'}',
+                            icon: Icons.swap_vert_rounded,
+                            isSelected: true,
+                            onTap: () {
+                              setState(() {
+                                _sortBy = _sortBy == 'distance' ? 'name' : 'distance';
+                              });
+                            },
+                          ),
+                          if (_selectedRadiusMeters > 0 && _currentPosition != null) ...[
+                            const SizedBox(width: 8),
+                            _buildFilterChip(
+                              label: 'Fit Peta',
+                              icon: Icons.center_focus_strong_rounded,
+                              isSelected: false,
+                              onTap: () {
+                                final zoom = _zoomForRadius(_selectedRadiusMeters);
+                                _mapController.move(
+                                    LatLng(_currentPosition!.latitude,
+                                        _currentPosition!.longitude),
+                                    zoom);
+                              },
+                            ),
                           ],
-                          onChanged: (v) {
-                            if (v == null) return;
-                            setState(() => _sortBy = v);
-                          },
-                        ),
-                        const Spacer(),
-                        Row(children: [
-                          IconButton(
-                            onPressed: () {
-                              setState(() => _useClustering = !_useClustering);
-                            },
-                            icon: Icon(
-                                _useClustering
-                                    ? Icons.scatter_plot
-                                    : Icons.location_on_outlined,
-                                color: Colors.white),
-                          ),
-                          const SizedBox(width: 6),
-                          IconButton(
-                            onPressed: () {
-                              setState(() => _showCircle = !_showCircle);
-                              _savePreferences();
-                            },
-                            icon: Icon(
-                                _showCircle
-                                    ? Icons.visibility
-                                    : Icons.visibility_off,
-                                color: Colors.white),
-                          ),
-                          const SizedBox(width: 6),
-                          ElevatedButton(
-                            onPressed: (_selectedRadiusMeters > 0 &&
-                                    _currentPosition != null)
-                                ? () {
-                                    final zoom =
-                                        _zoomForRadius(_selectedRadiusMeters);
-                                    _mapController.move(
-                                        LatLng(_currentPosition!.latitude,
-                                            _currentPosition!.longitude),
-                                        zoom);
-                                  }
-                                : null,
-                            style: ElevatedButton.styleFrom(
-                                backgroundColor: AppTheme.gold,
-                                foregroundColor: Colors.black),
-                            child: const Text('Fit'),
-                          ),
-                        ]),
-                        if (_selectedRadiusMeters > 0 &&
-                            _currentPosition != null)
-                          Text(
-                              'Filter ${_radiusOptions[_selectedRadiusMeters]} dari posisi',
-                              style:
-                                  const TextStyle(color: AppTheme.lightGray)),
-                      ],
+                        ],
+                      ),
                     ),
                     if (_searchSuggestions.isNotEmpty)
                       Container(
                         margin: const EdgeInsets.only(top: 8),
                         constraints: const BoxConstraints(maxHeight: 220),
                         decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.04),
-                          borderRadius: BorderRadius.circular(10),
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppTheme.primary.withValues(alpha: 0.08),
+                              blurRadius: 16,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                          border: Border.all(
+                            color: const Color(0xFFD4C3BA).withValues(alpha: 0.5),
+                            width: 1,
+                          ),
                         ),
                         child: ListView.separated(
                           shrinkWrap: true,
                           itemBuilder: (context, index) {
                             final s = _searchSuggestions[index];
                             return ListTile(
-                              title: Text(s.displayName,
-                                  maxLines: 2, overflow: TextOverflow.ellipsis),
+                              title: Text(
+                                s.displayName,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  color: AppTheme.text,
+                                  fontSize: 14,
+                                ),
+                              ),
                               onTap: () {
                                 _searchController.text = s.displayName;
                                 _searchSuggestions = [];
@@ -363,7 +637,7 @@ class MapsScreenState extends State<MapsScreen> {
                               },
                             );
                           },
-                          separatorBuilder: (_, __) => const Divider(height: 1),
+                          separatorBuilder: (_, __) => const Divider(height: 1, color: Color(0xFFD4C3BA)),
                           itemCount: _searchSuggestions.length,
                         ),
                       ),
@@ -420,72 +694,64 @@ class MapsScreenState extends State<MapsScreen> {
                                     child: const Icon(Icons.my_location_rounded,
                                         color: AppTheme.gold),
                                   ),
+                                  ...filtered.map((r) {
+                                    final c = r['cafe'] as CafeModel;
+                                    return Marker(
+                                      point: LatLng(c.latitude, c.longitude),
+                                      width: 90,
+                                      height: 75,
+                                      child: GestureDetector(
+                                        onTap: () => _onCafeTap(context, c),
+                                        child: _buildCafeMarker(context, c),
+                                      ),
+                                    );
+                                  }),
+                                ],
+                                builder: (context, markers) {
+                                  return Container(
+                                    decoration: const BoxDecoration(
+                                      color: AppTheme.primary,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: Center(
+                                      child: Text('${markers.length}',
+                                          style: const TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold)),
+                                    ),
+                                  );
+                                },
+                              ),
+                            )
+                          else
+                            MarkerLayer(
+                              markers: [
+                                if (_currentPosition != null)
+                                  Marker(
+                                    point: LatLng(_currentPosition!.latitude,
+                                        _currentPosition!.longitude),
+                                    width: 40,
+                                    height: 40,
+                                    child: Semantics(
+                                      label: 'Your location',
+                                      child: const Icon(Icons.my_location_rounded,
+                                          color: AppTheme.primary),
+                                    ),
+                                  ),
                                 ...filtered.map((r) {
                                   final c = r['cafe'] as CafeModel;
                                   return Marker(
                                     point: LatLng(c.latitude, c.longitude),
-                                    width: 56,
-                                    height: 56,
+                                    width: 90,
+                                    height: 75,
                                     child: GestureDetector(
                                       onTap: () => _onCafeTap(context, c),
-                                      child: Semantics(
-                                        label: 'Cafe ${c.name}',
-                                        child: const Icon(Icons.location_on,
-                                            color: Colors.red, size: 36),
-                                      ),
+                                      child: _buildCafeMarker(context, c),
                                     ),
                                   );
                                 }),
                               ],
-                              builder: (context, markers) {
-                                return Container(
-                                  decoration: BoxDecoration(
-                                    color: AppTheme.gold,
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: Center(
-                                    child: Text('${markers.length}',
-                                        style: const TextStyle(
-                                            color: Colors.black,
-                                            fontWeight: FontWeight.bold)),
-                                  ),
-                                );
-                              },
                             ),
-                          )
-                        else
-                          MarkerLayer(
-                            markers: [
-                              if (_currentPosition != null)
-                                Marker(
-                                  point: LatLng(_currentPosition!.latitude,
-                                      _currentPosition!.longitude),
-                                  width: 40,
-                                  height: 40,
-                                  child: Semantics(
-                                    label: 'Your location',
-                                    child: const Icon(Icons.my_location_rounded,
-                                        color: AppTheme.gold),
-                                  ),
-                                ),
-                              ...filtered.map((r) {
-                                final c = r['cafe'] as CafeModel;
-                                return Marker(
-                                  point: LatLng(c.latitude, c.longitude),
-                                  width: 56,
-                                  height: 56,
-                                  child: GestureDetector(
-                                    onTap: () => _onCafeTap(context, c),
-                                    child: Semantics(
-                                      label: 'Cafe ${c.name}',
-                                      child: const Icon(Icons.location_on,
-                                          color: Colors.red, size: 36),
-                                    ),
-                                  ),
-                                );
-                              }),
-                            ],
-                          ),
                       ],
                     ),
 
@@ -534,42 +800,142 @@ class MapsScreenState extends State<MapsScreen> {
                 flex: 1,
                 child: Container(
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                   color: AppTheme.navy,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 8.0),
-                        child: Text('Daftar Cafe Terdekat',
-                            style: TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.bold)),
+                        padding: EdgeInsets.only(bottom: 10.0),
+                        child: Text(
+                          'Daftar Cafe Terdekat',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: AppTheme.primary,
+                          ),
+                        ),
                       ),
                       Expanded(
-                        child: ListView.separated(
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          physics: const BouncingScrollPhysics(),
                           itemCount: filtered.length,
-                          separatorBuilder: (_, __) =>
-                              const Divider(color: Colors.white24),
                           itemBuilder: (context, index) {
                             final row = filtered[index];
                             final CafeModel cafe = row['cafe'] as CafeModel;
                             final double dist = row['dist'] as double;
-                            return ListTile(
-                              onTap: () => _mapController.move(
-                                  LatLng(cafe.latitude, cafe.longitude), 15),
-                              contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 4, vertical: 6),
-                              leading: const Icon(Icons.local_cafe_rounded,
-                                  color: AppTheme.gold),
-                              title: Text(cafe.name,
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold)),
-                              subtitle: Text(cafe.address,
-                                  style: const TextStyle(
-                                      color: AppTheme.lightGray)),
-                              trailing: Text(_formatDistance(dist),
-                                  style: const TextStyle(
-                                      color: AppTheme.lightGray)),
+                            final image = cafe.images.isNotEmpty ? cafe.images.first : '';
+                            
+                            return GestureDetector(
+                              onTap: () {
+                                _mapController.move(LatLng(cafe.latitude, cafe.longitude), 15);
+                                _onCafeTap(context, cafe);
+                              },
+                              child: Container(
+                                width: 290,
+                                margin: const EdgeInsets.only(right: 14, bottom: 8, top: 4),
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                decoration: AppTheme.cardDecoration(radius: 20),
+                                child: Row(
+                                  children: [
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(14),
+                                      child: Container(
+                                        width: 72,
+                                        height: 72,
+                                        color: AppTheme.secondaryContainer.withValues(alpha: 0.3),
+                                        child: image.isNotEmpty && image.startsWith('http')
+                                            ? Image.network(
+                                                image,
+                                                fit: BoxFit.cover,
+                                                errorBuilder: (_, __, ___) => const Icon(
+                                                  Icons.local_cafe_rounded,
+                                                  color: AppTheme.primary,
+                                                  size: 32,
+                                                ),
+                                              )
+                                            : const Icon(
+                                                Icons.local_cafe_rounded,
+                                                color: AppTheme.primary,
+                                                size: 32,
+                                              ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            cafe.name,
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 16,
+                                              color: AppTheme.text,
+                                            ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            cafe.address,
+                                            style: const TextStyle(
+                                              color: AppTheme.textLight,
+                                              fontSize: 11,
+                                            ),
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          const SizedBox(height: 6),
+                                          Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  const Icon(
+                                                    Icons.star_rounded,
+                                                    color: AppTheme.tertiaryContainer,
+                                                    size: 16,
+                                                  ),
+                                                  const SizedBox(width: 4),
+                                                  Text(
+                                                    '${cafe.rating}',
+                                                    style: TextStyle(
+                                                      color: AppTheme.text,
+                                                      fontSize: 12,
+                                                      fontWeight: FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              Row(
+                                                children: [
+                                                  const Icon(
+                                                    Icons.location_on_rounded,
+                                                    color: AppTheme.secondary,
+                                                    size: 12,
+                                                  ),
+                                                  const SizedBox(width: 2),
+                                                  Text(
+                                                    _formatDistance(dist),
+                                                    style: const TextStyle(
+                                                      color: AppTheme.primary,
+                                                      fontSize: 12,
+                                                      fontWeight: FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
                             );
                           },
                         ),
@@ -593,40 +959,56 @@ class MapsScreenState extends State<MapsScreen> {
       context: context,
       backgroundColor: Colors.transparent,
       builder: (_) => Container(
-        decoration: const BoxDecoration(
-          color: AppTheme.navy,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+          boxShadow: [
+            BoxShadow(
+              color: AppTheme.primary.withValues(alpha: 0.15),
+              blurRadius: 20,
+              offset: const Offset(0, -4),
+            )
+          ],
         ),
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Handle bar
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.only(bottom: 16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFD4C3BA),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(16),
                   child: Container(
-                    width: 76,
-                    height: 76,
-                    color: Colors.white.withValues(alpha: 0.06),
+                    width: 80,
+                    height: 80,
+                    color: AppTheme.secondaryContainer.withValues(alpha: 0.4),
                     child: heroImage != null && heroImage.isNotEmpty
                         ? Image.network(
                             heroImage,
                             fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => const Icon(
-                              Icons.local_cafe_rounded,
-                              color: Colors.white54,
-                            ),
                           )
                         : const Icon(
                             Icons.local_cafe_rounded,
-                            color: Colors.white54,
+                            color: AppTheme.primary,
+                            size: 32,
                           ),
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 16),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -636,48 +1018,77 @@ class MapsScreenState extends State<MapsScreen> {
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
+                          color: AppTheme.primary,
                         ),
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          const Icon(Icons.star_rounded, color: AppTheme.tertiaryContainer, size: 18),
+                          const SizedBox(width: 4),
+                          Text(c.rating.toString(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                        ],
                       ),
                       const SizedBox(height: 6),
                       Text(
                         c.address,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(color: AppTheme.lightGray),
+                        style: const TextStyle(color: AppTheme.textLight, fontSize: 13),
                       ),
                     ],
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 14),
+            const SizedBox(height: 20),
             Row(
               children: [
-                ElevatedButton(
-                  onPressed: () => Navigator.pushNamed(
-                    context,
-                    AppRoutes.cafeDetail,
-                    arguments: c,
+                Expanded(
+                  flex: 2,
+                  child: SizedBox(
+                    height: 48,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        Navigator.pushNamed(
+                          context,
+                          AppRoutes.cafeDetail,
+                          arguments: c,
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.primary,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        elevation: 0,
+                      ),
+                      child: const Text('Buka Detail Cafe', style: TextStyle(fontWeight: FontWeight.bold)),
+                    ),
                   ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.gold,
-                    foregroundColor: Colors.black,
-                  ),
-                  child: const Text('Buka detail'),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: ElevatedButton(
-                    onPressed: () async {
-                      final uri = Uri.parse(
-                        'https://www.google.com/maps/search/?api=1&query=${c.latitude},${c.longitude}',
-                      );
-                      if (await canLaunchUrl(uri)) await launchUrl(uri);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white.withValues(alpha: 0.06),
+                  child: SizedBox(
+                    height: 48,
+                    child: OutlinedButton(
+                      onPressed: () async {
+                        final uri = Uri.parse(
+                          'https://www.google.com/maps/search/?api=1&query=${c.latitude},${c.longitude}',
+                        );
+                        if (await canLaunchUrl(uri)) await launchUrl(uri);
+                      },
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppTheme.secondary,
+                        side: const BorderSide(color: AppTheme.secondary),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                      child: const Icon(Icons.directions_rounded),
                     ),
-                    child: const Icon(Icons.directions),
                   ),
                 ),
               ],
@@ -813,5 +1224,81 @@ class MapsScreenState extends State<MapsScreen> {
     return (1 - math.log(math.tan(latRad) + 1 / math.cos(latRad)) / math.pi) /
         2 *
         math.pow(2, zoom);
+  }
+
+  Widget _buildCafeMarker(BuildContext context, CafeModel c) {
+    final hasImage = c.images.isNotEmpty && c.images.first.isNotEmpty;
+
+    return Semantics(
+      label: 'Cafe ${c.name}',
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Cafe Name Bubble
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: AppTheme.primary,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: AppTheme.gold.withValues(alpha: 0.5), width: 1),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.15),
+                  blurRadius: 6,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            constraints: const BoxConstraints(maxWidth: 80),
+            child: Text(
+              c.name,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 9,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          const SizedBox(height: 4),
+          // Pin / Photo Circle
+          Container(
+            width: 38,
+            height: 38,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+              border: Border.all(color: AppTheme.gold, width: 2.5),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.2),
+                  blurRadius: 6,
+                  offset: const Offset(0, 3),
+                ),
+              ],
+            ),
+            child: ClipOval(
+              child: hasImage
+                  ? Image.network(
+                      c.images.first,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => const Icon(
+                        Icons.local_cafe_rounded,
+                        color: AppTheme.primary,
+                        size: 18,
+                      ),
+                    )
+                  : const Icon(
+                      Icons.local_cafe_rounded,
+                      color: AppTheme.primary,
+                      size: 18,
+                    ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

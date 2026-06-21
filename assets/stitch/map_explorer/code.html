@@ -1,0 +1,331 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>BrewQuest | Map Explorer</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="assets/css2-a39f5c6fcbb87b419667ec984d2e579a" rel="stylesheet">
+<link href="assets/css2-5e3775eec025c6c6d938a1a1496afc9c" rel="stylesheet">
+<link href="assets/css2-a39f5c6fcbb87b419667ec984d2e579a" rel="stylesheet">
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .fill-icon {
+            font-variation-settings: 'FILL' 1;
+        }
+        /* Custom scrollbar for discovery sheet */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        /* Map Pin Animation */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        .map-pin-active {
+            animation: pulse 2s infinite ease-in-out;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-tertiary-fixed": "#291800",
+                      "surface-bright": "#faf9f8",
+                      "surface-tint": "#79573f",
+                      "surface-container-high": "#e9e8e7",
+                      "tertiary-fixed-dim": "#e7c08e",
+                      "on-error-container": "#93000a",
+                      "on-secondary": "#ffffff",
+                      "inverse-primary": "#eabda0",
+                      "primary-fixed": "#ffdcc6",
+                      "error": "#ba1a1a",
+                      "surface-variant": "#e3e2e1",
+                      "secondary-fixed-dim": "#e3c19f",
+                      "on-tertiary-container": "#ebc491",
+                      "on-tertiary": "#ffffff",
+                      "background": "#faf9f8",
+                      "secondary-fixed": "#ffddbb",
+                      "on-primary": "#ffffff",
+                      "tertiary-container": "#6c5028",
+                      "surface-container": "#eeeeed",
+                      "on-secondary-container": "#785e42",
+                      "error-container": "#ffdad6",
+                      "secondary": "#735a3e",
+                      "primary": "#553722",
+                      "primary-container": "#6f4e37",
+                      "outline": "#82746d",
+                      "on-primary-fixed-variant": "#5f402a",
+                      "on-background": "#1a1c1c",
+                      "surface-dim": "#dadad9",
+                      "on-primary-container": "#eec1a4",
+                      "surface-container-lowest": "#ffffff",
+                      "inverse-on-surface": "#f1f0f0",
+                      "on-tertiary-fixed-variant": "#5c421b",
+                      "tertiary-fixed": "#ffddb4",
+                      "secondary-container": "#fdd9b7",
+                      "on-surface": "#1a1c1c",
+                      "surface-container-highest": "#e3e2e1",
+                      "on-error": "#ffffff",
+                      "on-surface-variant": "#50453e",
+                      "primary-fixed-dim": "#eabda0",
+                      "surface-container-low": "#f4f3f2",
+                      "on-secondary-fixed-variant": "#5a4229",
+                      "inverse-surface": "#2f3130",
+                      "on-secondary-fixed": "#291803",
+                      "on-primary-fixed": "#2d1604",
+                      "surface": "#faf9f8",
+                      "tertiary": "#533913",
+                      "outline-variant": "#d4c3ba"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "sheet-peek-height": "240px",
+                      "margin-mobile": "16px",
+                      "base": "8px",
+                      "bottom-nav-height": "80px",
+                      "margin-tablet": "24px",
+                      "gutter": "16px"
+              },
+              "fontFamily": {
+                      "headline-lg": ["Inter"],
+                      "label-lg": ["Inter"],
+                      "headline-lg-mobile": ["Inter"],
+                      "body-lg": ["Inter"],
+                      "body-md": ["Inter"],
+                      "title-lg": ["Inter"],
+                      "headline-md": ["Inter"],
+                      "headline-sm": ["Inter"]
+              },
+              "fontSize": {
+                      "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "label-lg": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                      "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
+                      "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                      "title-lg": ["18px", {"lineHeight": "24px", "fontWeight": "600"}],
+                      "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                      "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}]
+              }
+            },
+          },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background font-body-md text-on-background overflow-hidden">
+<!-- Top Navigation Bar (Shared Component Anchor) -->
+<header class="fixed top-0 w-full z-50 backdrop-blur-md bg-surface/90 shadow-sm flex justify-between items-center px-4 h-16 w-full">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary font-headline-md" data-icon="coffee">coffee</span>
+<h1 class="font-headline-md text-headline-md font-bold text-primary">BrewQuest</h1>
+</div>
+<div class="flex items-center gap-4">
+<button class="w-10 h-10 rounded-full flex items-center justify-center hover:bg-surface-container transition-colors active:scale-95 duration-150">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="notifications">notifications</span>
+</button>
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary-container">
+<img alt="User profile avatar" class="w-full h-full object-cover" src="assets/AB6AXuB32u8EoSXKJCbT0EmQN-459HtbypG0W1uHvn4Grp5jRVloUsaNwpqA-u_viu8pQU8LckVLoY9M1XMQ5H7XzRxWwUEJTuvF-b02440a161e850c3eff79ed265bda541">
+</div>
+</div>
+</header>
+<!-- Map Canvas (Main View) -->
+<main class="relative w-full h-screen pt-16 pb-bottom-nav-height">
+<!-- Mock Map Background -->
+<div class="absolute inset-0 bg-surface-container-high z-0">
+<img class="w-full h-full object-cover opacity-80 mix-blend-multiply" data-alt="A stylized aerial satellite view of a modern urban city layout with intricate canal networks, lush green parks, and high-density street blocks. The map is rendered in a soft, minimal color palette with warm beige streets and muted emerald foliage, reflecting a modern coffee house aesthetic. Subtle morning sunlight casts long, soft shadows, giving the terrain a tactile, three-dimensional quality perfect for a premium navigation interface." data-location="Amsterdam" src="assets/AB6AXuCNuSQ8psVyucOPB-3312UR_WcHlY4rizLGTy8PJYHor0NcE1BRmFQNxJBBvx5XrcrwY0JYvE_erJOzTd2jYnrgt2B9yuJY-6d95851a1decd6edb8de357b1093ab84">
+<!-- Custom Markers -->
+<!-- Marker 1: Selected -->
+<div class="absolute top-[40%] left-[35%] z-10 group cursor-pointer transition-transform hover:scale-110 active:scale-90" onclick="toggleSheet()">
+<div class="flex flex-col items-center">
+<div class="bg-primary text-on-primary p-3 rounded-full shadow-lg map-pin-active flex items-center justify-center border-2 border-white">
+<span class="material-symbols-outlined" data-icon="local_cafe" style="font-variation-settings: 'FILL' 1;">local_cafe</span>
+</div>
+<div class="mt-1 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full shadow-sm">
+<span class="font-title-lg text-primary text-[14px]">The Roast House</span>
+</div>
+<div class="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[8px] border-t-primary -mt-1"></div>
+</div>
+</div>
+<!-- Marker 2: Quiet Space -->
+<div class="absolute top-[25%] left-[60%] z-10 group cursor-pointer transition-transform hover:scale-110">
+<div class="flex flex-col items-center">
+<div class="bg-tertiary text-on-tertiary p-2 rounded-full shadow-md flex items-center justify-center border-2 border-white">
+<span class="material-symbols-outlined text-[20px]" data-icon="auto_stories">auto_stories</span>
+</div>
+</div>
+</div>
+<!-- Marker 3: Specialty -->
+<div class="absolute top-[65%] left-[20%] z-10 group cursor-pointer transition-transform hover:scale-110">
+<div class="flex flex-col items-center">
+<div class="bg-secondary text-on-secondary p-2 rounded-full shadow-md flex items-center justify-center border-2 border-white">
+<span class="material-symbols-outlined text-[20px]" data-icon="star">star</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Floating Search Bar -->
+<div class="absolute top-4 left-0 w-full px-margin-mobile z-40">
+<div class="max-w-xl mx-auto flex items-center bg-surface/90 backdrop-blur-md rounded-full px-4 py-3 shadow-lg border border-outline-variant/30 group focus-within:ring-2 focus-within:ring-primary transition-all">
+<span class="material-symbols-outlined text-on-surface-variant mr-3" data-icon="search">search</span>
+<input class="bg-transparent border-none focus:ring-0 w-full text-on-surface placeholder:text-on-surface-variant font-body-md" placeholder="Search cafes, coffee, or mood..." type="text">
+<div class="flex items-center gap-2">
+<div class="h-6 w-[1px] bg-outline-variant mx-1"></div>
+<button class="material-symbols-outlined text-primary" data-icon="tune">tune</button>
+</div>
+</div>
+<!-- Quick Filters -->
+<div class="flex gap-2 mt-4 overflow-x-auto no-scrollbar pb-2">
+<button class="bg-surface/90 backdrop-blur-md px-4 py-2 rounded-full border border-outline-variant shadow-sm flex items-center gap-2 whitespace-nowrap hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-[18px]" data-icon="wifi">wifi</span>
+<span class="text-[14px] font-semibold">Fast Wi-Fi</span>
+</button>
+<button class="bg-primary text-on-primary px-4 py-2 rounded-full shadow-sm flex items-center gap-2 whitespace-nowrap hover:opacity-90 transition-colors">
+<span class="material-symbols-outlined text-[18px]" data-icon="history_edu">history_edu</span>
+<span class="text-[14px] font-semibold">Quiet Study</span>
+</button>
+<button class="bg-surface/90 backdrop-blur-md px-4 py-2 rounded-full border border-outline-variant shadow-sm flex items-center gap-2 whitespace-nowrap hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-[18px]" data-icon="deck">deck</span>
+<span class="text-[14px] font-semibold">Outdoor</span>
+</button>
+<button class="bg-surface/90 backdrop-blur-md px-4 py-2 rounded-full border border-outline-variant shadow-sm flex items-center gap-2 whitespace-nowrap hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-[18px]" data-icon="pets">pets</span>
+<span class="text-[14px] font-semibold">Pet Friendly</span>
+</button>
+</div>
+</div>
+<!-- Location Button -->
+<button class="absolute bottom-[260px] right-margin-mobile z-40 w-14 h-14 bg-surface text-primary rounded-full shadow-lg flex items-center justify-center hover:bg-surface-container-high transition-transform active:scale-90">
+<span class="material-symbols-outlined" data-icon="my_location" style="font-variation-settings: 'FILL' 1;">my_location</span>
+</button>
+<!-- Discovery Bottom Sheet (The Google Maps influenced drawer) -->
+<div class="fixed bottom-bottom-nav-height left-0 w-full z-40 transition-transform duration-500 ease-out translate-y-0" id="bottom-sheet">
+<div class="bg-surface rounded-t-[28px] shadow-[0_-10px_40px_rgba(0,0,0,0.1)] border-t border-outline-variant/20 mx-auto max-w-2xl overflow-hidden">
+<!-- Handle -->
+<div class="w-full flex justify-center py-3" onclick="toggleSheetHeight()">
+<div class="w-10 h-1 rounded-full bg-outline-variant/50"></div>
+</div>
+<div class="px-margin-mobile pb-8">
+<!-- Cafe Preview Card -->
+<div class="flex gap-4 items-start">
+<div class="relative w-28 h-28 rounded-2xl overflow-hidden shrink-0 shadow-md">
+<img alt="Cafe interior" class="w-full h-full object-cover" data-alt="A warm and inviting specialty coffee shop interior with artisanal wooden furniture, hanging pendant lights with Edison bulbs, and a polished concrete floor. Large floor-to-ceiling windows allow natural golden hour light to flood the space, creating a cozy and modern urban aesthetic. A sleek espresso machine is visible on a marble counter in the background, reinforcing the professional yet sensory experience of a high-end local cafe." src="assets/AB6AXuCpZdrDgpeOZDYWBUBJSkIqex7ru8JjcZ-jUGkkOEHnNo81KkA2TXkx2HPhAUOhjGmdnuG4InqCNC07mZwBvCeeVwXYsvHR-c2f6eaac34ac50155dc7a459df5c222a">
+<div class="absolute top-1 right-1">
+<button class="w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center text-primary shadow-sm hover:bg-white transition-colors">
+<span class="material-symbols-outlined text-[18px]" data-icon="favorite">favorite</span>
+</button>
+</div>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<div>
+<h2 class="font-headline-sm text-headline-sm text-primary">The Roast House</h2>
+<p class="text-on-surface-variant flex items-center gap-1 text-[14px]">
+<span class="material-symbols-outlined text-[16px] text-tertiary" data-icon="star" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-bold text-on-surface">4.8</span> (124 reviews) • 0.4 mi
+                                    </p>
+</div>
+</div>
+<div class="mt-3 flex flex-wrap gap-1">
+<span class="px-2 py-0.5 rounded-md bg-secondary-container text-on-secondary-container text-[11px] font-bold uppercase tracking-wider">Specialty</span>
+<span class="px-2 py-0.5 rounded-md bg-surface-container-high text-on-surface-variant text-[11px] font-bold uppercase tracking-wider">Wi-Fi</span>
+<span class="px-2 py-0.5 rounded-md bg-surface-container-high text-on-surface-variant text-[11px] font-bold uppercase tracking-wider">Quiet</span>
+</div>
+<div class="mt-4 flex gap-2">
+<button class="flex-1 bg-primary text-on-primary py-3 rounded-full font-bold flex items-center justify-center gap-2 active:scale-95 transition-transform">
+<span class="material-symbols-outlined" data-icon="directions">directions</span>
+                                    Directions
+                                </button>
+<button class="w-12 h-12 rounded-full border-2 border-primary-container text-primary flex items-center justify-center hover:bg-primary/5 transition-colors">
+<span class="material-symbols-outlined" data-icon="share">share</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Collapsible Details Section (Visible on expand) -->
+<div class="mt-6 pt-6 border-t border-outline-variant/30 hidden" id="extra-details">
+<h3 class="font-title-lg text-primary mb-3">Today's Specials</h3>
+<div class="grid grid-cols-2 gap-3">
+<div class="p-3 bg-surface-container-low rounded-xl border border-outline-variant/20">
+<p class="text-primary font-bold">Honey Lavender Latte</p>
+<p class="text-on-surface-variant text-xs mt-1">Floral and smooth with local honey.</p>
+</div>
+<div class="p-3 bg-surface-container-low rounded-xl border border-outline-variant/20">
+<p class="text-primary font-bold">Cold Brew Flight</p>
+<p class="text-on-surface-variant text-xs mt-1">Sample 3 single-origin roasts.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation Bar (Shared Component Anchor) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-margin-mobile pb-safe bg-surface shadow-lg h-bottom-nav-height">
+<!-- Explore -->
+<button class="flex flex-col items-center justify-center text-on-surface-variant px-5 py-1 hover:bg-surface-container-high transition-all active:scale-90 duration-200">
+<span class="material-symbols-outlined" data-icon="explore">explore</span>
+<span class="font-label-lg text-label-lg mt-1">Explore</span>
+</button>
+<!-- Map (ACTIVE) -->
+<button class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-full px-5 py-1 transition-all active:scale-90 duration-200">
+<span class="material-symbols-outlined fill-icon" data-icon="map">map</span>
+<span class="font-label-lg text-label-lg mt-1">Map</span>
+</button>
+<!-- Events -->
+<button class="flex flex-col items-center justify-center text-on-surface-variant px-5 py-1 hover:bg-surface-container-high transition-all active:scale-90 duration-200">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="font-label-lg text-label-lg mt-1">Events</span>
+</button>
+<!-- Profile -->
+<button class="flex flex-col items-center justify-center text-on-surface-variant px-5 py-1 hover:bg-surface-container-high transition-all active:scale-90 duration-200">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-label-lg text-label-lg mt-1">Profile</span>
+</button>
+</nav>
+<script>
+        let isExpanded = false;
+        const sheet = document.getElementById('bottom-sheet');
+        const extraDetails = document.getElementById('extra-details');
+
+        function toggleSheet() {
+            // Simplified toggle for demonstration
+            sheet.style.transform = isExpanded ? 'translateY(0)' : 'translateY(-20px)';
+        }
+
+        function toggleSheetHeight() {
+            isExpanded = !isExpanded;
+            if (isExpanded) {
+                extraDetails.classList.remove('hidden');
+                sheet.style.transform = 'translateY(-100px)';
+            } else {
+                extraDetails.classList.add('hidden');
+                sheet.style.transform = 'translateY(0)';
+            }
+        }
+
+        // Add ripple effect or micro-interactions
+        document.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                this.classList.add('active:scale-95');
+                setTimeout(() => this.classList.remove('active:scale-95'), 200);
+            });
+        });
+    </script>
+</body></html>
